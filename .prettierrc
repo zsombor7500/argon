@@ -1,0 +1,15 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "quoteProps": "consistent",
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "objectWrap": "preserve",
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "htmlWhitespaceSensitivity": "css",
+    "endOfLine": "lf",
+    "singleAttributePerLine": false
+}
