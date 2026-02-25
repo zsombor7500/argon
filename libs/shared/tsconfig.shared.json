@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        /* Projects */
+        "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
+        /* Emit */
+        "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+        "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
+    }
+}

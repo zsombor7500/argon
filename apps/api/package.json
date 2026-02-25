@@ -1,0 +1,15 @@
+{
+    "name": "@argon/api",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "main": "./src/main.js",
+    "exports": {
+        "./config": "./src/config/index.js",
+        "./utils": "./src/utils/index.js",
+        "./model": "./src/model/index.js",
+        "./route": "./src/route/index.js",
+        "./middleware": "./src/middleware/index.js",
+        "./controller": "./src/controller/index.js"
+    }
+}
