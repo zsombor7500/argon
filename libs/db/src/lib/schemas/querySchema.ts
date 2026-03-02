@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { IQuery } from '../interfaces/index.js';
+import type { Query } from '../interfaces/index.js';
 
 
-export const querySchema = new mongoose.Schema<IQuery>({
+export const querySchema = new mongoose.Schema<Query>({
     queryId: {
         type: Schema.Types.UUID,
         index: true,

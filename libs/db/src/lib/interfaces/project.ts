@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
 
 
-export interface IProject extends Document {
+export interface Project extends Document {
     projectId: Schema.Types.UUID;
     projectGrn: string;
     name: string;

@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { IInvite } from '../interfaces/index.js';
+import type { Invite } from '../interfaces/index.js';
 
 
-export const inviteSchema = new mongoose.Schema<IInvite>({
+export const inviteSchema = new mongoose.Schema<Invite>({
     inviteId: {
         type: Schema.Types.UUID,
         index: true,

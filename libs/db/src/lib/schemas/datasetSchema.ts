@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { IDataset } from '../interfaces/index.js';
+import type { Dataset } from '../interfaces/index.js';
 
 
-export const datasetSchema = new mongoose.Schema<IDataset>({
+export const datasetSchema = new mongoose.Schema<Dataset>({
     datasetId: {
         type: Schema.Types.UUID,
         index: true,

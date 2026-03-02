@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { IUser } from '../interfaces/index.js';
+import type { User } from '../interfaces/index.js';
 
 
-export const userSchema = new mongoose.Schema<IUser>({
+export const userSchema = new mongoose.Schema<User>({
     userId: {
         type: Schema.Types.UUID,
         index: true,

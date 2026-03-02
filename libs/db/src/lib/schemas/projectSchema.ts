@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { IProject } from '../interfaces/index.js';
+import type { Project } from '../interfaces/index.js';
 
 
-export const projectSchema = new mongoose.Schema<IProject>({
+export const projectSchema = new mongoose.Schema<Project>({
     projectId: {
         type: Schema.Types.UUID,
         index: true,
