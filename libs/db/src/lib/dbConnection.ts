@@ -12,7 +12,7 @@ export const argonDbConnection: Mongoose = await mongoose.connect(`mongodb://127
     minPoolSize: dbConfig.mongoServiceDbMinPoolSize,
     maxPoolSize: dbConfig.mongoServiceDbMaxPoolSize,
     serverSelectionTimeoutMS: dbConfig.mongoSelectionTimeoutMs
-})
+});
 
 export const userContentDbConnection: Mongoose = await mongoose.connect(`mongodb://127.0.0.1:27017`, {
     dbName: dbConfig.mongoUserContentDb,
@@ -23,4 +23,4 @@ export const userContentDbConnection: Mongoose = await mongoose.connect(`mongodb
     minPoolSize: dbConfig.mongoUserContentDbMinPoolSize,
     maxPoolSize: dbConfig.mongoUserContentDbMaxPoolSize,
     serverSelectionTimeoutMS: dbConfig.mongoSelectionTimeoutMs
-})
+});

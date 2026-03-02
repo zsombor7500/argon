@@ -4,7 +4,7 @@ import { cleanEnv, num, str, port, host } from 'envalid';
 
 
 const envFilePath = path.resolve(process.cwd(), '.env');
-dotenv.config({ path: envFilePath })
+dotenv.config({ path: envFilePath });
 
 const dbEnv = cleanEnv(process.env, {
     MONGO_HOST: host(),
@@ -36,4 +36,4 @@ export const dbConfig = {
     mongoUserContentDbMinPoolSize: dbEnv.MONGO_USER_CONTENT_DB_MIN_POOL_SIZE,
     mongoUserContentDbMaxPoolSize: dbEnv.MONGO_USER_CONTENT_DB_MAX_POOL_SIZE,
     mongoSelectionTimeoutMs: dbEnv.MONGO_SELECTION_TIMEOUT_MS
-}
+};
