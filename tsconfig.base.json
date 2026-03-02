@@ -15,6 +15,10 @@
         "baseUrl": ".",
         "paths": {
             "@argon/db": ["libs/db/src/index.ts"],
+            "@argon/db/config": ["libs/db/src/lib/dbConfig.ts"],
+            "@argon/db/models": ["libs/db/src/lib/models/index.ts"],
+            "@argon/db/schemas": ["libs/db/src/lib/schemas/index.ts"],
+            "@argon/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
             "@argon/shared/models": ["libs/shared/models/src/index.ts"],
         },
 
