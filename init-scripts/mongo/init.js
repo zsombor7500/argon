@@ -1,4 +1,11 @@
-const argonDb = db.getSiblingDB('argon');
+// Argon service DB setup
+const argonDbName = process.env.MONGO_SERVICE_DB;
+if (argonDbName === undefined) {
+    print('Missing environment variable `MONGO_SERVICE_DB`');
+    process.exit(1);
+}
+
+const argonDb = db.getSiblingDB(argonDbName);
 
 
 // Users
