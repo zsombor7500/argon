@@ -48,4 +48,4 @@ export const inviteSchema = new mongoose.Schema<Invite>({
 },
 {
     timestamps: true
-})
+});

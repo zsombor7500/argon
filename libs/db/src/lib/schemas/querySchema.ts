@@ -46,4 +46,4 @@ export const querySchema = new mongoose.Schema<Query>({
 },
 {
     timestamps: true
-})
+});

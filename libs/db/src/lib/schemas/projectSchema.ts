@@ -74,4 +74,4 @@ export const projectSchema = new mongoose.Schema<Project>({
 },
 {
     timestamps: true
-})
+});
