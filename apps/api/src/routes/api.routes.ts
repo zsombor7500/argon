@@ -1,7 +1,6 @@
 import express from 'express';
 
-import { authRouter } from './auth.routes.js';
-import { userRouter, inviteRouter, projectRouter } from './resource/index.js';
+import { authRouter, userRouter, inviteRouter, projectRouter } from '#/routes';
 
 
 export const apiRouter = express.Router();

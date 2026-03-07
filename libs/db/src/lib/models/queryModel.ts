@@ -1,6 +1,6 @@
-import { querySchema } from '../schemas/index.js';
-import { argonDbConnection } from '../dbConnection.js';
-import type { Query } from '../interfaces/index.js';
+import { querySchema } from '#/db/schemas';
+import { argonDbConnection } from '#/db/connections';
+import type { Query } from '#/db/interfaces';
 
 
 export const queryModel = argonDbConnection.model<Query>('Query', querySchema);

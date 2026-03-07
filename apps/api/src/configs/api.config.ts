@@ -2,13 +2,13 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { makeValidator, cleanEnv, num, str, port, host } from 'envalid';
 
-import { versionPattern } from './constants.js';
+import { versionPattern } from '../constants/api.constant.js';
 
 
 const version = makeValidator((x: string) => {
     if (versionPattern.test(x))
         return x;
-    throw new Error(`Supplied version string did not match pattern ${versionPattern}`)
+    throw new Error(`Supplied version string did not match pattern ${versionPattern}`);
 });
 
 const envFilePath = path.resolve(process.cwd(), '.env');
@@ -35,4 +35,4 @@ export const apiConfig = {
     jwtSecretKey: apiEnv.API_JWT_SECRET_KEY,
     testUser: apiEnv.API_TEST_USERNAME,
     testPassword: apiEnv.API_TEST_PASSWORD,
-}
+};

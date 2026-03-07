@@ -6,7 +6,7 @@ import {
     createDataset,
     updateDataset,
     deleteDataset
-} from '../controller/dataset.controller.js';
+} from '#/controllers/dataset';
 
 
 export const datasetRouter = express.Router();

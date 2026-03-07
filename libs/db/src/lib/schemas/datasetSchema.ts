@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { Dataset } from '../interfaces/index.js';
+import type { Dataset } from '#/db/interfaces';
 
 
 export const datasetSchema = new mongoose.Schema<Dataset>({

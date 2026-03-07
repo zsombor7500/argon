@@ -6,7 +6,7 @@ import {
     updateInvite,
     cancelInvite,
     acceptRejectInvite
-} from '../controller/invite.controller.js';
+} from '#/controllers/invite';
 
 
 export const inviteRouter = express.Router();

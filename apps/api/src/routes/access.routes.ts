@@ -4,7 +4,7 @@ import {
     getAccesses,
     updateAccess,
     revokeAccess
-} from '../controller/access.controller.js';
+} from '#/controllers/access';
 
 
 export const accessRouter = express.Router();

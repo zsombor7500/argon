@@ -4,7 +4,7 @@ import {
     login,
     logout,
     refreshToken
-} from '../controller/auth.controller.js';
+} from '#/controllers/auth';
 
 
 export const authRouter = express.Router();

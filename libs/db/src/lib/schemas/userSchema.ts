@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { User } from '../interfaces/index.js';
+import type { User } from '#/db/interfaces';
 
 
 export const userSchema = new mongoose.Schema<User>({

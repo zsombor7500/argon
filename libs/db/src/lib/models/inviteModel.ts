@@ -1,6 +1,6 @@
-import { inviteSchema } from '../schemas/index.js';
-import { argonDbConnection } from '../dbConnection.js';
-import type { Invite } from '../interfaces/index.js';
+import { inviteSchema } from '#/db/schemas';
+import { argonDbConnection } from '#/db/connections';
+import type { Invite } from '#/db/interfaces';
 
 
 export const inviteModel = argonDbConnection.model<Invite>('Invite', inviteSchema);

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { Invite } from '../interfaces/index.js';
+import type { Invite } from '#/db/interfaces';
 
 
 export const inviteSchema = new mongoose.Schema<Invite>({

@@ -1,7 +1,7 @@
-import express from 'express'
+import express from 'express';
 
-import { apiConfig } from './api.config.js'
-import { apiRouter } from './route/index.js'
+import { apiConfig } from '#/configs/api';
+import { apiRouter } from '#/routes';
 
 
 const app = express();

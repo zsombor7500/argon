@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { Query } from '../interfaces/index.js';
+import type { Query } from '#/db/interfaces';
 
 
 export const querySchema = new mongoose.Schema<Query>({

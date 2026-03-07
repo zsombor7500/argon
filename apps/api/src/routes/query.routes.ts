@@ -6,7 +6,7 @@ import {
     updateQuery,
     deleteQuery,
     executeQuery
-} from '../controller/query.controller.js';
+} from '#/controllers/query';
 
 
 export const queryRouter = express.Router();

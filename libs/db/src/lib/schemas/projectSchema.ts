@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { Project } from '../interfaces/index.js';
+import type { Project } from '#/db/interfaces';
 
 
 export const projectSchema = new mongoose.Schema<Project>({
