@@ -5,7 +5,7 @@ import {
     createProject,
     updateProject,
     deleteProject
-} from '../../controller/project.controller.js';
+} from '../controller/project.controller.js';
 import { accessRouter, datasetRouter, queryRouter } from './index.js';
 
 
