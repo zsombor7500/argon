@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import mongoose, { Schema } from 'mongoose';
 
 import type { IInvite } from '#/db/interfaces';
@@ -5,10 +7,10 @@ import type { IInvite } from '#/db/interfaces';
 
 export const inviteSchema = new mongoose.Schema<IInvite>({
     inviteId: {
-        type: Schema.Types.UUID,
+        type: String,
         index: true,
         unique: [true, '`inviteId` must be unique'],
-        required: [true, '`inviteId` must be provided']
+        default: () => crypto.randomUUID()
     },
     inviteGrn: {
         type: String,

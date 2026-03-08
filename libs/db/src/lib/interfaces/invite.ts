@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 
 export interface IInvite extends Document {
-    inviteId: Schema.Types.UUID;
+    inviteId: string;
     inviteGrn: string;
     name: string;
     description?: string;

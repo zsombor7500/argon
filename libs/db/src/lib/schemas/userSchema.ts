@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import mongoose, { Schema } from 'mongoose';
 
 import type { IUser } from '#/db/interfaces';
@@ -5,10 +7,10 @@ import type { IUser } from '#/db/interfaces';
 
 export const userSchema = new mongoose.Schema<IUser>({
     userId: {
-        type: Schema.Types.UUID,
+        type: String,
         index: true,
         unique: [true, '`userId` must be unique'],
-        required: [true, '`userId` must be provided']
+        default: () => crypto.randomUUID()
     },
     userGrn: {
         type: String,

@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 
 export interface IQuery extends Document {
-    queryId: Schema.Types.UUID;
+    queryId: string;
     queryGrn: string;
     name: string;
     description?: string;

@@ -19,7 +19,7 @@ db.createCollection('users', {
             additionalProperties: true,
             properties: {
                 userId: {
-                    bsonType: 'binData',
+                    bsonType: 'string',
                     description: 'User UUID (subtype 4) - required'
                 },
                 userGrn: {
@@ -114,7 +114,7 @@ db.createCollection('projects', {
             additionalProperties: true,
             properties: {
                 projectId: {
-                    bsonType: 'binData',
+                    bsonType: 'string',
                     description: 'Project UUID (subtype 4) - required'
                 },
                 projectGrn: {
@@ -199,8 +199,8 @@ db.createCollection('invites', {
             additionalProperties: true,
             properties: {
                 inviteId: {
-                    bsonType: 'binData',
-                    description: 'Invite UUID - required'
+                    bsonType: 'string',
+                    description: 'Invite UUID (subtype 4) - required'
                 },
                 inviteGrn: {
                     bsonType: 'string',
@@ -264,8 +264,8 @@ db.createCollection('datasets', {
             additionalProperties: true,
             properties: {
                 datasetId: {
-                    bsonType: 'binData',
-                    description: 'Dataset UUID - required'
+                    bsonType: 'string',
+                    description: 'Dataset UUID (subtype 4) - required'
                 },
                 datasetGrn: {
                     bsonType: 'string',
@@ -328,8 +328,8 @@ db.createCollection('queries', {
             additionalProperties: true,
             properties: {
                 queryId: {
-                    bsonType: 'binData',
-                    description: 'Query UUID - required'
+                    bsonType: 'string',
+                    description: 'Query UUID (subtype 4) - required'
                 },
                 queryGrn: {
                     bsonType: 'string',

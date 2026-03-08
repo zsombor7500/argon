@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import mongoose, { Schema } from 'mongoose';
 
 import type { IQuery } from '#/db/interfaces';
@@ -5,10 +7,10 @@ import type { IQuery } from '#/db/interfaces';
 
 export const querySchema = new mongoose.Schema<IQuery>({
     queryId: {
-        type: Schema.Types.UUID,
+        type: String,
         index: true,
         unique: [true, '`queryId` must be unique'],
-        required: [true, '`queryId` must be provided']
+        default: () => crypto.randomUUID()
     },
     queryGrn: {
         type: String,

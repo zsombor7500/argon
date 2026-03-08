@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import mongoose, { Schema } from 'mongoose';
 
 import type { IProject } from '#/db/interfaces';
@@ -5,10 +7,10 @@ import type { IProject } from '#/db/interfaces';
 
 export const projectSchema = new mongoose.Schema<IProject>({
     projectId: {
-        type: Schema.Types.UUID,
+        type: String,
         index: true,
         unique: [true, '`projectId` must be unique'],
-        required: [true, '`projectId` must be provided']
+        default: () => crypto.randomUUID()
     },
     projectGrn: {
         type: String,

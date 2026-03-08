@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 
 export interface IDataset extends Document {
-    datasetId: Schema.Types.UUID;
+    datasetId: string;
     datasetGrn: string;
     name: string;
     description?: string;
