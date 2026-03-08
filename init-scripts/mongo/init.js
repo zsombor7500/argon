@@ -91,8 +91,14 @@ db.createCollection('users', {
     }
 });
 
-db.users.createIndex({ userId: 1 }, { unique: true });
-db.users.createIndex({ email: 1 }, { unique: true });
+db.users.createIndex(
+    { userId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
+db.users.createIndex(
+    { email: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Users init completed');
 
@@ -174,7 +180,10 @@ db.createCollection('projects', {
     }
 });
 
-db.projects.createIndex({ projectId: 1 }, { unique: true });
+db.projects.createIndex(
+    { projectId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Projects init completed');
 
@@ -236,7 +245,10 @@ db.createCollection('invites', {
     }
 });
 
-db.invites.createIndex({ inviteId: 1 }, { unique: true });
+db.invites.createIndex(
+    { inviteId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Invites init completed');
 
@@ -297,7 +309,10 @@ db.createCollection('datasets', {
     }
 });
 
-db.datasets.createIndex({ datasetId: 1 }, { unique: true });
+db.datasets.createIndex(
+    { datasetId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Datasets init completed');
 
@@ -362,7 +377,10 @@ db.createCollection('queries', {
     }
 });
 
-db.queries.createIndex({ queryId: 1 }, { unique: true });
+db.queries.createIndex(
+    { queryId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Queries init completed');
 
