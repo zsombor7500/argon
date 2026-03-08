@@ -3,4 +3,4 @@ import { argonDbConnection } from '#/db/connections';
 import type { Project } from '#/db/interfaces';
 
 
-export const projectModel = argonDbConnection.model<Project>('Project', projectSchema);
+export const ProjectModel = argonDbConnection.model<Project>('Project', projectSchema);

@@ -1,5 +1,5 @@
-export { userModel } from './userModel.js';
-export { queryModel } from './queryModel.js';
-export { inviteModel } from './inviteModel.js';
-export { datasetModel } from './datasetModel.js';
-export { projectModel } from './projectModel.js';
+export { UserModel } from './userModel.js';
+export { QueryModel } from './queryModel.js';
+export { InviteModel } from './inviteModel.js';
+export { DatasetModel } from './datasetModel.js';
+export { ProjectModel } from './projectModel.js';
