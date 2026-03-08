@@ -2,13 +2,13 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { makeValidator, cleanEnv, num, str, port, host } from 'envalid';
 
-import { versionPattern } from '../constants/api.constant.js';
+import { VERSION_PATTERN } from '../constants/api.constant.js';
 
 
 const version = makeValidator((x: string) => {
-    if (versionPattern.test(x))
+    if (VERSION_PATTERN.test(x))
         return x;
-    throw new Error(`Supplied version string did not match pattern ${versionPattern}`);
+    throw new Error(`Supplied version string did not match pattern ${VERSION_PATTERN}`);
 });
 
 const envFilePath = path.resolve(process.cwd(), '.env');
@@ -18,6 +18,7 @@ const apiEnv = cleanEnv(process.env, {
     API_HOST: host(),
     API_PORT: port(),
     API_VERSION: version(),
+    API_SALT_ROUNDS: num(),
     API_JWT_EXPIRY: num(),
     API_JWT_SECRET_KEY: str(),
     API_TEST_USERNAME: str(),
@@ -31,6 +32,7 @@ export const apiConfig = {
     host: apiEnv.API_HOST,
     port: apiEnv.API_PORT,
     version: apiEnv.API_VERSION,
+    saltRounds: apiEnv.API_SALT_ROUNDS,
     jwtExpiry: apiEnv.API_JWT_EXPIRY,
     jwtSecretKey: apiEnv.API_JWT_SECRET_KEY,
     testUser: apiEnv.API_TEST_USERNAME,
