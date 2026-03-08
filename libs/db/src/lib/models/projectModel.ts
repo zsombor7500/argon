@@ -1,6 +1,6 @@
 import { projectSchema } from '#/db/schemas';
 import { argonDbConnection } from '#/db/connections';
-import type { Project } from '#/db/interfaces';
+import type { IProject } from '#/db/interfaces';
 
 
-export const ProjectModel = argonDbConnection.model<Project>('Project', projectSchema);
+export const Project = argonDbConnection.model<IProject>('Project', projectSchema);

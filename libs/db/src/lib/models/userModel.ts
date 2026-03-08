@@ -1,6 +1,6 @@
 import { userSchema } from '#/db/schemas';
 import { argonDbConnection } from '#/db/connections';
-import type { User } from '#/db/interfaces';
+import type { IUser } from '#/db/interfaces';
 
 
-export const UserModel = argonDbConnection.model<User>('User', userSchema);
+export const User = argonDbConnection.model<IUser>('User', userSchema);

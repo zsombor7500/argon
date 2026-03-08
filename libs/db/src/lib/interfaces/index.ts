@@ -1,5 +1,5 @@
-export type { User } from './user.js';
-export type { Query } from './query.js';
-export type { Invite } from './invite.js';
-export type { Dataset } from './dataset.js';
-export type { Project } from './project.js';
+export type { IUser } from './user.js';
+export type { IQuery } from './query.js';
+export type { IInvite } from './invite.js';
+export type { IDataset } from './dataset.js';
+export type { IProject } from './project.js';

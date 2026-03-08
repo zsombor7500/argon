@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
-import type { Invite } from '#/db/interfaces';
+import type { IInvite } from '#/db/interfaces';
 
 
-export const inviteSchema = new mongoose.Schema<Invite>({
+export const inviteSchema = new mongoose.Schema<IInvite>({
     inviteId: {
         type: Schema.Types.UUID,
         index: true,
