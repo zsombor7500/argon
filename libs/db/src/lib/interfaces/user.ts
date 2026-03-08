@@ -8,7 +8,7 @@ export interface User extends Document {
     displayName: string;
     firstName?: string;
     lastName?: string;
-    email?: string;
+    email: string;
     passwordHash: string;
     description?: string;
     projectObjIds?: [Schema.Types.ObjectId];

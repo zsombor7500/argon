@@ -37,7 +37,8 @@ export const userSchema = new mongoose.Schema<User>({
     },
     email: {
         type: String,
-        required: false,
+        required: true,
+        unique: [true, '`email` must be unique'],
         pattern: '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/'
     },
     passwordHash: {

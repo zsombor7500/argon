@@ -15,7 +15,7 @@ db.createCollection('users', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['userId', 'userGrn', 'username', 'displayName', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['userId', 'userGrn', 'username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
                 userId: {
@@ -92,6 +92,7 @@ db.createCollection('users', {
 });
 
 db.users.createIndex({ userId: 1 }, { unique: true });
+db.users.createIndex({ email: 1 }, { unique: true });
 
 print('Users init completed');
 
