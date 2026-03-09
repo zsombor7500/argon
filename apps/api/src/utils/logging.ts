@@ -4,13 +4,13 @@ import winston from 'winston';
 import { apiConfig } from '#/configs/api';
 
 
-const { combine, timestamp, json } = winston.format;
+const { combine, timestamp } = winston.format;
 
 export const logger = winston.createLogger({
     level: apiConfig.logLevel,
     format: combine(
         timestamp(),
-        json()
+        apiConfig.logFormat
     ),
     transports: [
         new winston.transports.Console()

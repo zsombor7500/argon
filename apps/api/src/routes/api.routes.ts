@@ -1,6 +1,7 @@
 import morgan from 'morgan';
 import express from 'express';
 
+import { errorHandler } from '#/middlewares';
 import { winstonHttpLogStream } from '#/utils/api';
 import { authRouter, userRouter, inviteRouter, projectRouter } from '#/routes';
 
@@ -13,3 +14,4 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/invites', inviteRouter);
 apiRouter.use('/projects', projectRouter);
+apiRouter.use(errorHandler);

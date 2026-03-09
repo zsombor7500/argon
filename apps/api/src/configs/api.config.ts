@@ -1,8 +1,10 @@
 import path from 'path';
+
 import dotenv from 'dotenv';
+import winston from 'winston';
 import { makeValidator, cleanEnv, num, str, port, host } from 'envalid';
 
-import { VERSION_PATTERN } from '../constants/api.constant.js';
+import { VERSION_PATTERN } from '#/constants/api';
 
 
 const version = makeValidator((x: string) => {
@@ -29,6 +31,8 @@ export const apiConfig = {
     isDev: apiEnv.isDevelopment,
     isQa: apiEnv.isTest,
     isProd: apiEnv.isProduction,
+    logLevel: apiEnv.isProduction ? 'info' : 'debug',
+    logFormat: apiEnv.isProduction ? winston.format.json() : winston.format.cli(),
     host: apiEnv.API_HOST,
     port: apiEnv.API_PORT,
     version: apiEnv.API_VERSION,
