@@ -5,14 +5,15 @@ import { ApiError } from '#/exceptions/api';
 import type { ApiResponse } from '#/dto/api';
 
 
-export function errorHandler(error: ApiError, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(error: Error | ApiError, _req: Request, res: Response, _next: NextFunction) {
+    const statusCode = error instanceof ApiError ? error.statusCode : 500;
     logger.error(error.message, {
-        statusCode: error.statusCode,
-        details: error.details
+        statusCode: statusCode,
+        details: error instanceof ApiError ? error.details : {}
     });
-    const resBody: ApiResponse<any> = {
+    const response: ApiResponse<any> = {
         success: false,
-        error: error.message
+        error: error instanceof ApiError ? error.message : 'INTERNAL_ERROR'
     };
-    return res.status(error.statusCode).json(resBody);
+    return res.status(statusCode).json(response);
 }

@@ -2,12 +2,12 @@ export interface ApiErrorOptions {
     message: string;
     statusCode?: number;
     errorCode?: string;
-    details?: object;
+    details: unknown;
 }
 
 export class ApiError extends Error {
     public readonly statusCode: number;
-    public readonly details: object;
+    public readonly details: unknown;
 
     constructor({
         message,
