@@ -16,6 +16,7 @@
         "paths": {
             "#/routes": ["apps/api/src/routes/index.ts"],
             "#/middlewares": ["apps/api/src/middlewares/index.ts"],
+
             "#/controllers/auth": ["apps/api/src/controllers/auth.controller.ts"],
             "#/controllers/user": ["apps/api/src/controllers/user.controller.ts"],
             "#/controllers/query": ["apps/api/src/controllers/query.controller.ts"],
@@ -23,16 +24,24 @@
             "#/controllers/invite": ["apps/api/src/controllers/invite.controller.ts"],
             "#/controllers/dataset": ["apps/api/src/controllers/dataset.controller.ts"],
             "#/controllers/project": ["apps/api/src/controllers/project.controller.ts"],
+
             "#/db/models": ["libs/db/src/lib/models/index.ts"],
             "#/db/schemas": ["libs/db/src/lib/schemas/index.ts"],
             "#/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
+
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
+            "#/dto/user": ["libs/shared/dtos/src/lib/dtos/user.dto.ts"],
+
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
+
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
+
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
+            "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
+
             "#/exceptions/api": ["apps/api/src/exceptions/api.exception.ts"],
         },
 
