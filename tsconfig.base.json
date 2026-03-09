@@ -28,6 +28,7 @@
             "#/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
+            "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
