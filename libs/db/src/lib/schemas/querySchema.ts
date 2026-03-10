@@ -1,7 +1,6 @@
-import crypto from 'crypto';
+import mongoose, { Types } from 'mongoose';
 
-import mongoose, { Schema } from 'mongoose';
-
+import { createId } from '#/utils/db';
 import type { IQuery } from '#/db/interfaces';
 
 
@@ -10,10 +9,12 @@ export const querySchema = new mongoose.Schema<IQuery>({
         type: String,
         index: true,
         unique: [true, '`queryId` must be unique'],
-        default: () => crypto.randomUUID()
+        default: () => createId()
     },
     queryGrn: {
         type: String,
+        index: true,
+        unique: [true, '`queryGrn` must be unique'],
         required: [true, '`queryGrn` must be provided'],
         minlength: [1, '`queryGrn` must be at least 1 characters long']
     },
@@ -28,16 +29,16 @@ export const querySchema = new mongoose.Schema<IQuery>({
         minlength: [1, '`description` must be at least 1 characters long']
     },
     baseDatasetObjId: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'datasets',
         required: [true, '`baseDatasetObjId` must be provided']
     },
     query: {
-        type: Schema.Types.Mixed,
+        type: Object,
         required: [true, '`query` must be provided']
     },
     projections: {
-        type: Schema.Types.Mixed,
+        type: Object,
         required: [true, '`projections` must be provided']
     },
     archivedAt: {

@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Document } from 'mongoose';
 
 
 export interface IDataset extends Document {
@@ -7,7 +7,7 @@ export interface IDataset extends Document {
     name: string;
     description?: string;
     collectionRef: string;
-    mongooseSchema: Schema.Types.Mixed;
+    mongooseSchema: object;
     createdAt?: Date;
     updatedAt?: Date;
     archivedAt?: Date;

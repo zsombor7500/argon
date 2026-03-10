@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 
 export interface IInvite extends Document {
@@ -6,9 +6,9 @@ export interface IInvite extends Document {
     inviteGrn: string;
     name: string;
     description?: string;
-    invitantObjId: Schema.Types.ObjectId;
-    invitedObjId: Schema.Types.ObjectId;
-    projectObjId: Schema.Types.ObjectId;
+    invitantObjId: Types.ObjectId;
+    invitedObjId: Types.ObjectId;
+    projectObjId: Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
     archivedAt?: Date;

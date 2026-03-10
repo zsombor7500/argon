@@ -1,7 +1,7 @@
-import crypto from 'crypto';
+import mongoose, { Types } from 'mongoose';
 
-import mongoose, { Schema } from 'mongoose';
-
+import { createId } from '#/utils/db';
+import { ProjectScopeSchema } from '#/dto/scope';
 import type { IProject } from '#/db/interfaces';
 
 
@@ -10,10 +10,12 @@ export const projectSchema = new mongoose.Schema<IProject>({
         type: String,
         index: true,
         unique: [true, '`projectId` must be unique'],
-        default: () => crypto.randomUUID()
+        default: () => createId()
     },
     projectGrn: {
         type: String,
+        index: true,
+        unique: [true, '`projectGrn` must be unique'],
         required: [true, '`projectGrn` must be provided'],
         minlength: [1, '`projectGrn` must be at least 1 characters long']
     },
@@ -23,7 +25,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
         minlength: [1, '`name` must be at least 1 characters long']
     },
     ownerObjId: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'users',
         required: [true, '`ownerObjId` must be provided']
     },
@@ -34,16 +36,28 @@ export const projectSchema = new mongoose.Schema<IProject>({
     },
     roleToUserObjIdsMap: {
         type: Map,
-        of: {
-            type: Schema.Types.ObjectId,
+        of: [{
+            type: Types.ObjectId,
             ref: 'users'
-        },
+        }],
+        required: [true, '`roleToUserObjIdsMap` must be provided']
+    },
+    roleToScopesMap: {
+        type: Map,
+        of: [{
+            type: ProjectScopeSchema
+        }],
         required: false,
-        default: {} // TODO: Add default roles + owner
+        default: {
+            'admin': [
+                'project:all'
+            ],
+            'default': []
+        }
     },
     queryObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'queries'
         }],
         required: false,
@@ -52,7 +66,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
     },
     datasetObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'datasets'
         }],
         required: false,
@@ -61,7 +75,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
     },
     inviteObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'invites'
         }],
         required: false,

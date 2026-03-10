@@ -1,7 +1,6 @@
-import crypto from 'crypto';
+import mongoose, { Types } from 'mongoose';
 
-import mongoose, { Schema } from 'mongoose';
-
+import { createId } from '#/utils/db';
 import type { IUser } from '#/db/interfaces';
 
 
@@ -10,10 +9,12 @@ export const userSchema = new mongoose.Schema<IUser>({
         type: String,
         index: true,
         unique: [true, '`userId` must be unique'],
-        default: () => crypto.randomUUID()
+        default: () => createId()
     },
     userGrn: {
         type: String,
+        index: true,
+        unique: [true, '`userGrn` must be unique'],
         required: [true, '`userGrn` must be provided'],
         minlength: [1, '`userGrn` must be at least 1 characters long']
     },
@@ -39,8 +40,9 @@ export const userSchema = new mongoose.Schema<IUser>({
     },
     email: {
         type: String,
-        required: true,
+        index: true,
         unique: [true, '`email` must be unique'],
+        required: [true, '`email` must be provided'],
         pattern: '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/'
     },
     passwordHash: {
@@ -55,7 +57,7 @@ export const userSchema = new mongoose.Schema<IUser>({
     },
     projectObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'projects'
         }],
         required: false,
@@ -64,7 +66,7 @@ export const userSchema = new mongoose.Schema<IUser>({
     },
     inviteObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'invites'
         }],
         required: false,

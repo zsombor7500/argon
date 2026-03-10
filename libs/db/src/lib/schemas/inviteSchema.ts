@@ -1,7 +1,6 @@
-import crypto from 'crypto';
+import mongoose, { Types } from 'mongoose';
 
-import mongoose, { Schema } from 'mongoose';
-
+import { createId } from '#/utils/db';
 import type { IInvite } from '#/db/interfaces';
 
 
@@ -10,10 +9,12 @@ export const inviteSchema = new mongoose.Schema<IInvite>({
         type: String,
         index: true,
         unique: [true, '`inviteId` must be unique'],
-        default: () => crypto.randomUUID()
+        default: () => createId()
     },
     inviteGrn: {
         type: String,
+        index: true,
+        unique: [true, '`inviteGrn` must be unique'],
         required: [true, '`inviteGrn` must be provided'],
         minlength: [1, '`inviteGrn` must be at least 1 characters long']
     },
@@ -28,17 +29,17 @@ export const inviteSchema = new mongoose.Schema<IInvite>({
         minlength: [1, '`description` must be at least 1 characters long']
     },
     invitantObjId: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'users',
         required: [true, '`invitantObjId` must be provided']
     },
     invitedObjId: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'users',
         required: [true, '`invitedObjId` must be provided']
     },
     projectObjId: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'projects',
         required: [true, '`projectObjId` must be provided']
     },

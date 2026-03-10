@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 
 export interface IUser extends Document {
@@ -11,8 +11,8 @@ export interface IUser extends Document {
     email: string;
     passwordHash: string;
     description?: string;
-    projectObjIds?: [Schema.Types.ObjectId];
-    inviteObjIds?: [Schema.Types.ObjectId];
+    projectObjIds?: [Types.ObjectId];
+    inviteObjIds?: [Types.ObjectId];
     createdAt?: Date;
     updatedAt?: Date;
     archivedAt?: Date;

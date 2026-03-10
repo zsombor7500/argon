@@ -1,7 +1,6 @@
-import crypto from 'crypto';
+import mongoose from 'mongoose';
 
-import mongoose, { Schema } from 'mongoose';
-
+import { createId } from '#/utils/db';
 import type { IDataset } from '#/db/interfaces';
 
 
@@ -10,10 +9,12 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
         type: String,
         index: true,
         unique: [true, '`datasetId` must be unique'],
-        default: () => crypto.randomUUID()
+        default: () => createId()
     },
     datasetGrn: {
         type: String,
+        index: true,
+        unique: [true, '`datasetGrn` must be unique'],
         required: [true, '`datasetGrn` must be provided'],
         minlength: [1, '`datasetGrn` must be at least 1 characters long']
     },
@@ -32,7 +33,7 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
         required: [true, '`collectionRef` must be provided']
     },
     mongooseSchema: {
-        type: Schema.Types.Mixed,
+        type: Object,
         required: false,
         default: {}
     },

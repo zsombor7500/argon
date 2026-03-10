@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 
 export interface IQuery extends Document {
@@ -6,9 +6,9 @@ export interface IQuery extends Document {
     queryGrn: string;
     name: string;
     description?: string;
-    baseDatasetObjId: Schema.Types.ObjectId;
-    query: Schema.Types.Mixed;
-    projections: Schema.Types.Mixed;
+    baseDatasetObjId: Types.ObjectId;
+    query: object;
+    projections: object;
     createdAt?: Date;
     updatedAt?: Date;
     archivedAt?: Date;
