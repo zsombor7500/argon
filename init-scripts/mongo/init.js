@@ -96,6 +96,10 @@ db.users.createIndex(
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
 db.users.createIndex(
+    { userGrn: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
+db.users.createIndex(
     { email: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
@@ -184,6 +188,10 @@ db.projects.createIndex(
     { projectId: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
+db.projects.createIndex(
+    { projectGrn: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Projects init completed');
 
@@ -249,6 +257,10 @@ db.invites.createIndex(
     { inviteId: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
+db.invites.createIndex(
+    { inviteGrn: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
 
 print('Invites init completed');
 
@@ -311,6 +323,10 @@ db.createCollection('datasets', {
 
 db.datasets.createIndex(
     { datasetId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
+db.datasets.createIndex(
+    { datasetGrn: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
 
@@ -379,6 +395,10 @@ db.createCollection('queries', {
 
 db.queries.createIndex(
     { queryId: 1 },
+    { unique: true, partialFilterExpression: { archivedAt: null } }
+);
+db.queries.createIndex(
+    { queryGrn: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
 
