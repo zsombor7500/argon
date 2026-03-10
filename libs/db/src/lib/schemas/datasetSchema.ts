@@ -33,7 +33,8 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
     },
     mongooseSchema: {
         type: Schema.Types.Mixed,
-        required: [true, '`mongooseSchema` must be provided']
+        required: false,
+        default: {}
     },
     archivedAt: {
         type: Date,
