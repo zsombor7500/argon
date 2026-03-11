@@ -1,7 +1,7 @@
 import mongoose, { Types } from 'mongoose';
 
 import { createId } from '#/utils/db';
-import { ProjectScopeSchema } from '#/dto/scope';
+import { ProjectScope } from '../dtos/scope.dto.js';
 import type { IProject } from '#/db/interfaces';
 
 
@@ -26,7 +26,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
     },
     ownerObjId: {
         type: Types.ObjectId,
-        ref: 'users',
+        ref: 'User',
         required: [true, '`ownerObjId` must be provided']
     },
     description: {
@@ -34,31 +34,33 @@ export const projectSchema = new mongoose.Schema<IProject>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
+    userIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'User'
+        }],
+        required: [true, '`users` must be provided']
+    },
     roleToUserObjIdsMap: {
         type: Map,
         of: [{
             type: Types.ObjectId,
-            ref: 'users'
+            ref: 'User'
         }],
         required: [true, '`roleToUserObjIdsMap` must be provided']
     },
     roleToScopesMap: {
         type: Map,
         of: [{
-            type: ProjectScopeSchema
+            type: String,
+            enum: ProjectScope
         }],
-        required: false,
-        default: {
-            'admin': [
-                'project:all'
-            ],
-            'default': []
-        }
+        required: [true, '`roleToScopesMap` must be provided']
     },
     queryObjIds: {
         type: [{
             type: Types.ObjectId,
-            ref: 'queries'
+            ref: 'Query'
         }],
         required: false,
         minItems: 0,
@@ -67,7 +69,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
     datasetObjIds: {
         type: [{
             type: Types.ObjectId,
-            ref: 'datasets'
+            ref: 'Dataset'
         }],
         required: false,
         minItems: 0,
@@ -76,7 +78,7 @@ export const projectSchema = new mongoose.Schema<IProject>({
     inviteObjIds: {
         type: [{
             type: Types.ObjectId,
-            ref: 'invites'
+            ref: 'Invite'
         }],
         required: false,
         minItems: 0,

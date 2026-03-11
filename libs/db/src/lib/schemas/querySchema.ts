@@ -30,7 +30,7 @@ export const querySchema = new mongoose.Schema<IQuery>({
     },
     baseDatasetObjId: {
         type: Types.ObjectId,
-        ref: 'datasets',
+        ref: 'Dataset',
         required: [true, '`baseDatasetObjId` must be provided']
     },
     query: {

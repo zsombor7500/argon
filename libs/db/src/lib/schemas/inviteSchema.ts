@@ -30,17 +30,17 @@ export const inviteSchema = new mongoose.Schema<IInvite>({
     },
     invitantObjId: {
         type: Types.ObjectId,
-        ref: 'users',
+        ref: 'User',
         required: [true, '`invitantObjId` must be provided']
     },
     invitedObjId: {
         type: Types.ObjectId,
-        ref: 'users',
+        ref: 'User',
         required: [true, '`invitedObjId` must be provided']
     },
     projectObjId: {
         type: Types.ObjectId,
-        ref: 'projects',
+        ref: 'Project',
         required: [true, '`projectObjId` must be provided']
     },
     archivedAt: {

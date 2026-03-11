@@ -58,7 +58,7 @@ export const userSchema = new mongoose.Schema<IUser>({
     projectObjIds: {
         type: [{
             type: Types.ObjectId,
-            ref: 'projects'
+            ref: 'Project'
         }],
         required: false,
         minItems: 0,
@@ -67,7 +67,7 @@ export const userSchema = new mongoose.Schema<IUser>({
     inviteObjIds: {
         type: [{
             type: Types.ObjectId,
-            ref: 'invites'
+            ref: 'Invite'
         }],
         required: false,
         minItems: 0,

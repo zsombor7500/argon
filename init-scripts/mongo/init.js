@@ -140,6 +140,12 @@ db.createCollection('projects', {
                     minLength: 1,
                     description: 'Project description'
                 },
+                userObjIds: {
+                    bsonType: 'array',
+                    minItems: 1,
+                    items: { bsonType: 'objectId' },
+                    description: 'User ObjectIds - required'
+                },
                 roleToUserObjIdsMap: {
                     bsonType: 'object',
                     additionalProperties: {
