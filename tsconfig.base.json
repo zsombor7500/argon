@@ -32,6 +32,7 @@
 
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
             "#/dto/user": ["libs/shared/dtos/src/lib/dtos/user.dto.ts"],
+            "#/dto/auth": ["libs/shared/dtos/src/lib/dtos/auth.dto.ts"],
 
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
