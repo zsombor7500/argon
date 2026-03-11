@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 import type { Request, Response, NextFunction } from 'express';
 
 import {
@@ -11,13 +9,15 @@ import {
 import { User } from '#/db/models';
 import { hashText } from '#/utils/api';
 import { ApiError } from '#/exceptions/api';
-import { isDuplicateKeyError } from '#/utils/db';
+import { createId, isDuplicateKeyError } from '#/utils/db';
 import type { IUser } from '#/db/interfaces';
-import type { UserProfile } from '#/dto/user';
 import type { ApiResponseSuccess } from '#/dto/api';
+import type { UserProfileDtoType } from '#/dto/user';
+import { jwtMatchesUserId } from '../utils/authorization.js';
 
 
 export async function createUser(req: Request, res: Response, next: NextFunction) {
+    // Validation
     const userCredentialsParse = UserRegistrationDto.safeParse(req.body);
     if (!userCredentialsParse.success)
         return next(new ApiError({
@@ -26,7 +26,8 @@ export async function createUser(req: Request, res: Response, next: NextFunction
             details: userCredentialsParse.error.issues
         }));
 
-    const userId = crypto.randomUUID();
+    // User creation
+    const userId = createId();
     const passwordHash = await hashText(userCredentialsParse.data.password);
     let newUser: IUser;
     try {
@@ -48,7 +49,8 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         return next(err);
     }
 
-    const response: ApiResponseSuccess<UserProfile> = {
+    // Response
+    const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
         data: UserProfileDto.parse(newUser)
     };
@@ -56,6 +58,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
 }
 
 export async function getUserProfile(req: Request, res: Response, next: NextFunction) {
+    // Validation
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -63,7 +66,13 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
             statusCode: 422,
             details: params.error.issues
         }));
+    if (!jwtMatchesUserId(res, params.data.userId))
+        return next(new ApiError({
+            message: 'Forbidden',
+            statusCode: 403
+        }));
 
+    // User retrieval
     const user: IUser | null = await User.findOne({
         userId: params.data.userId
     });
@@ -74,7 +83,8 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
             details: { userId: params.data.userId }
         }));
 
-    const response: ApiResponseSuccess<UserProfile> = {
+    // Response
+    const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
         data: UserProfileDto.parse(user)
     };
@@ -82,12 +92,18 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
 }
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
+    // Validation
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
             message: 'Malformed path parameters',
             statusCode: 422,
             details: params.error.issues
+        }));
+    if (!jwtMatchesUserId(res, params.data.userId))
+        return next(new ApiError({
+            message: 'Forbidden',
+            statusCode: 403
         }));
     const userUpdateParse = UserUpdateDto.safeParse(req.body);
     if (!userUpdateParse.success)
@@ -99,10 +115,10 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     if (Object.keys(userUpdateParse.data).length === 0)
         return next(new ApiError({
             message: 'Missing user update fields',
-            statusCode: 400,
-            details: {}
+            statusCode: 400
         }));
 
+    // User update
     const updatedUser: IUser | null = await User.findOneAndUpdate(
         { userId: params.data.userId },
         { $set: userUpdateParse.data },
@@ -115,7 +131,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
             details: { userId: params.data.userId }
         }));
 
-    const response: ApiResponseSuccess<UserProfile> = {
+    // Response
+    const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
         data: UserProfileDto.parse(updatedUser)
     };
@@ -123,6 +140,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 }
 
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
+    // Validation
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -130,7 +148,13 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
+    if (!jwtMatchesUserId(res, params.data.userId))
+        return next(new ApiError({
+            message: 'Forbidden',
+            statusCode: 403
+        }));
 
+    // User deletion
     const deletedUser: IUser | null = await User.findOneAndDelete(
         { userId: params.data.userId }
     );
@@ -141,6 +165,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             details: { userId: params.data.userId }
         }));
 
+    // Response
     const response: ApiResponseSuccess<any> = {
         success: true,
         data: {}
