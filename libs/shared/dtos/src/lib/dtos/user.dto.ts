@@ -7,13 +7,6 @@ import {
 } from '#/constants/dtos';
 
 
-export const UserRegistrationDto = z.object({
-    username: z.string().min(USERNAME_MIN_LENGTH),
-    email:    z.email(),
-    password: z.string().min(PASSWORD_MIN_LENGTH).regex(PASSWORD_PATTERN)
-}).strict();
-export type UserRegistration = z.infer<typeof UserRegistrationDto>;
-
 export const UserProfileDto = z.object({
     userId:      z.string(),
     userGrn:     z.string(),
@@ -26,12 +19,14 @@ export const UserProfileDto = z.object({
     createdAt:   z.date(),
     updatedAt:   z.date()
 });
-export type UserProfile = z.infer<typeof UserProfileDto>;
+export type UserProfileDtoType = z.infer<typeof UserProfileDto>;
 
-export const UserPathParamsDto = z.object({
-    userId: z.string()
-});
-export type UserPathParams = z.infer<typeof UserPathParamsDto>;
+export const UserRegistrationDto = z.object({
+    username: z.string().min(USERNAME_MIN_LENGTH),
+    email:    z.email(),
+    password: z.string().min(PASSWORD_MIN_LENGTH).regex(PASSWORD_PATTERN)
+}).strict();
+export type UserRegistrationDtoType = z.infer<typeof UserRegistrationDto>;
 
 export const UserUpdateDto = z.object({
     username:    z.string().optional(),
@@ -41,4 +36,9 @@ export const UserUpdateDto = z.object({
     email:       z.string().optional(),
     description: z.string().optional()
 }).strict();
-export type UserUpdate = z.infer<typeof UserUpdateDto>;
+export type UserUpdateDtoType = z.infer<typeof UserUpdateDto>;
+
+export const UserPathParamsDto = z.object({
+    userId: z.string()
+});
+export type UserPathParamsDtoType = z.infer<typeof UserPathParamsDto>;
