@@ -9,6 +9,6 @@ import {
 
 export const authRouter = express.Router();
 
-authRouter.get('/login', login);
+authRouter.post('/login', login);
 authRouter.post('/refresh', refreshToken);
-authRouter.get('/logout', logout);
+authRouter.post('/logout', logout);

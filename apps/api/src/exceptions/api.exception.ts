@@ -1,8 +1,8 @@
 export interface ApiErrorOptions {
-    message: string;
+    message?: string;
     statusCode?: number;
     errorCode?: string;
-    details: unknown;
+    details?: unknown;
 }
 
 export class ApiError extends Error {
@@ -10,7 +10,7 @@ export class ApiError extends Error {
     public readonly details: unknown;
 
     constructor({
-        message,
+        message = 'Internal error',
         statusCode = 500,
         details = {}
     }: ApiErrorOptions) {
