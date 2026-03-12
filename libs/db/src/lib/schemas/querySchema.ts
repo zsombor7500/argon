@@ -1,23 +1,9 @@
 import mongoose, { Types } from 'mongoose';
 
-import { createId } from '#/utils/db';
 import type { IQuery } from '#/db/interfaces';
 
 
 export const querySchema = new mongoose.Schema<IQuery>({
-    queryId: {
-        type: String,
-        index: true,
-        unique: [true, '`queryId` must be unique'],
-        default: () => createId()
-    },
-    queryGrn: {
-        type: String,
-        index: true,
-        unique: [true, '`queryGrn` must be unique'],
-        required: [true, '`queryGrn` must be provided'],
-        minlength: [1, '`queryGrn` must be at least 1 characters long']
-    },
     name: {
         type: String,
         required: [true, '`name` must be provided'],

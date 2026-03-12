@@ -1,23 +1,9 @@
 import mongoose, { Types } from 'mongoose';
 
-import { createId } from '#/utils/db';
 import type { IUser } from '#/db/interfaces';
 
 
 export const userSchema = new mongoose.Schema<IUser>({
-    userId: {
-        type: String,
-        index: true,
-        unique: [true, '`userId` must be unique'],
-        default: () => createId()
-    },
-    userGrn: {
-        type: String,
-        index: true,
-        unique: [true, '`userGrn` must be unique'],
-        required: [true, '`userGrn` must be provided'],
-        minlength: [1, '`userGrn` must be at least 1 characters long']
-    },
     username: {
         type: String,
         required: [true, '`username` must be provided'],

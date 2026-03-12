@@ -1,23 +1,9 @@
 import mongoose, { Types } from 'mongoose';
 
-import { createId } from '#/utils/db';
 import type { IInvite } from '#/db/interfaces';
 
 
 export const inviteSchema = new mongoose.Schema<IInvite>({
-    inviteId: {
-        type: String,
-        index: true,
-        unique: [true, '`inviteId` must be unique'],
-        default: () => createId()
-    },
-    inviteGrn: {
-        type: String,
-        index: true,
-        unique: [true, '`inviteGrn` must be unique'],
-        required: [true, '`inviteGrn` must be provided'],
-        minlength: [1, '`inviteGrn` must be at least 1 characters long']
-    },
     name: {
         type: String,
         required: [true, '`name` must be provided'],

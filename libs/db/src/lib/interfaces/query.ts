@@ -2,8 +2,6 @@ import { Types, Document } from 'mongoose';
 
 
 export interface IQuery extends Document {
-    queryId: string;
-    queryGrn: string;
     name: string;
     description?: string;
     baseDatasetObjId: Types.ObjectId;

@@ -1,24 +1,10 @@
 import mongoose, { Types } from 'mongoose';
 
-import { createId } from '#/utils/db';
 import { ProjectScope } from '../dtos/scope.dto.js';
 import type { IProject } from '#/db/interfaces';
 
 
 export const projectSchema = new mongoose.Schema<IProject>({
-    projectId: {
-        type: String,
-        index: true,
-        unique: [true, '`projectId` must be unique'],
-        default: () => createId()
-    },
-    projectGrn: {
-        type: String,
-        index: true,
-        unique: [true, '`projectGrn` must be unique'],
-        required: [true, '`projectGrn` must be provided'],
-        minlength: [1, '`projectGrn` must be at least 1 characters long']
-    },
     name: {
         type: String,
         required: [true, '`name` must be provided'],
@@ -34,12 +20,12 @@ export const projectSchema = new mongoose.Schema<IProject>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
-    userIds: {
+    userObjIds: {
         type: [{
             type: Types.ObjectId,
             ref: 'User'
         }],
-        required: [true, '`users` must be provided']
+        required: [true, '`userObjIds` must be provided']
     },
     roleToUserObjIdsMap: {
         type: Map,

@@ -2,8 +2,6 @@ import { Types, Document } from 'mongoose';
 
 
 export interface IUser extends Document {
-    userId: string;
-    userGrn: string;
     username: string;
     displayName: string;
     firstName?: string;
@@ -11,8 +9,8 @@ export interface IUser extends Document {
     email: string;
     passwordHash: string;
     description?: string;
-    projectObjIds?: [Types.ObjectId];
-    inviteObjIds?: [Types.ObjectId];
+    projectObjIds: [Types.ObjectId];
+    inviteObjIds: [Types.ObjectId];
     createdAt?: Date;
     updatedAt?: Date;
     archivedAt?: Date;

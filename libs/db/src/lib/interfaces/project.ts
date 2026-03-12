@@ -4,12 +4,10 @@ import type { IUser } from './index.js';
 
 
 export interface IProject extends Document {
-    projectId: string;
-    projectGrn: string;
     name: string;
     ownerObjId: Types.ObjectId;
     description?: string;
-    userIds: Types.ObjectId[]
+    userObjIds: Types.ObjectId[]
     roleToUserObjIdsMap: Map<string, Types.ObjectId[]>;
     roleToScopesMap: Map<string, string[]>; // TODO: Fix ProjectScopeDtoType
     queryObjIds: [Types.ObjectId];
@@ -21,5 +19,5 @@ export interface IProject extends Document {
 }
 
 export interface IProjectUserPopulated extends Omit<IProject, 'userIds'> {
-    userIds: IUser[];
+    users: IUser[];
 }

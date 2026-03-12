@@ -15,18 +15,9 @@ db.createCollection('users', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['userId', 'userGrn', 'username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
-                userId: {
-                    bsonType: 'string',
-                    description: 'User UUID (subtype 4) - required'
-                },
-                userGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'User Global Resource Name - required'
-                },
                 username: {
                     bsonType: 'string',
                     minLength: 1,
@@ -92,14 +83,6 @@ db.createCollection('users', {
 });
 
 db.users.createIndex(
-    { userId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.users.createIndex(
-    { userGrn: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.users.createIndex(
     { email: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
@@ -114,18 +97,9 @@ db.createCollection('projects', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['projectId', 'projectGrn', 'name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
-                projectId: {
-                    bsonType: 'string',
-                    description: 'Project UUID (subtype 4) - required'
-                },
-                projectGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Project Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -190,15 +164,6 @@ db.createCollection('projects', {
     }
 });
 
-db.projects.createIndex(
-    { projectId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.projects.createIndex(
-    { projectGrn: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-
 print('Projects init completed');
 
 
@@ -209,18 +174,9 @@ db.createCollection('invites', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['inviteId', 'inviteGrn', 'name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
-                inviteId: {
-                    bsonType: 'string',
-                    description: 'Invite UUID (subtype 4) - required'
-                },
-                inviteGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Invite Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -260,11 +216,7 @@ db.createCollection('invites', {
 });
 
 db.invites.createIndex(
-    { inviteId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.invites.createIndex(
-    { inviteGrn: 1 },
+    { invitedObjId: 1, projectObjId: 1 },
     { unique: true, partialFilterExpression: { archivedAt: null } }
 );
 
@@ -278,18 +230,9 @@ db.createCollection('datasets', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['datasetId', 'datasetGrn', 'name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
-                datasetId: {
-                    bsonType: 'string',
-                    description: 'Dataset UUID (subtype 4) - required'
-                },
-                datasetGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Dataset Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -327,15 +270,6 @@ db.createCollection('datasets', {
     }
 });
 
-db.datasets.createIndex(
-    { datasetId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.datasets.createIndex(
-    { datasetGrn: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-
 print('Datasets init completed');
 
 
@@ -346,18 +280,9 @@ db.createCollection('queries', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['queryId', 'queryGrn', 'name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt', 'archivedAt'],
             additionalProperties: true,
             properties: {
-                queryId: {
-                    bsonType: 'string',
-                    description: 'Query UUID (subtype 4) - required'
-                },
-                queryGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -398,15 +323,6 @@ db.createCollection('queries', {
         }
     }
 });
-
-db.queries.createIndex(
-    { queryId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
-db.queries.createIndex(
-    { queryGrn: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
-);
 
 print('Queries init completed');
 

@@ -2,8 +2,6 @@ import { Document } from 'mongoose';
 
 
 export interface IDataset extends Document {
-    datasetId: string;
-    datasetGrn: string;
     name: string;
     description?: string;
     collectionRef: string;
