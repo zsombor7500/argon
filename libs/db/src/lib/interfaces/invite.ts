@@ -6,7 +6,7 @@ import type { IProject, IUser } from './index.js';
 export interface IInvite extends Document {
     _id: Types.ObjectId;
     name: string;
-    description?: string;
+    description?: string | undefined;
     invitantObjId: Types.ObjectId;
     invitedObjId: Types.ObjectId;
     projectObjId: Types.ObjectId;

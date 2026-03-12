@@ -7,7 +7,7 @@ export interface IProject extends Document {
     _id: Types.ObjectId;
     name: string;
     ownerObjId: Types.ObjectId;
-    description?: string;
+    description?: string | undefined;
     userObjIds: Types.ObjectId[]
     roleToUserObjIdsMap: Map<string, Types.ObjectId[]>;
     roleToScopesMap: Map<string, string[]>; // TODO: Fix ProjectScopeDtoType

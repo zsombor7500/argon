@@ -7,11 +7,11 @@ export interface IUser extends Document {
     _id: Types.ObjectId;
     username: string;
     displayName: string;
-    firstName?: string;
-    lastName?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
     email: string;
     passwordHash: string;
-    description?: string;
+    description?: string | undefined;
     projectObjIds: [Types.ObjectId];
     inviteObjIds: [Types.ObjectId];
     createdAt?: Date;
