@@ -58,11 +58,6 @@ export const userSchema = new mongoose.Schema<IUser>({
         required: false,
         minItems: 0,
         default: []
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {

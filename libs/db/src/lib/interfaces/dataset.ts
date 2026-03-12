@@ -9,5 +9,4 @@ export interface IDataset extends Document {
     mongooseSchema: object;
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
 }

@@ -10,5 +10,4 @@ export interface IQuery extends Document {
     projections: object;
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
 }

@@ -12,7 +12,6 @@ export interface IInvite extends Document {
     projectObjId: Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
 }
 
 export interface IInviteUserAndProjectPopulated extends Omit<IUser, 'invitantObjId' | 'invitedObjId' | 'projectObjId'> {

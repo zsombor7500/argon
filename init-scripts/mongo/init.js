@@ -15,7 +15,7 @@ db.createCollection('users', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 username: {
@@ -72,10 +72,6 @@ db.createCollection('users', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
@@ -84,7 +80,7 @@ db.createCollection('users', {
 
 db.users.createIndex(
     { email: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
+    { unique: true }
 );
 
 print('Users init completed');
@@ -97,7 +93,7 @@ db.createCollection('projects', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -154,10 +150,6 @@ db.createCollection('projects', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
@@ -174,7 +166,7 @@ db.createCollection('invites', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -205,10 +197,6 @@ db.createCollection('invites', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
@@ -217,7 +205,7 @@ db.createCollection('invites', {
 
 db.invites.createIndex(
     { invitedObjId: 1, projectObjId: 1 },
-    { unique: true, partialFilterExpression: { archivedAt: null } }
+    { unique: true }
 );
 
 print('Invites init completed');
@@ -230,7 +218,7 @@ db.createCollection('datasets', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -260,10 +248,6 @@ db.createCollection('datasets', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
@@ -280,7 +264,7 @@ db.createCollection('queries', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -314,10 +298,6 @@ db.createCollection('queries', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }

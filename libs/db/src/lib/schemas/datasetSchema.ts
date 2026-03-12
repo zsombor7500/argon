@@ -22,11 +22,6 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
         type: Object,
         required: false,
         default: {}
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {

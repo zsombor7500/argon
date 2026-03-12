@@ -28,11 +28,6 @@ export const inviteSchema = new mongoose.Schema<IInvite>({
         type: Types.ObjectId,
         ref: 'Project',
         required: [true, '`projectObjId` must be provided']
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {

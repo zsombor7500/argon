@@ -26,11 +26,6 @@ export const querySchema = new mongoose.Schema<IQuery>({
     projections: {
         type: Object,
         required: [true, '`projections` must be provided']
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {

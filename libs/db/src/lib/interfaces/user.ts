@@ -16,7 +16,6 @@ export interface IUser extends Document {
     inviteObjIds: [Types.ObjectId];
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
 }
 
 export interface IUserInvitePopulated extends Omit<IUser, 'inviteObjIds'> {
