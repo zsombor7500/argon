@@ -109,7 +109,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         }));
     if (Object.keys(userUpdateParse.data).length === 0)
         return next(new ApiError({
-            message: 'Missing user update fields',
+            message: 'No update was performed as no update fields were specified',
             statusCode: 400
         }));
 
