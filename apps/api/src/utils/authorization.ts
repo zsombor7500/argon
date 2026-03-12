@@ -1,15 +1,11 @@
+import { Types } from 'mongoose';
 import type { Response } from 'express';
 
-import { ApiError } from '#/exceptions/api';
-import { JwtTokenBodyDto } from '#/dto/auth';
 import { RES_LOCALS_JWT_KEY } from '#/constants/api';
+import type { JwtTokenBodyDtoType } from '#/dto/auth';
 
 
-export function jwtMatchesUserObjId(res: Response, userObjId: string): boolean {
-    const jwtBody = JwtTokenBodyDto.safeParse(res.locals[RES_LOCALS_JWT_KEY])
-    if (!jwtBody.success)
-        throw new ApiError({
-            details: { message: 'JWT token body parsing passed authentication middleware, but failed second parsing' }
-        });
-    return jwtBody.data.userObjId === userObjId
+export function jwtMatchesUserObjId(res: Response, userObjId: Types.ObjectId): boolean {
+    const jwtBody = res.locals[RES_LOCALS_JWT_KEY] as JwtTokenBodyDtoType
+    return jwtBody.userObjId.equals(userObjId)
 }

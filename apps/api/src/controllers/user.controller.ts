@@ -49,10 +49,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse({
-            ...newUser.toObject(),
-            userObjId: newUser._id.toString()
-        })
+        data: UserProfileDto.parse(newUser)
     };
     return res.status(200).json(response);
 }
@@ -84,10 +81,7 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse({
-            ...user.toObject(),
-            userObjId: user._id.toString()
-        })
+        data: UserProfileDto.parse(user)
     };
     return res.status(200).json(response);
 }
@@ -146,10 +140,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse({
-            ...updatedUser.toObject(),
-            userObjId: updatedUser._id.toString()
-        })
+        data: UserProfileDto.parse(updatedUser)
     };
     res.status(200).json(response);
 }

@@ -44,7 +44,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const jwtBody: JwtTokenBodyDtoType = {
         iat: Date.now(),
         expiration: apiConfig.jwtExpiry,
-        userObjId: user._id.toString()
+        userObjId: user._id
     }
     const response: ApiResponseSuccess<JwtTokenDtoType> = {
         success: true,
