@@ -76,7 +76,6 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
                 details: { _id: params.data.projectObjId }
             }));
         // Check scope   -   TODO: Set instead of array
-        console.log(new Types.ObjectId(jwtBody.data.userObjId))
         const user: IUser | undefined = project.userObjIds.find((user) => user._id.equals(new Types.ObjectId(jwtBody.data.userObjId)));
         if (!user)
             return next(new ApiError({
