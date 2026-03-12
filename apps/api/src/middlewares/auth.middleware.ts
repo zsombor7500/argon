@@ -75,9 +75,10 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
                 statusCode: 422,
                 details: { _id: params.data.projectObjId }
             }));
-        // Check scope
-        const user: IUser | undefined = project.users.find((user) => user._id === new Types.ObjectId(jwtBody.data.userObjId));
-        if (!user) // TODO: Set instead of array
+        // Check scope   -   TODO: Set instead of array
+        console.log(new Types.ObjectId(jwtBody.data.userObjId))
+        const user: IUser | undefined = project.userObjIds.find((user) => user._id.equals(new Types.ObjectId(jwtBody.data.userObjId)));
+        if (!user)
             return next(new ApiError({
                 message: 'User is not a member of the project',
                 statusCode: 422,
