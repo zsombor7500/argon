@@ -4,6 +4,7 @@ import type { IUser } from './index.js';
 
 
 export interface IProject extends Document {
+    _id: Types.ObjectId;
     name: string;
     ownerObjId: Types.ObjectId;
     description?: string;
@@ -18,6 +19,6 @@ export interface IProject extends Document {
     archivedAt?: Date;
 }
 
-export interface IProjectUserPopulated extends Omit<IProject, 'userIds'> {
-    users: IUser[];
+export interface IProjectUserPopulated extends Omit<IProject, 'userObjIds'> {
+    userObjIds: IUser[];
 }
