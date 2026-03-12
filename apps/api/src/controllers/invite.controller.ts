@@ -176,14 +176,14 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
         }));
     if (Object.keys(inviteUpdateParse.data).length === 0)
         return next(new ApiError({
-            message: 'Missing user update fields',
+            message: 'No update was performed as no update fields were specified',
             statusCode: 400
         }));
 
     // User update
-    let updateInvite: IInvite | null;
+    let updatedInvite: IInvite | null;
     try {
-        updateInvite = await Invite.findOneAndUpdate(
+        updatedInvite = await Invite.findOneAndUpdate(
             { _id: params.data.inviteObjId },
             { $set: inviteUpdateParse.data },
             { returnDocument: 'after', runValidators: true }
@@ -197,7 +197,7 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
             }));
         return next(err);
     }
-    if (!updateInvite)
+    if (!updatedInvite)
         return next(new ApiError({
             message: 'Invite with provided ID does not exist',
             statusCode: 422,
@@ -207,7 +207,7 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
     // Response
     const response: ApiResponseSuccess<InviteDtoType> = {
         success: true,
-        data: InviteDto.parse(updateInvite)
+        data: InviteDto.parse(updatedInvite)
     };
     res.status(200).json(response);
 }
@@ -296,24 +296,15 @@ export async function cancelInvite(req: Request, res: Response, next: NextFuncti
             statusCode: 422,
             details: params.error.issues
         }));
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse}
-        }));
 
     // Invite retrieval + deletion
-    const invite = await Invite.findOne({
-        _id: params.data.inviteObjId,
-        invitantObjId: jwtBodyParse.data.userObjId
-    });
+    const invite = await Invite.findOne({ _id: params.data.inviteObjId });
     if (!invite)
         return next(new ApiError({
             message: 'Invite does not exist, or user is not the invitant',
             statusCode: 422,
             details: {
                 inviteId: params.data.inviteObjId,
-                userObjId: jwtBodyParse.data.userObjId
             }
         }));
     await deleteInvites([params.data.inviteObjId]);
