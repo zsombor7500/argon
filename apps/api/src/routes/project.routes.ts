@@ -24,10 +24,10 @@ export const projectRouter = express.Router();
 projectRouter.use(authJwt);
 projectRouter.get('/', getProjects)
 projectRouter.post('/', createProject)
-projectRouter.patch('/:projectId', requireScope(PROJECT_UPDATE_SCOPES), updateProject);
-projectRouter.delete('/:projectId', requireScope(PROJECT_DELETE_SCOPES), deleteProject);
+projectRouter.patch('/:projectObjId', requireScope(PROJECT_UPDATE_SCOPES), updateProject);
+projectRouter.delete('/:projectObjId', requireScope(PROJECT_DELETE_SCOPES), deleteProject);
 
-projectRouter.use('/:projectId/queries', queryRouter);
-projectRouter.use('/:projectId/datasets', datasetRouter);
-projectRouter.use('/:projectId/invites', inviteRouter);
-projectRouter.use('/:projectId/access', accessRouter);
+projectRouter.use('/:projectObjId/queries', queryRouter);
+projectRouter.use('/:projectObjId/datasets', datasetRouter);
+projectRouter.use('/:projectObjId/invites', inviteRouter);
+projectRouter.use('/:projectObjId/access', accessRouter);

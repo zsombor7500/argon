@@ -17,10 +17,10 @@ import {
 import { requireScope } from '#/middlewares';
 
 
-export const datasetRouter = express.Router();
+export const datasetRouter = express.Router({ mergeParams: true });
 
 datasetRouter.get('/', requireScope(DATASET_VIEW_SCOPES), getDatasets);
 datasetRouter.post('/', requireScope(DATASET_CREATE_SCOPES), createDataset);
-datasetRouter.patch('/:datasetId', requireScope(DATASET_UPDATE_SCOPES), updateDataset);
-datasetRouter.delete('/:datasetId', requireScope(DATASET_DELETE_SCOPES), deleteDataset);
-datasetRouter.post('/:datasetId/upload', requireScope(DATASET_INGEST_SCOPES), ingestData);
+datasetRouter.patch('/:datasetObjId', requireScope(DATASET_UPDATE_SCOPES), updateDataset);
+datasetRouter.delete('/:datasetObjId', requireScope(DATASET_DELETE_SCOPES), deleteDataset);
+datasetRouter.post('/:datasetObjId/upload', requireScope(DATASET_INGEST_SCOPES), ingestData);

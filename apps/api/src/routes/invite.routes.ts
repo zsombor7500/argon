@@ -6,7 +6,6 @@ import {
     INVITE_CANCEL_SCOPES
 } from '#/constants/api';
 import {
-    getInvites,
     createInvite,
     updateInvite,
     cancelInvite,
@@ -15,10 +14,9 @@ import {
 import { requireScope } from '#/middlewares';
 
 
-export const inviteRouter = express.Router();
+export const inviteRouter = express.Router({ mergeParams: true });
 
-inviteRouter.get('/', getInvites);
 inviteRouter.post('/', requireScope(INVITE_CREATE_SCOPES), createInvite);
-inviteRouter.post('/:inviteId', acceptRejectInvite);
-inviteRouter.patch('/:inviteId', requireScope(INVITE_UPDATE_SCOPES), updateInvite);
-inviteRouter.delete('/:inviteId', requireScope(INVITE_CANCEL_SCOPES), cancelInvite);
+inviteRouter.post('/:inviteObjId', acceptRejectInvite);
+inviteRouter.patch('/:inviteObjId', requireScope(INVITE_UPDATE_SCOPES), updateInvite);
+inviteRouter.delete('/:inviteObjId', requireScope(INVITE_CANCEL_SCOPES), cancelInvite);
