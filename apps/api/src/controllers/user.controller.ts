@@ -9,11 +9,11 @@ import {
 import { User } from '#/db/models';
 import { hashText } from '#/utils/api';
 import { ApiError } from '#/exceptions/api';
-import { createId, isDuplicateKeyError } from '#/utils/db';
+import { isDuplicateKeyError } from '#/utils/db';
+import { jwtMatchesUserObjId } from '#/utils/api';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { UserProfileDtoType } from '#/dto/user';
-import { jwtMatchesUserId } from '../utils/authorization.js';
 
 
 export async function createUser(req: Request, res: Response, next: NextFunction) {
@@ -27,13 +27,10 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         }));
 
     // User creation
-    const userId = createId();
     const passwordHash = await hashText(userCredentialsParse.data.password);
     let newUser: IUser;
     try {
         newUser = await User.create({
-            userId: userId,
-            userGrn: `user:${userId}`,
             username: userCredentialsParse.data.username,
             displayName: userCredentialsParse.data.username,
             email: userCredentialsParse.data.email,
@@ -52,7 +49,10 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse(newUser)
+        data: UserProfileDto.parse({
+            ...newUser.toObject(),
+            userObjId: newUser._id.toString()
+        })
     };
     return res.status(200).json(response);
 }
@@ -66,27 +66,28 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserId(res, params.data.userId))
+    if (!jwtMatchesUserObjId(res, params.data.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
         }));
 
     // User retrieval
-    const user: IUser | null = await User.findOne({
-        userId: params.data.userId
-    });
+    const user: IUser | null = await User.findOne({ _id: params.data.userObjId });
     if (!user)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
-            details: { userId: params.data.userId }
+            details: { _id: params.data.userObjId }
         }));
 
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse(user)
+        data: UserProfileDto.parse({
+            ...user.toObject(),
+            userObjId: user._id.toString()
+        })
     };
     return res.status(200).json(response);
 }
@@ -100,7 +101,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserId(res, params.data.userId))
+    if (!jwtMatchesUserObjId(res, params.data.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
@@ -119,22 +120,36 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         }));
 
     // User update
-    const updatedUser: IUser | null = await User.findOneAndUpdate(
-        { userId: params.data.userId },
-        { $set: userUpdateParse.data },
-        { returnDocument: 'after', runValidators: true }
-    );
+    let updatedUser: IUser | null;
+    try {
+        updatedUser = await User.findOneAndUpdate(
+            { _id: params.data.userObjId },
+            { $set: userUpdateParse.data },
+            { returnDocument: 'after', runValidators: true }
+        );
+    } catch (err) {
+        if (isDuplicateKeyError(err))
+            return next(new ApiError({
+                message: 'User already exists with provided email',
+                statusCode: 422,
+                details: err
+            }));
+        return next(err);
+    }
     if (!updatedUser)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
-            details: { userId: params.data.userId }
+            details: { userObjId: params.data.userObjId }
         }));
 
     // Response
     const response: ApiResponseSuccess<UserProfileDtoType> = {
         success: true,
-        data: UserProfileDto.parse(updatedUser)
+        data: UserProfileDto.parse({
+            ...updatedUser.toObject(),
+            userObjId: updatedUser._id.toString()
+        })
     };
     res.status(200).json(response);
 }
@@ -148,21 +163,19 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserId(res, params.data.userId))
+    if (!jwtMatchesUserObjId(res, params.data.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
         }));
 
     // User deletion
-    const deletedUser: IUser | null = await User.findOneAndDelete(
-        { userId: params.data.userId }
-    );
+    const deletedUser: IUser | null = await User.findOneAndDelete({ _id: params.data.userObjId });
     if (!deletedUser)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
-            details: { userId: params.data.userId }
+            details: { userObjId: params.data.userObjId }
         }));
 
     // Response

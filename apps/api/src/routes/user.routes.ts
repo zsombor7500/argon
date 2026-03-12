@@ -7,12 +7,14 @@ import {
     deleteUser
 } from '#/controllers/user';
 import { authJwt } from '#/middlewares';
+import { getInvites } from '#/controllers/invite';
 
 
 export const userRouter = express.Router();
 
 userRouter.post('/', createUser);
 userRouter.use(authJwt);
-userRouter.get('/:userId', getUserProfile);
-userRouter.patch('/:userId', updateUser);
-userRouter.delete('/:userId', deleteUser);
+userRouter.get('/:userObjId', getUserProfile);
+userRouter.get('/:userObjId/invites', getInvites);
+userRouter.patch('/:userObjId', updateUser);
+userRouter.delete('/:userObjId', deleteUser);

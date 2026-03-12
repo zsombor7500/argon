@@ -8,8 +8,7 @@ import {
 
 
 export const UserProfileDto = z.object({
-    userId:      z.string(),
-    userGrn:     z.string(),
+    userObjId:   z.string(),
     username:    z.string(),
     displayName: z.string(),
     firstName:   z.string().optional(),
@@ -39,6 +38,6 @@ export const UserUpdateDto = z.object({
 export type UserUpdateDtoType = z.infer<typeof UserUpdateDto>;
 
 export const UserPathParamsDto = z.object({
-    userId: z.string()
+    userObjId: z.string()
 });
 export type UserPathParamsDtoType = z.infer<typeof UserPathParamsDto>;
