@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
 import type { Request, Response, NextFunction } from 'express';
 
 import { Project } from '#/db/models';
@@ -66,28 +67,28 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
             }));
 
         // Retrieve project
-        const project = await Project.findOne({ projectId: params.data.projectId })
-            .populate<IProjectUserPopulated>('userIds')
+        const project = await Project.findOne({ _id: params.data.projectObjId })
+            .populate<IProjectUserPopulated>('userObjIds')
         if (!project)
             return next(new ApiError({
                 message: 'Project with provided ID does not exist',
                 statusCode: 422,
-                details: { projectId: params.data.projectId }
+                details: { _id: params.data.projectObjId }
             }));
         // Check scope
-        const user: IUser | undefined = project.userIds.find((user) => user.userId === jwtBody.data.userId);
+        const user: IUser | undefined = project.users.find((user) => user._id === new Types.ObjectId(jwtBody.data.userObjId));
         if (!user) // TODO: Set instead of array
             return next(new ApiError({
                 message: 'User is not a member of the project',
                 statusCode: 422,
                 details: {
-                    userId: params.data.projectId,
-                    projectId: params.data.projectId
+                    userObjId: jwtBody.data.userObjId,
+                    projectObjId: params.data.projectObjId
                 }
             }));
         let userRole: string | undefined = undefined;
-        for (const [role, userIds] of project.roleToUserObjIdsMap) {
-            if (userIds.includes(user._id)) {
+        for (const [role, userObjIds] of project.roleToUserObjIdsMap) {
+            if (userObjIds.includes(user._id)) {
                 userRole = role;
                 break;
             }
@@ -96,8 +97,8 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
             return next(new ApiError({
                 details: {
                     message: 'User role is missing in project',
-                    userId: params.data.projectId,
-                    projectId: params.data.projectId
+                    userObjId: params.data.projectObjId,
+                    projectObjId: params.data.projectObjId
                 }
             }));
         const userScopes: string[] | undefined = project.roleToScopesMap.get(userRole); // TODO: Fix type mistaken by TS
@@ -105,8 +106,8 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
             return next(new ApiError({
                 details: {
                     message: 'Project role scope not found in project roles map',
-                    userId: params.data.projectId,
-                    projectId: params.data.projectId
+                    userObjId: params.data.projectObjId,
+                    projectObjId: params.data.projectObjId
                 }
             }));
         const passingScopes = allowScopes.intersection(new Set(userScopes))

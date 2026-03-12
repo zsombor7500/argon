@@ -40,12 +40,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
             details: { email: userLogin.data.email }
         }));
 
-
     // Response
     const jwtBody: JwtTokenBodyDtoType = {
         iat: Date.now(),
         expiration: apiConfig.jwtExpiry,
-        userId: user.userId
+        userObjId: user._id.toString()
     }
     const response: ApiResponseSuccess<JwtTokenDtoType> = {
         success: true,
