@@ -238,7 +238,7 @@ db.createCollection('datasets', {
                 },
                 mongooseSchema: {
                     bsonType: 'object',
-                    additionalProperties: true,
+                    //additionalProperties: true,
                     description: 'Mongoose schema definition - required'
                 },
                 createdAt: {
@@ -283,12 +283,12 @@ db.createCollection('queries', {
                 },
                 query: {
                     bsonType: 'object',
-                    additionalProperties: true,
+                    //additionalProperties: true,
                     description: 'Query definition - required'
                 },
                 projections: {
                     bsonType: 'object',
-                    additionalProperties: true,
+                    //additionalProperties: true,
                     description: 'Projection definition - required'
                 },
                 createdAt: {
