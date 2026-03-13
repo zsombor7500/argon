@@ -119,7 +119,7 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
     const projectUpdateParse = ProjectUpdateDto.safeParse(req.body);
     if (!projectUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed user update fields',
+            message: 'Malformed project update fields',
             statusCode: 422,
             details: projectUpdateParse.error.issues
         }));

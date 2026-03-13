@@ -150,6 +150,7 @@ export async function getInvites(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: { userObjId: params.data.userObjId }
         }));
+
     // Response
     const response: ApiResponseSuccess<InvitesDtoType> = {
         success: true,
@@ -170,7 +171,7 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
     const inviteUpdateParse = InviteUpdateDto.safeParse(req.body);
     if (!inviteUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed user update fields',
+            message: 'Malformed invite update fields',
             statusCode: 422,
             details: inviteUpdateParse.error.issues
         }));
@@ -297,16 +298,6 @@ export async function cancelInvite(req: Request, res: Response, next: NextFuncti
             details: params.error.issues
         }));
 
-    // Invite retrieval + deletion
-    const invite = await Invite.findOne({ _id: params.data.inviteObjId });
-    if (!invite)
-        return next(new ApiError({
-            message: 'Invite does not exist, or user is not the invitant',
-            statusCode: 422,
-            details: {
-                inviteId: params.data.inviteObjId,
-            }
-        }));
     await deleteInvites([params.data.inviteObjId]);
 
     // Response
