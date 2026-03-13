@@ -6,7 +6,7 @@ import {
     InviteUpdateDto,
     InviteCreationDto,
     InviteDecisionDto,
-    InvitePathParamsDto,
+    InvitePathParamsDto
 } from '#/dto/invite';
 import { ApiError } from '#/exceptions/api';
 import { UserPathParamsDto } from '#/dto/user';

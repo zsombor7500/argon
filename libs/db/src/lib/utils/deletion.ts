@@ -1,7 +1,13 @@
 import { Types } from 'mongoose';
 
-import { User, Invite, Project } from '#/db/models';
-import type { IInvite } from '#/db/interfaces';
+import {
+    User,
+    Query,
+    Invite,
+    Project,
+    Dataset
+} from '#/db/models';
+import type { IInvite, IProject } from '#/db/interfaces';
 
 
 export async function deleteInvites(inviteObjIds: Types.ObjectId[]): Promise<void> {
@@ -14,18 +20,18 @@ export async function deleteInvites(inviteObjIds: Types.ObjectId[]): Promise<voi
     );
     const projectObjIds = new Set( invites.map((invite) => invite.projectObjId.toString()) );
     // Delete invites from users
-    const updatedUsers = await User.updateMany(
+    const userUpdateResult = await User.updateMany(
         { _id: { $in: [...userObjIds] } },
         { $pullAll: { inviteObjIds: inviteObjIds } }
     );
-    if (!updatedUsers.acknowledged)
+    if (!userUpdateResult.acknowledged)
         throw new Error('User updates weren\'t acknowledged')
     // Delete invites from projects
-    const updatedProjects = await Project.updateMany(
+    const projectUpdateResult = await Project.updateMany(
         { _id: { $in: [...projectObjIds] } },
         { $pullAll: { inviteObjIds: inviteObjIds } }
     );
-    if (!updatedProjects.acknowledged)
+    if (!projectUpdateResult.acknowledged)
         throw new Error('Project updates weren\'t acknowledged')
     // Delete invites
     const inviteDeleteResult = await Invite.deleteMany({ _id: { $in: inviteObjIds } });
@@ -33,8 +39,24 @@ export async function deleteInvites(inviteObjIds: Types.ObjectId[]): Promise<voi
         throw new Error('Invite deletions weren\'t acknowledged')
 }
 
-//export async function deleteProject(projectObjId: Types.ObjectId): Promise<void> {
-//    const invites: IInvite[] = await Invite.find({ _id: { $in: inviteObjIds } });
-//    if (!invites)
-//        throw new Error('No invites were found with provided ObjectIds')
-//}
+export async function deleteProject(projectObjId: Types.ObjectId): Promise<void> {
+    const project: IProject | null = await Project.findOneAndDelete({ _id: projectObjId });
+    if (!project)
+        throw new Error('No project was found with provided ObjectId')
+    // Remove project references
+    const userUpdateResult = await User.updateMany(
+        { _id: { $in: project.userObjIds } },
+        { $pull: { projectObjIds: project._id } }
+    );
+    if (!userUpdateResult.acknowledged)
+        throw new Error('Project updates weren\'t acknowledged')
+    // Delete datasets + queries
+    const queryDeleteResult = await Query.deleteMany({ _id: { $in: project.queryObjIds } });
+    if (!queryDeleteResult.acknowledged)
+        throw new Error('Query deletions weren\'t acknowledged')
+    const datasetDeleteResult = await Dataset.deleteMany({ _id: { $in: project.datasetObjIds } });
+    if (!datasetDeleteResult.acknowledged)
+        throw new Error('Dataset deletions weren\'t acknowledged')
+    // Delete invites
+    await deleteInvites(project.inviteObjIds);
+}

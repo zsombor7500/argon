@@ -10,7 +10,7 @@ import { hashText } from '#/utils/api';
 import { ApiError } from '#/exceptions/api';
 import { Project, User } from '#/db/models';
 import { jwtMatchesUserObjId } from '#/utils/api';
-import { deleteInvites, isDuplicateKeyError } from '#/utils/db';
+import { deleteInvites, deleteProject, isDuplicateKeyError } from '#/utils/db';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { UserProfileDtoType } from '#/dto/user';
@@ -172,10 +172,10 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
     await deleteInvites(deletedUser.inviteObjIds);
     const projects = await Project.find({ _id: { $in: deletedUser.projectObjIds} });
     for (const project of projects) {
-        //if (project.ownerObjId.equals(deletedUser._id)) {
-        //    deleteProject(project._id);
-        //    continue;
-        //}
+        if (project.ownerObjId.equals(deletedUser._id)) {
+            await deleteProject(project._id);
+            continue;
+        }
         for (const [role, userObjIds] of project.roleToUserObjIdsMap) {
             project.roleToUserObjIdsMap.set(role, userObjIds.filter((oid) => !oid.equals(deletedUser._id)));
         }
