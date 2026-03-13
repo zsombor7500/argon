@@ -264,7 +264,7 @@ db.createCollection('queries', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt'],
+            required: ['name', 'query', 'projections', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {

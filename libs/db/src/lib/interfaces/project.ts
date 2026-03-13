@@ -1,6 +1,6 @@
 import { Types, Document } from 'mongoose';
 
-import type { IUser } from './index.js';
+import type { IUser, IQuery, IDataset } from './index.js';
 
 
 export interface IProject extends Document {
@@ -20,4 +20,12 @@ export interface IProject extends Document {
 
 export interface IProjectUserPopulated extends Omit<IProject, 'userObjIds'> {
     userObjIds: IUser[];
+}
+
+export interface IProjectDatasetPopulated extends Omit<IProject, 'datasetObjIds'> {
+    datasetObjIds: IDataset[];
+}
+
+export interface IProjectQueryPopulated extends Omit<IProject, 'queryObjIds'> {
+    queryObjIds: IQuery[];
 }
