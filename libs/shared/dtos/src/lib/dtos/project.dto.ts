@@ -18,15 +18,9 @@ export type ProjectsDtoType = z.infer<typeof ProjectsDto>;
 
 export const ProjectCreationDto = z.object({
     name:        z.string(),
-    ownerObjId:  objectId,
     description: z.string().optional()
 }).strict();
 export type ProjectCreationDtoType = z.infer<typeof ProjectCreationDto>;
-
-export const ProjectListingDto = z.object({
-    userObjId: objectId
-}).strict();
-export type ProjectListingDtoType = z.infer<typeof ProjectListingDto>;
 
 export const ProjectUpdateDto = z.object({
     name:        z.string().optional(),

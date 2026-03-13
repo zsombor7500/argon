@@ -23,6 +23,6 @@ export interface IUserInvitePopulated extends Omit<IUser, 'inviteObjIds'> {
 }
 
 export interface IUserProjectPopulated extends Omit<IUser, 'projectObjIds'> {
-    projects: IProject[];
+    projectObjIds: IProject[];
 }
 

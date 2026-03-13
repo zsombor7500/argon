@@ -14,7 +14,8 @@ import {
     getProjects,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    disbandProject
 } from '#/controllers/project';
 import { authJwt, requireScope } from '#/middlewares';
 
@@ -26,6 +27,7 @@ projectRouter.get('/', getProjects)
 projectRouter.post('/', createProject)
 projectRouter.patch('/:projectObjId', requireScope(PROJECT_UPDATE_SCOPES), updateProject);
 projectRouter.delete('/:projectObjId', requireScope(PROJECT_DELETE_SCOPES), deleteProject);
+projectRouter.delete('/:projectObjId/disband', disbandProject);
 
 projectRouter.use('/:projectObjId/queries', queryRouter);
 projectRouter.use('/:projectObjId/datasets', datasetRouter);
