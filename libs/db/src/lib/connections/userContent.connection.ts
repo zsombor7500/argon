@@ -3,7 +3,7 @@ import mongoose, { Mongoose } from 'mongoose';
 import { dbConfig } from '#/configs/db';
 
 
-export const userContentDbConnection: Mongoose = await mongoose.connect(`mongodb://127.0.0.1:27017`, {
+export const userContentDbConnection: Mongoose = await mongoose.connect(`mongodb://${dbConfig.mongoHost}:${dbConfig.mongoPort}`, {
     dbName: dbConfig.mongoUserContentDb,
     user: dbConfig.mongoUser,
     pass: dbConfig.mongoPassword,
