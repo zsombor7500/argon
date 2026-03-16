@@ -11,9 +11,8 @@ import { ApiError } from '#/exceptions/api';
 import { ProjectPathParamsDto } from '#/dto/project';
 import { Dataset, Project, Query } from '#/db/models';
 import type { ApiResponseSuccess } from '#/dto/api';
-import type { IDataset, IProject } from '#/db/interfaces';
-import type { IProjectDatasetPopulated } from 'libs/db/src/lib/interfaces/project.js';
 import type { DatasetDtoType, DatasetsDtoType } from '#/dto/dataset';
+import type { IDataset, IProject, IProjectDatasetPopulated } from '#/db/interfaces';
 
 
 export async function createDataset(req: Request, res: Response, next: NextFunction) {

@@ -35,8 +35,10 @@
             "#/dto/auth": ["libs/shared/dtos/src/lib/dtos/auth.dto.ts"],
             "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
             "#/dto/scope": ["libs/shared/dtos/src/lib/dtos/scope.dto.ts"],
+            "#/dto/query": ["libs/shared/dtos/src/lib/dtos/query.dto.ts"],
             "#/dto/invite": ["libs/shared/dtos/src/lib/dtos/invite.dto.ts"],
             "#/dto/project": ["libs/shared/dtos/src/lib/dtos/project.dto.ts"],
+            "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
 
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
