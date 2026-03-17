@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { objectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/oid';
 
 
 export const UserLoginDto = z.object({
@@ -12,7 +12,7 @@ export type UserLoginDtoType = z.infer<typeof UserLoginDto>;
 export const JwtTokenBodyDto = z.object({
     iat:        z.number(),
     expiration: z.number(),
-    userObjId:  objectId
+    userObjId:  ObjectId
 });
 export type JwtTokenBodyDtoType = z.infer<typeof JwtTokenBodyDto>;
 

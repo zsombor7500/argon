@@ -5,11 +5,11 @@ import {
     PASSWORD_MIN_LENGTH,
     USERNAME_MIN_LENGTH
 } from '#/constants/dtos';
-import { objectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/oid';
 
 
 export const UserProfileDto = z.object({
-    _id:         objectId,
+    _id:         ObjectId,
     username:    z.string(),
     displayName: z.string(),
     firstName:   z.string().optional(),
@@ -39,6 +39,6 @@ export const UserUpdateDto = z.object({
 export type UserUpdateDtoType = z.infer<typeof UserUpdateDto>;
 
 export const UserPathParamsDto = z.object({
-    userObjId: objectId
+    userObjId: ObjectId
 });
 export type UserPathParamsDtoType = z.infer<typeof UserPathParamsDto>;

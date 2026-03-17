@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { objectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/oid';
 
 
 export const DatasetDto = z.object({
-    _id:            objectId,
+    _id:            ObjectId,
     name:           z.string(),
     description:    z.string().optional(),
     mongooseSchema: z.object(),
@@ -36,7 +36,7 @@ export const DatasetUploadDto = z.object({
 export type DatasetUploadDtoType = z.infer<typeof DatasetUploadDto>;
 
 export const DatasetPathParamsDto = z.object({
-    projectObjId: objectId,
-    datasetObjId: objectId
+    projectObjId: ObjectId,
+    datasetObjId: ObjectId
 });
 export type DatasetPathParamsDtoType = z.infer<typeof DatasetPathParamsDto>;

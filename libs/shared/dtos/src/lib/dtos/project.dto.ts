@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { objectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/oid';
 
 
 export const ProjectDto = z.object({
-    _id:          objectId,
+    _id:          ObjectId,
     name:         z.string(),
-    ownerObjId:   objectId,
+    ownerObjId:   ObjectId,
     description:  z.string().optional(),
     createdAt:    z.date(),
     updatedAt:    z.date()
@@ -29,6 +29,6 @@ export const ProjectUpdateDto = z.object({
 export type ProjectUpdateDtoType = z.infer<typeof ProjectUpdateDto>;
 
 export const ProjectPathParamsDto = z.object({
-    projectObjId: objectId
+    projectObjId: ObjectId
 });
 export type ProjectPathParamsDtoType = z.infer<typeof ProjectPathParamsDto>;

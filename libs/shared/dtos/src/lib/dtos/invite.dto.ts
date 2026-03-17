@@ -1,15 +1,15 @@
 import { z } from 'zod';
 
-import { objectId, objectIdToString } from '#/dto/oid';
+import { ObjectId, ObjectIdToString } from '#/dto/oid';
 
 
 export const InviteDto = z.object({
-    _id:           objectIdToString,
+    _id:           ObjectIdToString,
     name:          z.string(),
     description:   z.string().optional(),
-    invitantObjId: objectIdToString,
-    invitedObjId:  objectIdToString,
-    projectObjId:  objectIdToString,
+    invitantObjId: ObjectIdToString,
+    invitedObjId:  ObjectIdToString,
+    projectObjId:  ObjectIdToString,
     createdAt:     z.date(),
     updatedAt:     z.date()
 });
@@ -21,8 +21,8 @@ export type InvitesDtoType = z.infer<typeof InvitesDto>;
 export const InviteCreationDto = z.object({
     name:          z.string(),
     description:   z.string().optional(),
-    invitantObjId: objectId,
-    invitedObjId:  objectId,
+    invitantObjId: ObjectId,
+    invitedObjId:  ObjectId,
 }).strict();
 export type InviteCreationDtoType = z.infer<typeof InviteCreationDto>;
 
@@ -38,7 +38,7 @@ export const InviteDecisionDto = z.object({
 export type InviteDecisionDtoType = z.infer<typeof InviteDecisionDto>;
 
 export const InvitePathParamsDto = z.object({
-    projectObjId: objectId,
-    inviteObjId:  objectId
+    projectObjId: ObjectId,
+    inviteObjId:  ObjectId
 });
 export type InvitePathParamsDtoType = z.infer<typeof InvitePathParamsDto>;

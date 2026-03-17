@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-import { objectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/oid';
 
 
 export const QueryDto = z.object({
-    _id:              objectId,
+    _id:              ObjectId,
     name:             z.string(),
     description:      z.string().optional(),
-    baseDatasetObjId: objectId.optional(),
+    baseDatasetObjId: ObjectId.optional(),
     query:            z.object(),
     projections:      z.object(),
     createdAt:        z.date(),
@@ -21,7 +21,7 @@ export type QueriesDtoType = z.infer<typeof QueriesDto>;
 export const QueryCreationDto = z.object({
     name:             z.string(),
     description:      z.string().optional(),
-    baseDatasetObjId: objectId,
+    baseDatasetObjId: ObjectId,
     query:            z.object(),
     projections:      z.object()
 }).strict();
@@ -41,7 +41,7 @@ export const QueryResultDto = z.object({
 export type QueryResultDtoType = z.infer<typeof QueryResultDto>;
 
 export const QueryPathParamsDto = z.object({
-    projectObjId: objectId,
-    queryObjId:   objectId
+    projectObjId: ObjectId,
+    queryObjId:   ObjectId
 });
 export type QueryPathParamsDtoType = z.infer<typeof QueryPathParamsDto>;
