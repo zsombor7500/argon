@@ -6,7 +6,9 @@ export type {
 export type {
     IProject,
     IProjectUserPopulated,
-    IProjectQueryPopulated
+    IProjectQueryPopulated,
+    IProjectDatasetPopulated,
+    IProjectUserAndInvitePopulated
 } from './project.js';
 export type { IQuery } from './query.js';
 export type { IDataset } from './dataset.js';

@@ -62,11 +62,12 @@ export async function deleteProject(projectObjId: Types.ObjectId): Promise<void>
 }
 
 export async function removeUserFromProject(userObjId: Types.ObjectId, project: IProject): Promise<void> {
-    if (userObjId.equals(project.ownerObjId))
+    if (userObjId.equals(project.ownerObjId)) {
+        await deleteProject(project._id);
         return;
-    for (const [role, userObjIds] of project.roleToUserObjIdsMap) {
-        project.roleToUserObjIdsMap.set(role, userObjIds.filter((oid) => !oid.equals(userObjId)));
     }
+    for (const [role, userObjIds] of project.roleToUserObjIdsMap)
+        project.roleToUserObjIdsMap.set(role, userObjIds.filter((oid) => !oid.equals(userObjId)));
     project.userObjIds = project.userObjIds.filter((oid) => !oid.equals(userObjId));
     await project.save();
 }

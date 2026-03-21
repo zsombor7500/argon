@@ -72,5 +72,19 @@ export const projectSchema = new mongoose.Schema<IProject>({
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+projectSchema.virtual('users', {
+    ref: 'User',
+    localField: 'userObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('invites', {
+    ref: 'Invite',
+    localField: 'inviteObjIds',
+    foreignField: '_id'
 });

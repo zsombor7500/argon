@@ -37,6 +37,7 @@
             "#/dto/scope": ["libs/shared/dtos/src/lib/dtos/scope.dto.ts"],
             "#/dto/query": ["libs/shared/dtos/src/lib/dtos/query.dto.ts"],
             "#/dto/invite": ["libs/shared/dtos/src/lib/dtos/invite.dto.ts"],
+            "#/dto/access": ["libs/shared/dtos/src/lib/dtos/access.dto.ts"],
             "#/dto/project": ["libs/shared/dtos/src/lib/dtos/project.dto.ts"],
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
 
@@ -46,6 +47,7 @@
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
 
+            "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
             "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
 
