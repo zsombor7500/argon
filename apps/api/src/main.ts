@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { logger } from '#/utils/api';
 import { apiRouter } from '#/routes';
 import { apiConfig } from '#/configs/api';
 import { errorHandler, notFoundHandler } from '#/middlewares';
@@ -12,5 +13,5 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(apiConfig.port, apiConfig.host, () => {
-    console.log(`Server listening on ${apiConfig.host}:${apiConfig.port}...`);
+    logger.info(`Server listening on ${apiConfig.host}:${apiConfig.port}...`);
 });
