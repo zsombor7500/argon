@@ -58,9 +58,7 @@ export async function createProject(req: Request, res: Response, next: NextFunct
                 'project:all'
             ],
             'default': [
-                'dataset:view',
-                'query:view',
-                'access:view'
+                'project:read'
             ]
         }
     });

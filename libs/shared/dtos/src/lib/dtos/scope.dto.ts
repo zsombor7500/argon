@@ -3,26 +3,28 @@ import { z } from 'zod';
 
 export const ProjectScopeDto = z.enum([
     'project:all',
+    'project:create',
+    'project:read',
     'project:update',
     'project:delete',
     'dataset:all',
-    'dataset:view',
     'dataset:create',
+    'dataset:read',
     'dataset:update',
     'dataset:delete',
     'dataset:ingest',
     'query:all',
-    'query:view',
     'query:create',
+    'query:read',
     'query:update',
     'query:delete',
     'query:execute',
     'access:all',
-    'access:view',
+    'access:read',
     'access:invite:create',
     'access:invite:update',
-    'access:invite:cancel',
+    'access:invite:delete',
     'access:user:update',
-    'access:user:remove'
+    'access:user:delete'
 ])
 export type ProjectScopeDtoType = z.infer<typeof ProjectScopeDto>;

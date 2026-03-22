@@ -1,7 +1,7 @@
 import express from 'express';
 
 import {
-    DATASET_VIEW_SCOPES,
+    DATASET_READ_SCOPES,
     DATASET_CREATE_SCOPES,
     DATASET_UPDATE_SCOPES,
     DATASET_DELETE_SCOPES,
@@ -19,7 +19,7 @@ import { requireScope } from '#/middlewares';
 
 export const datasetRouter = express.Router({ mergeParams: true });
 
-datasetRouter.get('/', requireScope(DATASET_VIEW_SCOPES), getDatasets);
+datasetRouter.get('/', requireScope(DATASET_READ_SCOPES), getDatasets);
 datasetRouter.post('/', requireScope(DATASET_CREATE_SCOPES), createDataset);
 datasetRouter.patch('/:datasetObjId', requireScope(DATASET_UPDATE_SCOPES), updateDataset);
 datasetRouter.delete('/:datasetObjId', requireScope(DATASET_DELETE_SCOPES), deleteDataset);
