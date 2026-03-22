@@ -19,11 +19,7 @@ import type { IUserProjectPopulated } from '#/db/interfaces';
 
 export async function createProject(req: Request, res: Response, next: NextFunction) {
     // Validation
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse }
-        }));
+    const jwtBody = getJwtBody(res);
     const projectCreationParse = ProjectCreationDto.safeParse(req.body);
     if (!projectCreationParse.success)
         return next(new ApiError({
@@ -33,14 +29,12 @@ export async function createProject(req: Request, res: Response, next: NextFunct
         }));
 
     // Owner retrieval
-    const owner: IUser | null = await User.findOne({
-        _id: jwtBodyParse.data.userObjId
-    });
+    const owner: IUser | null = await User.findOne({ _id: jwtBody.userObjId });
     if (!owner)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
-            details: { userObjId: jwtBodyParse.data.userObjId }
+            details: { userObjId: jwtBody.userObjId }
         }));
     // Project creation
     // All errors are passed to the error handling middleware, as for errors, there are only code 500 responses
@@ -79,22 +73,16 @@ export async function createProject(req: Request, res: Response, next: NextFunct
 
 export async function getProjects(_req: Request, res: Response, next: NextFunction) {
     // Validation
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse }
-        }));
+    const jwtBody = getJwtBody(res);
 
     // User retrieval
-    const userProjectPopulated = await User.findOne({
-        _id: jwtBodyParse.data.userObjId
-    }).populate<IUserProjectPopulated>('projectObjIds');
-    console.log(userProjectPopulated)
+    const userProjectPopulated = await User.findOne({ _id: jwtBody.userObjId })
+        .populate<IUserProjectPopulated>('projectObjIds');
     if (!userProjectPopulated)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
-            details: { userObjId: jwtBodyParse.data.userObjId }
+            details: { userObjId: jwtBody.userObjId }
         }));
 
     // Response
@@ -171,11 +159,7 @@ export async function deleteProject(req: Request, res: Response, next: NextFunct
 
 export async function disbandProject(req: Request, res: Response, next: NextFunction) {
     // Validation
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse }
-        }));
+    const jwtBody = getJwtBody(res);
     const params = ProjectPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -193,8 +177,8 @@ export async function disbandProject(req: Request, res: Response, next: NextFunc
             details: { projectObjId: params.data.projectObjId }
         }));
     const user: IUser | null = await User.findOneAndUpdate(
-        { _id: jwtBodyParse.data.userObjId },
-        { $pull: { userObjIds: jwtBodyParse.data.userObjId } },
+        { _id: jwtBody.userObjId },
+        { $pull: { userObjIds: jwtBody.userObjId } },
         { returnDocument: 'after' }
     );
     if (!user)

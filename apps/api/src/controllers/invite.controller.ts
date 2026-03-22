@@ -9,10 +9,10 @@ import {
     InvitePathParamsDto
 } from '#/dto/invite';
 import { ApiError } from '#/exceptions/api';
+import { getJwtBody } from '#/utils/api';
 import { UserPathParamsDto } from '#/dto/user';
 import { ProjectPathParamsDto } from '#/dto/project';
 import { User, Invite, Project } from '#/db/models';
-import { getJwtBody, jwtMatchesUserObjId } from '#/utils/api';
 import { deleteInvites, isDuplicateKeyError } from '#/utils/db';
 import type {
     IUser,
@@ -26,6 +26,7 @@ import type { InviteDtoType, InvitesDtoType } from '#/dto/invite';
 
 export async function createInvite(req: Request, res: Response, next: NextFunction) {
     // Validation (Can skip path param validation)
+    const jwtBody = getJwtBody(res);
     const params = ProjectPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -40,7 +41,7 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
             statusCode: 422,
             details: inviteCreationParse.error.issues
         }));
-    if (!jwtMatchesUserObjId(res, inviteCreationParse.data.invitantObjId))
+    if (!inviteCreationParse.data.invitantObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403,
@@ -89,13 +90,11 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
     // Invite creation
     let newInvite: IInvite;
     try {
-        console.log('asd', inviteCreationParse.data)
         newInvite = await Invite.create({
             ...inviteCreationParse.data,
             projectObjId: params.data.projectObjId
         })
     } catch (err) {
-        console.log(err)
         // TODO: Fix duplicate error check
         return next(new ApiError({
             message: 'Invite already exists for invited user with specified project',
@@ -121,13 +120,7 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
 
 export async function getInvites(req: Request, res: Response, next: NextFunction) {
     // Validation
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            message: 'Internal error',
-            statusCode: 500,
-            details: jwtBodyParse.error.issues
-        }));
+    const jwtBody = getJwtBody(res);
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -135,18 +128,18 @@ export async function getInvites(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserObjId(res, params.data.userObjId))
+    if (!params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
         }));
 
     // User retrieval
-    const user = await User.findOne({ _id: jwtBodyParse.data.userObjId })
+    const user = await User.findOne({ _id: jwtBody.userObjId })
         .populate<IUserInvitePopulated>('inviteObjIds');
     if (!user)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
+            message: 'User with provided ID does not exist',
             statusCode: 422,
             details: { userObjId: params.data.userObjId }
         }));
@@ -215,6 +208,7 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
 
 export async function acceptRejectInvite(req: Request, res: Response, next: NextFunction) {
     // Validation (Can skip path param validation)
+    const jwtBody = getJwtBody(res);
     const params = InvitePathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -229,22 +223,17 @@ export async function acceptRejectInvite(req: Request, res: Response, next: Next
             statusCode: 422,
             details: inviteDecisionParse.error.issues
         }));
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse }
-        }));
 
     // Invite retrieval
-    const invite: IInvite | null = await Invite.findOneAndDelete({ invitedObjId: jwtBodyParse.data.userObjId });
+    const invite: IInvite | null = await Invite.findOneAndDelete({ invitedObjId: jwtBody.userObjId });
     if (!invite)
         return next(new ApiError({
             message: 'User with provided invite ID has not yet been invited',
             statusCode: 422,
-            details: { invitedObjId: jwtBodyParse.data.userObjId }
+            details: { invitedObjId: jwtBody.userObjId }
         }));
     // Removing invite + adding (or not) the user to the project, and vice-versa
-    const userToAdd = inviteDecisionParse.data.accept ? [jwtBodyParse.data.userObjId] : [];
+    const userToAdd = inviteDecisionParse.data.accept ? [jwtBody.userObjId] : [];
     const projectToAdd = inviteDecisionParse.data.accept ? [params.data.projectObjId] : [];
     const projectUpdate = await Project.updateOne(
         { _id: invite.projectObjId },

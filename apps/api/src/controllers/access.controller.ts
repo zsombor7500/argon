@@ -118,6 +118,7 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
 
 export async function removeUser(req: Request, res: Response, next: NextFunction) {
     // Validation
+    const jwtBody = getJwtBody(res);
     const params = AccessUserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -125,12 +126,7 @@ export async function removeUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    const jwtBodyParse = getJwtBody(res);
-    if (!jwtBodyParse.success)
-        return next(new ApiError({
-            details: { jwtBodyParse: jwtBodyParse }
-        }));
-    if (params.data.userObjId.equals(jwtBodyParse.data.userObjId))
+    if (params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Owner cannot remove themselves from the project, use disband endpoint instead',
             statusCode: 422,

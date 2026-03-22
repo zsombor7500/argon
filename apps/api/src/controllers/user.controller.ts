@@ -8,8 +8,8 @@ import {
 } from '#/dto/user';
 import { hashText } from '#/utils/api';
 import { ApiError } from '#/exceptions/api';
+import { getJwtBody } from '#/utils/api';
 import { Project, User } from '#/db/models';
-import { jwtMatchesUserObjId } from '#/utils/api';
 import { deleteInvites, deleteProject, isDuplicateKeyError, removeUserFromProject } from '#/utils/db';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
@@ -56,6 +56,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
 
 export async function getUserProfile(req: Request, res: Response, next: NextFunction) {
     // Validation
+    const jwtBody = getJwtBody(res);
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -63,7 +64,7 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserObjId(res, params.data.userObjId))
+    if (!params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
@@ -88,6 +89,7 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
     // Validation
+    const jwtBody = getJwtBody(res);
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -95,7 +97,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserObjId(res, params.data.userObjId))
+    if (!params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
@@ -147,6 +149,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
     // Validation
+    const jwtBody = getJwtBody(res);
     const params = UserPathParamsDto.safeParse(req.params);
     if (!params.success)
         return next(new ApiError({
@@ -154,7 +157,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             statusCode: 422,
             details: params.error.issues
         }));
-    if (!jwtMatchesUserObjId(res, params.data.userObjId))
+    if (!params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'Forbidden',
             statusCode: 403
