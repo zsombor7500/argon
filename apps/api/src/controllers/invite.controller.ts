@@ -188,7 +188,10 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
     let updatedInvite: IInvite | null;
     try {
         updatedInvite = await Invite.findOneAndUpdate(
-            { _id: params.data.inviteObjId },
+            {
+                _id: params.data.inviteObjId,
+                projectObjId: params.data.projectObjId
+            },
             { $set: inviteUpdateParse.data },
             { returnDocument: 'after', runValidators: true }
         ).populate<IInviteUserAndProjectPopulated>([
@@ -242,10 +245,14 @@ export async function acceptRejectInvite(req: Request, res: Response, next: Next
         }));
 
     // Invite retrieval
-    const invite: IInvite | null = await Invite.findOneAndDelete({ invitedObjId: jwtBody.userObjId });
+    const invite: IInvite | null = await Invite.findOneAndDelete({
+        _id: params.data.inviteObjId,
+        invitedObjId: jwtBody.userObjId,
+        projectObjId: params.data.projectObjId
+    });
     if (!invite)
         return next(new ApiError({
-            message: 'User with provided invite ID has not yet been invited',
+            message: 'User with provided invite ID has not yet been invited to such project',
             statusCode: 422,
             details: { invitedObjId: jwtBody.userObjId }
         }));
@@ -304,6 +311,25 @@ export async function cancelInvite(req: Request, res: Response, next: NextFuncti
             details: params.error.issues
         }));
 
+    // Invite ownership check + removal
+    const ownerProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    if (!ownerProject)
+        return next(new ApiError({
+            details: { projectObjId: params.data.projectObjId }
+        }));
+    if (!ownerProject.inviteObjIds.includes(params.data.inviteObjId))
+        return next(new ApiError({
+            message: 'Invite with provided ID does not exist within specified project',
+            statusCode: 422,
+            details: { inviteObjId: params.data.inviteObjId }
+        }));
+    const invite: IInvite | null = await Invite.findOne({ _id: params.data.inviteObjId });
+    if (!invite)
+        return next(new ApiError({
+            message: 'No invite was found with provided ID',
+            statusCode: 422,
+            details: { params: params.data }
+        }));
     await deleteInvites([params.data.inviteObjId]);
 
     // Response
