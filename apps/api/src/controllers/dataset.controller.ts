@@ -108,12 +108,24 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
             statusCode: 400
         }));
 
-    // User update
+    // Dataset ownership check
+    const project: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    if (!project)
+        return next(new ApiError({
+            details: { projectObjId: params.data.projectObjId }
+        }));
+    if (!project.datasetObjIds.includes(params.data.datasetObjId))
+        return next(new ApiError({
+            message: 'Dataset with provided ID within provided project does not exist',
+            statusCode: 422,
+            details: { datasetObjId: params.data.datasetObjId }
+        }));
+    // Dataset update
     const updatedDataset: IDataset | null = await Dataset.findOneAndUpdate(
-            { _id: params.data.datasetObjId },
-            { $set: datasetUpdateParse.data },
-            { returnDocument: 'after', runValidators: true }
-        );
+        { _id: params.data.datasetObjId },
+        { $set: datasetUpdateParse.data },
+        { returnDocument: 'after', runValidators: true }
+    );
     if (!updatedDataset)
         return next(new ApiError({
             message: 'Dataset with provided ID does not exist',
@@ -146,30 +158,28 @@ export async function deleteDataset(req: Request, res: Response, next: NextFunct
         }));
 
     // Dataset deletion + removal of references
-    const updatedProject = await Project.findOneAndUpdate(
-        { _id: params.data.projectObjId },
-        { $pull: { datasetObjIds: params.data.datasetObjId } }
-    );
+    const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
     if (!updatedProject)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
-            details: {
-                datasetObjId: params.data.datasetObjId,
-            }
+            details: { projectObjId: params.data.projectObjId }
         }));
+    if (!updatedProject.datasetObjIds.includes(params.data.datasetObjId))
+        return next(new ApiError({
+            message: 'Dataset with provided ID does not exist within specified project',
+            statusCode: 422,
+            details: { datasetObjId: params.data.datasetObjId }
+        }));
+    updatedProject.datasetObjIds = updatedProject.datasetObjIds
+        .filter((datasetObjId) => !datasetObjId.equals(params.data.datasetObjId));
+    await updatedProject.save();
     const datasetDeleteResult = await Dataset.deleteOne({ _id: params.data.datasetObjId });
     if (!datasetDeleteResult.acknowledged || datasetDeleteResult.deletedCount === 0)
         return next(new ApiError({
-            message: 'Dataset with provided ID does not exist',
-            statusCode: 422,
-            details: {
-                datasetObjId: params.data.datasetObjId,
-            }
+            details: { datasetObjId: params.data.datasetObjId }
         }));
     await Query.updateMany(
         { baseDatasetObjId: params.data.datasetObjId },
-        { $unset: { baseDatasetObjId: '' } }
+        { $unset: { baseDatasetObjId: 'UNSET' } }
     );
 
     // Response
