@@ -12,7 +12,7 @@ import type { IInvite, IProject } from '#/db/interfaces';
 
 export async function deleteInvites(inviteObjIds: Types.ObjectId[]): Promise<void> {
     const invites: IInvite[] = await Invite.find({ _id: { $in: inviteObjIds } });
-    if (!invites)
+    if (invites.length === 0)
         throw new Error('No invites were found with provided ObjectIds')
     const userObjIds = new Set(
         invites.flatMap((invite) => [invite.invitantObjId, invite.invitedObjId])
@@ -58,7 +58,8 @@ export async function deleteProject(projectObjId: Types.ObjectId): Promise<void>
     if (!datasetDeleteResult.acknowledged)
         throw new Error('Dataset deletions weren\'t acknowledged')
     // Delete invites
-    await deleteInvites(project.inviteObjIds);
+    if (project.inviteObjIds.length !== 0)
+        await deleteInvites(project.inviteObjIds);
 }
 
 export async function removeUserFromProject(userObjId: Types.ObjectId, project: IProject): Promise<void> {

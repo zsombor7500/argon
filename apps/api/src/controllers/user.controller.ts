@@ -119,7 +119,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     let updatedUser: IUser | null;
     try {
         updatedUser = await User.findOneAndUpdate(
-            { _id: params.data.userObjId },
+            { _id: jwtBody.userObjId },
             { $set: userUpdateParse.data },
             { returnDocument: 'after', runValidators: true }
         );
@@ -172,7 +172,8 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             details: { userObjId: params.data.userObjId }
         }));
     // Invite + removal from project members
-    await deleteInvites(deletedUser.inviteObjIds);
+    if (deletedUser.inviteObjIds.length !== 0)
+        await deleteInvites(deletedUser.inviteObjIds);
     const projects = await Project.find({ _id: { $in: deletedUser.projectObjIds} });
     for (const project of projects) {
         if (project.ownerObjId.equals(deletedUser._id)) {
