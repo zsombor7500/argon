@@ -1,17 +1,18 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
+import { DatasetDto } from '#/dto/dataset';
 
 
 export const QueryDto = z.object({
-    _id:              ObjectId,
-    name:             z.string(),
-    description:      z.string().optional(),
-    baseDatasetObjId: ObjectId.optional(),
-    query:            z.object(),
-    projections:      z.object(),
-    createdAt:        z.date(),
-    updatedAt:        z.date()
+    _id:         ObjectId,
+    name:        z.string(),
+    description: z.string().optional(),
+    baseDataset: DatasetDto,
+    query:       z.object(),
+    projections: z.object(),
+    createdAt:   z.date(),
+    updatedAt:   z.date()
 });
 export type QueryDtoType = z.infer<typeof QueryDto>;
 

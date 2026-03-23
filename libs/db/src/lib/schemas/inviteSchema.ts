@@ -31,5 +31,28 @@ export const inviteSchema = new mongoose.Schema<IInvite>({
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+inviteSchema.virtual('invitant', {
+    ref: 'User',
+    localField: 'invitantObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
+inviteSchema.virtual('invited', {
+    ref: 'User',
+    localField: 'invitedObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
+inviteSchema.virtual('project', {
+    ref: 'Project',
+    localField: 'projectObjId',
+    foreignField: '_id',
+    justOne: true
 });

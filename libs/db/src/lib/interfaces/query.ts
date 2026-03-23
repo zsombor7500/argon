@@ -1,5 +1,7 @@
 import { Types, Document } from 'mongoose';
 
+import type { IDataset } from '#/db/interfaces';
+
 
 export interface IQuery extends Document {
     _id: Types.ObjectId;
@@ -10,4 +12,8 @@ export interface IQuery extends Document {
     projections: object;
     createdAt?: Date;
     updatedAt?: Date;
+}
+
+export interface IQueryDatasetPopulated extends IQuery {
+    baseDataset: IDataset;
 }

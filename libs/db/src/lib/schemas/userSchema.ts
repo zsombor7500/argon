@@ -61,5 +61,19 @@ export const userSchema = new mongoose.Schema<IUser>({
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+userSchema.virtual('projects', {
+    ref: 'Project',
+    localField: 'projectObjIds',
+    foreignField: '_id'
+});
+
+userSchema.virtual('invites', {
+    ref: 'Invite',
+    localField: 'inviteObjIds',
+    foreignField: '_id'
 });

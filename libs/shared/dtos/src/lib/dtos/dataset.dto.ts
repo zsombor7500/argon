@@ -13,7 +13,7 @@ export const DatasetDto = z.object({
 });
 export type DatasetDtoType = z.infer<typeof DatasetDto>;
 
-export const DatasetsDto = z.array(DatasetDto);
+export const DatasetsDto = DatasetDto.array();
 export type DatasetsDtoType = z.infer<typeof DatasetsDto>;
 
 export const DatasetCreationDto = z.object({

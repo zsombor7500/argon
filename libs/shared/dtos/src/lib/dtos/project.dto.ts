@@ -1,19 +1,20 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
+import { UserProfileDto } from '#/dto/user';
 
 
 export const ProjectDto = z.object({
-    _id:          ObjectId,
-    name:         z.string(),
-    ownerObjId:   ObjectId,
-    description:  z.string().optional(),
-    createdAt:    z.date(),
-    updatedAt:    z.date()
+    _id:         ObjectId,
+    name:        z.string(),
+    owner:       UserProfileDto,
+    description: z.string().optional(),
+    createdAt:   z.date(),
+    updatedAt:   z.date()
 });
 export type ProjectDtoType = z.infer<typeof ProjectDto>;
 
-export const ProjectsDto = z.array(ProjectDto);
+export const ProjectsDto = ProjectDto.array();
 export type ProjectsDtoType = z.infer<typeof ProjectsDto>;
 
 export const ProjectCreationDto = z.object({

@@ -20,7 +20,7 @@ export const AccessDto = z.object({
 export type AccessDtoType = z.infer<typeof AccessDto>;
 
 export const UserRoleUpdateDto = z.object({
-    newRole:   z.string()
+    newRole: z.string()
 }).strict();
 export type UserRoleUpdateDtoType = z.infer<typeof UserRoleUpdateDto>;
 

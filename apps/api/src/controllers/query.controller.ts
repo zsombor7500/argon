@@ -1,17 +1,24 @@
 import type { Request, Response, NextFunction } from 'express';
 
+import {
+    QueryDto,
+    QueriesDto,
+    QueryUpdateDto,
+    QueryCreationDto,
+    QueryPathParamsDto
+} from '#/dto/query';
 import { ApiError } from '#/exceptions/api';
 import { ProjectPathParamsDto } from '#/dto/project';
 import { Query, Dataset, Project} from '#/db/models';
-import { QueryDto, QueryCreationDto, QueryPathParamsDto, QueriesDto, QueryUpdateDto } from '#/dto/query';
 import type {
     IQuery,
     IDataset,
     IProject,
-    IProjectQueryPopulated
+    IProjectQueryPopulated,
+    IQueryDatasetPopulated
 } from '#/db/interfaces';
-import type { QueriesDtoType, QueryDtoType } from '#/dto/query';
 import type { ApiResponseSuccess } from '#/dto/api';
+import type { QueriesDtoType, QueryDtoType } from '#/dto/query';
 
 
 export async function createQuery(req: Request, res: Response, next: NextFunction) {
@@ -76,7 +83,10 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
 
     // User retrieval
     const project = await Project.findOne({ _id: params.data.projectObjId })
-        .populate<IProjectQueryPopulated>('queryObjIds');
+        .populate<IProjectQueryPopulated>({
+            path: 'queries',
+            populate: 'baseDataset'
+        });
     if (!project)
         return next(new ApiError({
             message: 'Project with provided ID does not exist',
@@ -87,7 +97,7 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<QueriesDtoType> = {
         success: true,
-        data: QueriesDto.parse(project.queryObjIds)
+        data: QueriesDto.parse(project.queries)
     };
     return res.status(200).json(response);
 }
@@ -120,13 +130,13 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
             statusCode: 400
         }));
 
-    // User update
-    const queryDataset: IQuery | null = await Query.findOneAndUpdate(
+    // Query update
+    const updatedQuery: IQuery | null = await Query.findOneAndUpdate(
         { _id: params.data.queryObjId },
         { $set: queryUpdateParse.data },
         { returnDocument: 'after', runValidators: true }
     );
-    if (!queryDataset)
+    if (!updatedQuery)
         return next(new ApiError({
             message: 'Invite with provided ID does not exist',
             statusCode: 422,
@@ -136,7 +146,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
     // Response
     const response: ApiResponseSuccess<QueryDtoType> = {
         success: true,
-        data: QueryDto.parse(queryDataset)
+        data: QueryDto.parse(updatedQuery)
     };
     res.status(200).json(response);
 }

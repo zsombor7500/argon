@@ -70,7 +70,7 @@ export async function getDatasets(req: Request, res: Response, next: NextFunctio
 
     // User retrieval
     const project = await Project.findOne({ _id: params.data.projectObjId })
-        .populate<IProjectDatasetPopulated>('datasetObjIds');
+        .populate<IProjectDatasetPopulated>('datasets');
     if (!project)
         return next(new ApiError({
             message: 'Project with provided ID does not exist',
@@ -81,7 +81,7 @@ export async function getDatasets(req: Request, res: Response, next: NextFunctio
     // Response
     const response: ApiResponseSuccess<DatasetsDtoType> = {
         success: true,
-        data: DatasetsDto.parse(project.datasetObjIds)
+        data: DatasetsDto.parse(project.datasets)
     };
     return res.status(200).json(response);
 }

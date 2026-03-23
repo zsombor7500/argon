@@ -19,6 +19,8 @@ import type {
     IInvite,
     IProject,
     IUserInvitePopulated,
+    IProjectOwnerPopulated,
+    IInviteUserAndProjectPopulated
 } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { InviteDtoType, InvitesDtoType } from '#/dto/invite';
@@ -41,29 +43,20 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
             statusCode: 422,
             details: inviteCreationParse.error.issues
         }));
-    if (!inviteCreationParse.data.invitantObjId.equals(jwtBody.userObjId))
-        return next(new ApiError({
-            message: 'Forbidden',
-            statusCode: 403,
-            details: {
-                message: 'User tried creating invite in name of another user',
-                impersonatedUserObjId: inviteCreationParse.data.invitantObjId,
-            }
-        }));
-    if (inviteCreationParse.data.invitantObjId.equals(inviteCreationParse.data.invitedObjId))
+    if (inviteCreationParse.data.invitedObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
             message: 'User cannot invite themselves',
             statusCode: 422,
-            details: { userObjId: inviteCreationParse.data.invitantObjId }
+            details: { userObjId: jwtBody.userObjId }
         }));
 
     // Invitant retrieval
-    const invitant: IUser | null = await User.findOne({ _id: inviteCreationParse.data.invitantObjId });
+    const invitant: IUser | null = await User.findOne({ _id: jwtBody.userObjId });
     if (!invitant)
         return next(new ApiError({
             message: 'Invitant user with provided ID does not exist',
             statusCode: 422,
-            details: { invitantObjId: inviteCreationParse.data.invitantObjId }
+            details: { invitantObjId: jwtBody.userObjId }
         }));
     // Invited retrieval
     const invited: IUser | null = await User.findOne({ _id: inviteCreationParse.data.invitedObjId });
@@ -80,7 +73,8 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
             details: { invitedObjId: inviteCreationParse.data.invitedObjId }
         }));
     // Project retrieval
-    const project: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    const project: IProject | null = await Project.findOne({ _id: params.data.projectObjId })
+        .populate<IProjectOwnerPopulated>('owner');
     if (!project)
         return next(new ApiError({
             message: 'Project with provided ID does not exist',
@@ -92,6 +86,7 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
     try {
         newInvite = await Invite.create({
             ...inviteCreationParse.data,
+            invitantObjId: jwtBody.userObjId,
             projectObjId: params.data.projectObjId
         })
     } catch (err) {
@@ -113,7 +108,12 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
     // Response
     const response: ApiResponseSuccess<InviteDtoType> = {
         success: true,
-        data: InviteDto.parse(newInvite)
+        data: InviteDto.parse({
+            ...newInvite.toObject(),
+            invitant: invitant,
+            invited: invited,
+            project: project
+        })
     };
     return res.status(200).json(response);
 }
@@ -136,7 +136,17 @@ export async function getInvites(req: Request, res: Response, next: NextFunction
 
     // User retrieval
     const user = await User.findOne({ _id: jwtBody.userObjId })
-        .populate<IUserInvitePopulated>('inviteObjIds');
+        .populate<IUserInvitePopulated>({
+            path: 'invites',
+            populate: [
+                { path: 'invitant' },
+                { path: 'invited' },
+                {
+                    path: 'project',
+                    populate: 'owner'
+                }
+            ]
+        });
     if (!user)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
@@ -147,7 +157,7 @@ export async function getInvites(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<InvitesDtoType> = {
         success: true,
-        data: InvitesDto.parse(user.inviteObjIds)
+        data: InvitesDto.parse(user.invites)
     };
     return res.status(200).json(response);
 }
@@ -181,7 +191,14 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
             { _id: params.data.inviteObjId },
             { $set: inviteUpdateParse.data },
             { returnDocument: 'after', runValidators: true }
-        );
+        ).populate<IInviteUserAndProjectPopulated>([
+            { path: 'invitant' },
+            { path: 'invited' },
+            {
+                path: 'project',
+                populate: 'owner'
+            }
+        ]);
     } catch (err) {
         if (isDuplicateKeyError(err))
             return next(new ApiError({

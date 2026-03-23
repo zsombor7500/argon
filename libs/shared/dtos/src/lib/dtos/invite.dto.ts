@@ -1,28 +1,29 @@
 import { z } from 'zod';
 
+import { ProjectDto } from '#/dto/project';
+import { UserProfileDto } from '#/dto/user';
 import { ObjectId, ObjectIdToString } from '#/dto/oid';
 
 
 export const InviteDto = z.object({
-    _id:           ObjectIdToString,
-    name:          z.string(),
-    description:   z.string().optional(),
-    invitantObjId: ObjectIdToString,
-    invitedObjId:  ObjectIdToString,
-    projectObjId:  ObjectIdToString,
-    createdAt:     z.date(),
-    updatedAt:     z.date()
+    _id:         ObjectIdToString,
+    name:        z.string(),
+    description: z.string().optional(),
+    invitant:    UserProfileDto,
+    invited:     UserProfileDto,
+    project:     ProjectDto,
+    createdAt:   z.date(),
+    updatedAt:   z.date()
 });
 export type InviteDtoType = z.infer<typeof InviteDto>;
 
-export const InvitesDto = z.array(InviteDto);
+export const InvitesDto = InviteDto.array();
 export type InvitesDtoType = z.infer<typeof InvitesDto>;
 
 export const InviteCreationDto = z.object({
-    name:          z.string(),
-    description:   z.string().optional(),
-    invitantObjId: ObjectId,
-    invitedObjId:  ObjectId,
+    name:         z.string(),
+    description:  z.string().optional(),
+    invitedObjId: ObjectId,
 }).strict();
 export type InviteCreationDtoType = z.infer<typeof InviteCreationDto>;
 

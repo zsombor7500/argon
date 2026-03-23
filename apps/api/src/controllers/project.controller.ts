@@ -12,9 +12,9 @@ import { getJwtBody } from '#/utils/api';
 import { User, Project } from '#/db/models';
 import { deleteProject as deleteProjectUtil, removeUserFromProject } from '#/utils/db';
 import type { ProjectDtoType } from '#/dto/project';
-import type { IUser, IProject } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { IUserProjectPopulated } from '#/db/interfaces';
+import type { IUser, IProject, IProjectOwnerPopulated } from '#/db/interfaces';
 
 
 export async function createProject(req: Request, res: Response, next: NextFunction) {
@@ -48,12 +48,8 @@ export async function createProject(req: Request, res: Response, next: NextFunct
             'default': []
         },
         roleToScopesMap: {
-            'admin': [
-                'project:all'
-            ],
-            'default': [
-                'project:read'
-            ]
+            'admin': [ 'project:all' ],
+            'default': [ 'project:read' ]
         }
     });
     owner.projectObjIds.push(newProject._id);
@@ -64,8 +60,7 @@ export async function createProject(req: Request, res: Response, next: NextFunct
         success: true,
         data: ProjectDto.parse({
             ...newProject.toObject(),
-            projectObjId: newProject._id.toString(),
-            ownerObjId: owner._id.toString()
+            owner: owner
         })
     };
     return res.status(200).json(response);
@@ -76,9 +71,12 @@ export async function getProjects(_req: Request, res: Response, next: NextFuncti
     const jwtBody = getJwtBody(res);
 
     // User retrieval
-    const userProjectPopulated = await User.findOne({ _id: jwtBody.userObjId })
-        .populate<IUserProjectPopulated>('projectObjIds');
-    if (!userProjectPopulated)
+    const user = await User.findOne({ _id: jwtBody.userObjId })
+        .populate<IUserProjectPopulated>({
+            path: 'projects',
+            populate: { path: 'owner' }
+        });
+    if (!user)
         return next(new ApiError({
             message: 'User with provided ID does not exist',
             statusCode: 422,
@@ -88,7 +86,7 @@ export async function getProjects(_req: Request, res: Response, next: NextFuncti
     // Response
     const response: ApiResponseSuccess<ProjectDtoType[]> = {
         success: true,
-        data: ProjectsDto.parse(userProjectPopulated.projectObjIds)
+        data: ProjectsDto.parse(user.projects)
     };
     return res.status(200).json(response);
 }
@@ -120,7 +118,7 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
         { _id: params.data.projectObjId },
         { $set: projectUpdateParse.data },
         { returnDocument: 'after', runValidators: true }
-    );
+    ).populate<IProjectOwnerPopulated>('owner');
     if (!updatedProject)
         return next(new ApiError({
             message: 'Project with provided ID does not exist',
@@ -168,7 +166,7 @@ export async function disbandProject(req: Request, res: Response, next: NextFunc
             details: params.error.issues
         }));
 
-    // User removal from projects + its own references
+    // User removal from project
     const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
     if (!updatedProject)
         return next(new ApiError({

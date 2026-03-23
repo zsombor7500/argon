@@ -31,3 +31,10 @@ export const querySchema = new mongoose.Schema<IQuery>({
 {
     timestamps: true
 });
+
+querySchema.virtual('baseDataset', {
+    ref: 'Dataset',
+    localField: 'baseDatasetObjId',
+    foreignField: '_id',
+    justOne: true
+});

@@ -1,6 +1,11 @@
 import { Types, Document } from 'mongoose';
 
-import type { IUser, IQuery, IDataset, IInvite } from './index.js';
+import type {
+    IUser,
+    IInvite,
+    IDataset,
+    IQueryDatasetPopulated
+} from '#/db/interfaces';
 
 
 export interface IProject extends Document {
@@ -17,16 +22,17 @@ export interface IProject extends Document {
     createdAt?: Date;
     updatedAt?: Date;
 }
-export interface IProjectUserPopulated extends Omit<IProject, 'userObjIds'> {
-    userObjIds: IUser[];
+
+export interface IProjectOwnerPopulated extends IProject {
+    owner: IUser;
 }
 
-export interface IProjectQueryPopulated extends Omit<IProject, 'queryObjIds'> {
-    queryObjIds: IQuery[];
+export interface IProjectQueryPopulated extends IProject {
+    queries: IQueryDatasetPopulated[];
 }
 
-export interface IProjectDatasetPopulated extends Omit<IProject, 'datasetObjIds'> {
-    datasetObjIds: IDataset[];
+export interface IProjectDatasetPopulated extends IProject {
+    datasets: IDataset[];
 }
 
 export interface IProjectUserAndInvitePopulated extends IProject {

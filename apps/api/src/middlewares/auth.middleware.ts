@@ -9,7 +9,6 @@ import { JwtTokenBodyDto} from '#/dto/auth';
 import { RES_LOCALS_JWT_KEY } from '#/constants/api';
 import { ProjectPathParamsDto } from '#/dto/project';
 import type { ProjectScopeDtoType } from '#/dto/scope';
-import type { IUser, IProjectUserPopulated } from '#/db/interfaces';
 
 
 export function authJwt(req: Request, res: Response, next: NextFunction) {
@@ -67,8 +66,7 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
             }));
 
         // Retrieve project
-        const project = await Project.findOne({ _id: params.data.projectObjId })
-            .populate<IProjectUserPopulated>('userObjIds')
+        const project = await Project.findOne({ _id: params.data.projectObjId });
         if (!project)
             return next(new ApiError({
                 message: 'Project with provided ID does not exist',
@@ -76,8 +74,9 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
                 details: { _id: params.data.projectObjId }
             }));
         // Check scope   -   TODO: Set instead of array
-        const user: IUser | undefined = project.userObjIds.find((user) => user._id.equals(new Types.ObjectId(jwtBody.data.userObjId)));
-        if (!user)
+        const authorizedUserObjId: Types.ObjectId | undefined = project.userObjIds
+            .find((userObjId) => userObjId.equals(jwtBody.data.userObjId));
+        if (!authorizedUserObjId)
             return next(new ApiError({
                 message: 'User is not a member of the project',
                 statusCode: 422,
@@ -88,7 +87,7 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
             }));
         let userRole: string | undefined = undefined;
         for (const [role, userObjIds] of project.roleToUserObjIdsMap) {
-            if (userObjIds.includes(user._id)) {
+            if (userObjIds.includes(authorizedUserObjId)) {
                 userRole = role;
                 break;
             }

@@ -1,6 +1,6 @@
 import { Types, Document } from 'mongoose';
 
-import type { IProject, IUser } from './index.js';
+import type { IProject, IUser } from '#/db/interfaces';
 
 
 export interface IInvite extends Document {
@@ -14,7 +14,7 @@ export interface IInvite extends Document {
     updatedAt?: Date;
 }
 
-export interface IInviteUserAndProjectPopulated extends Omit<IUser, 'invitantObjId' | 'invitedObjId' | 'projectObjId'> {
+export interface IInviteUserAndProjectPopulated extends IUser {
     invitant: IUser;
     invited: IUser;
     project: IProject;

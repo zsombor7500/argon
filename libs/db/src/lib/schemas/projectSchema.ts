@@ -77,9 +77,28 @@ export const projectSchema = new mongoose.Schema<IProject>({
     timestamps: true
 });
 
+projectSchema.virtual('owner', {
+    ref: 'User',
+    localField: 'ownerObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
 projectSchema.virtual('users', {
     ref: 'User',
     localField: 'userObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('queries', {
+    ref: 'Query',
+    localField: 'queryObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('datasets', {
+    ref: 'Dataset',
+    localField: 'datasetObjIds',
     foreignField: '_id'
 });
 

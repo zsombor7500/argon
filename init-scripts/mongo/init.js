@@ -93,7 +93,7 @@ db.createCollection('projects', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
+            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'roleToScopesMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -124,6 +124,15 @@ db.createCollection('projects', {
                         items: { bsonType: 'objectId' }
                     },
                     description: 'Map from role name to array of User ObjectIds - required'
+                },
+                roleToScopesMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'array',
+                        minItems: 0,
+                        items: { bsonType: 'string' }
+                    },
+                    description: 'Map from role name to array of permission scopes - required'
                 },
                 queryObjIds: {
                     bsonType: 'array',

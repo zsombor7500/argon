@@ -5,11 +5,11 @@ export type {
 } from './user.js';
 export type {
     IProject,
-    IProjectUserPopulated,
+    IProjectOwnerPopulated,
     IProjectQueryPopulated,
     IProjectDatasetPopulated,
     IProjectUserAndInvitePopulated
 } from './project.js';
-export type { IQuery } from './query.js';
 export type { IDataset } from './dataset.js';
+export type { IQuery, IQueryDatasetPopulated } from './query.js';
 export type { IInvite, IInviteUserAndProjectPopulated } from './invite.js';
