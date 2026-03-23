@@ -174,9 +174,18 @@ export async function disbandProject(req: Request, res: Response, next: NextFunc
             statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));
+    if (!updatedProject.userObjIds.includes(jwtBody.userObjId))
+        return next(new ApiError({
+            message: 'User is not a member of the specified project',
+            statusCode: 422,
+            details: {
+                userObjId: jwtBody.userObjId,
+                projectObjId: params.data.projectObjId
+            }
+        }));
     const user: IUser | null = await User.findOneAndUpdate(
         { _id: jwtBody.userObjId },
-        { $pull: { userObjIds: jwtBody.userObjId } },
+        { $pull: { projectObjIds: params.data.projectObjId } },
         { returnDocument: 'after' }
     );
     if (!user)
