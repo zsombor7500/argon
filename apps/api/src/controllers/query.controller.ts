@@ -46,6 +46,12 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
             statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));
+    if (!project.datasetObjIds.includes(queryCreationParse.data.baseDatasetObjId))
+        return next(new ApiError({
+            message: 'Base dataset with provided ID does not exist within specified project',
+            statusCode: 422,
+            details: { projectObjId: params.data.projectObjId }
+        }));
     const dataset: IDataset | null = await Dataset.findOne({ _id: queryCreationParse.data.baseDatasetObjId });
     if (!dataset)
         return next(new ApiError({
@@ -130,12 +136,24 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
             statusCode: 400
         }));
 
+    // Query ownership check
+    const project: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    if (!project)
+        return next(new ApiError({
+            details: { projectObjId: params.data.projectObjId }
+        }));
+    if (!project.queryObjIds.includes(params.data.queryObjId))
+        return next(new ApiError({
+            message: 'Query with provided ID within provided project does not exist',
+            statusCode: 422,
+            details: { queryObjId: params.data.queryObjId }
+        }));
     // Query update
     const updatedQuery: IQuery | null = await Query.findOneAndUpdate(
         { _id: params.data.queryObjId },
         { $set: queryUpdateParse.data },
         { returnDocument: 'after', runValidators: true }
-    );
+    ).populate<IQueryDatasetPopulated>('baseDataset');
     if (!updatedQuery)
         return next(new ApiError({
             message: 'Invite with provided ID does not exist',
@@ -161,27 +179,25 @@ export async function deleteQuery(req: Request, res: Response, next: NextFunctio
             details: params.error.issues
         }));
 
-    // Dataset deletion + removal of references
-    const updatedProject = await Project.findOneAndUpdate(
-        { _id: params.data.projectObjId },
-        { $pull: { queryObjIds: params.data.queryObjId } }
-    );
+    // Query ownership check + removal of references + deletion
+    const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
     if (!updatedProject)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
-            details: {
-                queryObjId: params.data.queryObjId,
-            }
+            details: { projectObjId: params.data.projectObjId }
         }));
+    if (!updatedProject.queryObjIds.includes(params.data.queryObjId))
+        return next(new ApiError({
+            message: 'Query with provided ID does not exist within specified project',
+            statusCode: 422,
+            details: { queryObjId: params.data.queryObjId }
+        }));
+    updatedProject.queryObjIds = updatedProject.queryObjIds
+        .filter((queryObjId) => !queryObjId.equals(params.data.queryObjId));
+    await updatedProject.save();
     const queryDeleteResult = await Query.deleteOne({ _id: params.data.queryObjId });
     if (!queryDeleteResult.acknowledged || queryDeleteResult.deletedCount === 0)
         return next(new ApiError({
-            message: 'Query with provided ID does not exist',
-            statusCode: 422,
-            details: {
-                queryObjId: params.data.queryObjId,
-            }
+            details: { queryObjId: params.data.queryObjId }
         }));
 
     // Response
