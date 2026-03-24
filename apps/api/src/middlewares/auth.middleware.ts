@@ -37,6 +37,12 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
                 statusCode: 401,
                 details: jwtBody
             }))
+        if (jwtBodyParse.data.iat + (apiConfig.jwtExpiry * 1000) < Date.now())
+            return next(new ApiError({
+                message: 'Expired JWT access token',
+                statusCode: 401,
+                details: { message: 'JWT data was missing during Authorization scope check'}
+            }));
         res.locals[RES_LOCALS_JWT_KEY] = jwtBodyParse.data;
     } catch (err) {
         return next(new ApiError({
