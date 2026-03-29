@@ -3,6 +3,9 @@ import { Types, Document } from 'mongoose';
 import type { IProject, IInviteUserAndProjectPopulated } from '#/db/interfaces';
 
 
+type TokenHash = string;
+type Expiry = number;
+
 export interface IUser extends Document {
     _id: Types.ObjectId;
     username: string;
@@ -14,21 +17,14 @@ export interface IUser extends Document {
     description?: string | undefined;
     projectObjIds: Types.ObjectId[];
     inviteObjIds: Types.ObjectId[];
+    refreshTokens: Map<TokenHash, Expiry>;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-//export interface IUserInvitePopulated extends Omit<IUser, 'inviteObjIds'> {
-//    inviteObjIds: IInvite[];
-//}
-
 export interface IUserInvitePopulated extends IUser {
     invites: IInviteUserAndProjectPopulated[];
 }
-
-//export interface IUserProjectPopulated extends Omit<IUser, 'projectObjIds'> {
-//    projectObjIds: IProject[];
-//}
 
 export interface IUserProjectPopulated extends IUser {
     projects: IProject[];

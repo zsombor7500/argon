@@ -58,6 +58,13 @@ export const userSchema = new mongoose.Schema<IUser>({
         required: false,
         minItems: 0,
         default: []
+    },
+    refreshTokens: {
+        type: Map,
+        of: { type: Number },
+        required: false,
+        minItems: 0,
+        default: {}
     }
 },
 {

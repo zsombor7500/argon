@@ -5,7 +5,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { Project } from '#/db/models';
 import { ApiError } from '#/exceptions/api';
 import { apiConfig } from '#/configs/api';
-import { JwtTokenBodyDto} from '#/dto/auth';
+import { TokenBodyDto } from '#/dto/auth';
 import { RES_LOCALS_JWT_KEY } from '#/constants/api';
 import { ProjectPathParamsDto } from '#/dto/project';
 import type { ProjectScopeDtoType } from '#/dto/scope';
@@ -16,8 +16,7 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
     if (!req.headers.authorization)
         return next(new ApiError({
             message: 'Missing Authorization HTTP header',
-            statusCode: 401,
-            details: {}
+            statusCode: 401
         }));
 
     // Token validation
@@ -25,23 +24,21 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
     if (!token)
         return next(new ApiError({
             message: 'Malformed Authorization HTTP header',
-            statusCode: 401,
-            details: {}
+            statusCode: 401
         }));
     try {
-        const jwtBody = jwt.verify(token, apiConfig.jwtSecretKey)
-        const jwtBodyParse = JwtTokenBodyDto.safeParse(jwtBody);
+        const jwtBody = jwt.verify(token, apiConfig.accessJwtSecret)
+        const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
         if (!jwtBodyParse.success)
             return next(new ApiError({
                 message: 'Malformed JWT token',
                 statusCode: 401,
                 details: jwtBody
-            }))
-        if (jwtBodyParse.data.iat + (apiConfig.jwtExpiry * 1000) < Date.now())
+            }));
+        if (jwtBodyParse.data.exp < Date.now())
             return next(new ApiError({
-                message: 'Expired JWT access token',
-                statusCode: 401,
-                details: { message: 'JWT data was missing during Authorization scope check'}
+                message: 'Forbidden',
+                statusCode: 403
             }));
         res.locals[RES_LOCALS_JWT_KEY] = jwtBodyParse.data;
     } catch (err) {
@@ -49,7 +46,7 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
             message: 'Forbidden',
             statusCode: 403,
             details: err
-        }))
+        }));
     }
 
     return next();
@@ -58,7 +55,7 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
 export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
     return async function scopeAuthorizationMiddleware(req: Request, res: Response, next: NextFunction) {
         // Validation
-        const jwtBody = JwtTokenBodyDto.safeParse(res.locals[RES_LOCALS_JWT_KEY])
+        const jwtBody = TokenBodyDto.safeParse(res.locals[RES_LOCALS_JWT_KEY])
         if (!jwtBody.success)
             return next(new ApiError({
                 details: { message: 'JWT data was missing during Authorization scope check'}

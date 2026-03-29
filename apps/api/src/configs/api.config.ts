@@ -1,8 +1,15 @@
 import path from 'path';
 
+import {
+    num,
+    str,
+    port,
+    host,
+    cleanEnv,
+    makeValidator
+} from 'envalid';
 import dotenv from 'dotenv';
 import winston from 'winston';
-import { makeValidator, cleanEnv, num, str, port, host } from 'envalid';
 
 import { VERSION_PATTERN } from '#/constants/api';
 
@@ -21,8 +28,10 @@ const apiEnv = cleanEnv(process.env, {
     API_PORT: port(),
     API_VERSION: version(),
     API_SALT_ROUNDS: num(),
-    API_JWT_EXPIRY: num(),
-    API_JWT_SECRET_KEY: str(),
+    API_ACCESS_JWT_EXPIRY: num(),
+    API_ACCESS_JWT_SECRET: str(),
+    API_REFRESH_JWT_EXPIRY: num(),
+    API_REFRESH_JWT_SECRET: str(),
     API_TEST_USERNAME: str(),
     API_TEST_PASSWORD: str()
 });
@@ -37,8 +46,10 @@ export const apiConfig = {
     port: apiEnv.API_PORT,
     version: apiEnv.API_VERSION,
     saltRounds: apiEnv.API_SALT_ROUNDS,
-    jwtExpiry: apiEnv.API_JWT_EXPIRY,
-    jwtSecretKey: apiEnv.API_JWT_SECRET_KEY,
+    accessJwtExpiry: apiEnv.API_ACCESS_JWT_EXPIRY,
+    accessJwtSecret: apiEnv.API_ACCESS_JWT_SECRET,
+    refreshJwtExpiry: apiEnv.API_REFRESH_JWT_EXPIRY,
+    refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET,
     testUser: apiEnv.API_TEST_USERNAME,
     testPassword: apiEnv.API_TEST_PASSWORD,
 };

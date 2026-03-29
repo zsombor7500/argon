@@ -2,9 +2,11 @@ import type { ProjectScopeDtoType } from "#/dto/scope";
 
 
 export const VERSION_PATTERN = /^v[1-9][0-9]*$/;
+export const HASH_ALGORITHM = 'sha512';
+
 export const RES_LOCALS_JWT_KEY = 'jwt';
 
-export const PROJECT_BASE_SCOPES   = new Set<ProjectScopeDtoType>(['project:all'])
+export const PROJECT_BASE_SCOPES   = new Set<ProjectScopeDtoType>(['project:all']);
 export const PROJECT_READ_SCOPES   = new Set(PROJECT_BASE_SCOPES).add('project:read');
 export const PROJECT_CREATE_SCOPES = new Set(PROJECT_BASE_SCOPES).add('project:create');
 export const PROJECT_UPDATE_SCOPES = new Set(PROJECT_BASE_SCOPES).add('project:update');

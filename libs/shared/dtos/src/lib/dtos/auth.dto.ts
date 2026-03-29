@@ -9,14 +9,21 @@ export const UserLoginDto = z.object({
 }).strict();
 export type UserLoginDtoType = z.infer<typeof UserLoginDto>;
 
-export const JwtTokenBodyDto = z.object({
-    iat:        z.number(),
-    expiration: z.number(),
-    userObjId:  ObjectId
+export const TokenBodyDto = z.object({
+    iat:       z.number(),
+    exp:       z.number(),
+    userObjId: ObjectId
 });
-export type JwtTokenBodyDtoType = z.infer<typeof JwtTokenBodyDto>;
+export type TokenBodyDtoType = z.infer<typeof TokenBodyDto>;
 
-export const JwtTokenDto = z.object({
-    token: z.string(),
+export const TokenRefreshDto = z.object({
+    accessToken: z.string(),
+    tokenType:   z.string(),
+    tokenBody:   TokenBodyDto
+}).strict();
+export type TokenRefreshDtoType = z.infer<typeof TokenRefreshDto>;
+
+export const RefreshTokenCoookies = z.object({
+    refreshToken: z.string()
 });
-export type JwtTokenDtoType = z.infer<typeof JwtTokenDto>;
+export type RefreshTokenCoookiesType = z.infer<typeof RefreshTokenCoookies>;

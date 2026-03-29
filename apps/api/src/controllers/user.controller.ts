@@ -6,11 +6,16 @@ import {
     UserPathParamsDto,
     UserRegistrationDto
 } from '#/dto/user';
-import { hashText } from '#/utils/api';
+import {
+    deleteInvites,
+    deleteProject,
+    isDuplicateKeyError,
+    removeUserFromProject
+} from '#/utils/db';
 import { ApiError } from '#/exceptions/api';
 import { getJwtBody } from '#/utils/api';
 import { Project, User } from '#/db/models';
-import { deleteInvites, deleteProject, isDuplicateKeyError, removeUserFromProject } from '#/utils/db';
+import { getBcryptHash } from '#/utils/api';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { UserProfileDtoType } from '#/dto/user';
@@ -27,7 +32,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         }));
 
     // User creation
-    const passwordHash = await hashText(userCredentialsParse.data.password);
+    const passwordHash = await getBcryptHash(userCredentialsParse.data.password);
     let newUser: IUser;
     try {
         newUser = await User.create({

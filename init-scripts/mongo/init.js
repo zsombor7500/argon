@@ -15,7 +15,7 @@ db.createCollection('users', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
+            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'activeRefreshTokenHashes', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 username: {
@@ -64,6 +64,11 @@ db.createCollection('users', {
                     minItems: 0,
                     items: { bsonType: 'objectId' },
                     description: 'Invite ObjectIds - required'
+                },
+                refreshTokens: {
+                    bsonType: 'object',
+                    additionalProperties: { bsonType: 'number' },
+                    description: 'Active JWT refresh token to issued at timstamp map - required'
                 },
                 createdAt: {
                     bsonType: 'date',
