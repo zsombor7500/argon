@@ -38,6 +38,7 @@ export const apiConfig = {
     isDev: apiEnv.isDevelopment,
     isQa: apiEnv.isTest,
     isProd: apiEnv.isProduction,
+    isSecure: apiEnv.isProduction,
     logLevel: apiEnv.isProduction ? 'info' : 'debug',
     logFormat: apiEnv.isProduction ? winston.format.json() : winston.format.cli(),
     host: apiEnv.API_HOST,

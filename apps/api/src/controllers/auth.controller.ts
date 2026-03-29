@@ -87,7 +87,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     };
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: apiConfig.isSecure,
         sameSite: true,
         maxAge: apiConfig.refreshJwtExpiry,
         path: `/api/${apiConfig.version}/auth/refresh`
@@ -196,7 +196,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     };
     res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: apiConfig.isSecure,
         sameSite: true,
         maxAge: apiConfig.refreshJwtExpiry,
         path: `/api/${apiConfig.version}/auth/refresh`
@@ -286,7 +286,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     };
     res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: true,
+        secure: apiConfig.isSecure,
         sameSite: true,
         maxAge: apiConfig.refreshJwtExpiry,
         path: `/api/${apiConfig.version}/auth/refresh`
