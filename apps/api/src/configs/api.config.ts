@@ -31,9 +31,7 @@ const apiEnv = cleanEnv(process.env, {
     API_ACCESS_JWT_EXPIRY: num(),
     API_ACCESS_JWT_SECRET: str(),
     API_REFRESH_JWT_EXPIRY: num(),
-    API_REFRESH_JWT_SECRET: str(),
-    API_TEST_USERNAME: str(),
-    API_TEST_PASSWORD: str()
+    API_REFRESH_JWT_SECRET: str()
 });
 
 export const apiConfig = {
@@ -49,7 +47,5 @@ export const apiConfig = {
     accessJwtExpiry: apiEnv.API_ACCESS_JWT_EXPIRY,
     accessJwtSecret: apiEnv.API_ACCESS_JWT_SECRET,
     refreshJwtExpiry: apiEnv.API_REFRESH_JWT_EXPIRY,
-    refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET,
-    testUser: apiEnv.API_TEST_USERNAME,
-    testPassword: apiEnv.API_TEST_PASSWORD,
+    refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET
 };
