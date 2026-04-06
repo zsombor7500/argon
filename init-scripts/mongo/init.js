@@ -139,6 +139,12 @@ db.createCollection('projects', {
                     },
                     description: 'Map from role name to array of permission scopes - required'
                 },
+                tagObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'Tag ObjectIds - required'
+                },
                 queryObjIds: {
                     bsonType: 'array',
                     minItems: 0,
@@ -225,6 +231,92 @@ db.invites.createIndex(
 print('Invites init completed');
 
 
+// Tags
+db.createCollection('tags', {
+validationLevel: 'strict',
+    validationAction: 'error',
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name', 'type', 'constraints', 'createdAt', 'updatedAt'],
+            additionalProperties: true,
+            properties: {
+                name: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Tag name - required'
+                },
+                description: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Tag description'
+                },
+                type: {
+                    bsonType: 'string',
+                    description: 'Type of data the tag is assigned to - required'
+                },
+                constraints: {
+                    bsonType: 'object',
+                    description: 'Data type specific constraints - required'
+                },
+                createdAt: {
+                    bsonType: 'date',
+                    description: 'Creation timestamp - required'
+                },
+                updatedAt: {
+                    bsonType: 'date',
+                    description: 'Update timestamp - required'
+                }
+            }
+        }
+    }
+});
+
+print('Tags init completed');
+
+
+// Queries
+db.createCollection('queries', {
+    validationLevel: 'strict',
+    validationAction: 'error',
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name', 'tagObjIds', 'createdAt', 'updatedAt'],
+            additionalProperties: true,
+            properties: {
+                name: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Query name - required'
+                },
+                description: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Query description'
+                },
+                tagObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'List of tags choosen to query by - required'
+                },
+                createdAt: {
+                    bsonType: 'date',
+                    description: 'Creation timestamp - required'
+                },
+                updatedAt: {
+                    bsonType: 'date',
+                    description: 'Update timestamp - required'
+                }
+            }
+        }
+    }
+});
+
+print('Queries init completed');
+
+
 // Datasets
 db.createCollection('datasets', {
     validationLevel: 'strict',
@@ -232,7 +324,7 @@ db.createCollection('datasets', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt'],
+            required: ['name', 'collectionRef', 'jsonSchema', 'attributePathToTagObjIdMap', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -250,10 +342,18 @@ db.createCollection('datasets', {
                     minLength: 1,
                     description: 'Reference to MongoDB collection name - required'
                 },
-                mongooseSchema: {
+                jsonSchema: {
                     bsonType: 'object',
-                    //additionalProperties: true,
-                    description: 'Mongoose schema definition - required'
+                    additionalProperties: true,
+                    description: 'Mongo JSON schema validator definition - required'
+                },
+                attributePathToTagObjIdsMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'array',
+                        items: { bsonType: 'objectId' }
+                    },
+                    description: 'Map from schema object attribute path to tag ObjectIds - required'
                 },
                 createdAt: {
                     bsonType: 'date',
@@ -269,56 +369,6 @@ db.createCollection('datasets', {
 });
 
 print('Datasets init completed');
-
-
-// Queries
-db.createCollection('queries', {
-    validationLevel: 'strict',
-    validationAction: 'error',
-    validator: {
-        $jsonSchema: {
-            bsonType: 'object',
-            required: ['name', 'query', 'projections', 'createdAt', 'updatedAt'],
-            additionalProperties: true,
-            properties: {
-                name: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query name - required'
-                },
-                description: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query description'
-                },
-                baseDatasetObjId: {
-                    bsonType: 'objectId',
-                    description: 'Dataset on which the query is defined - required'
-                },
-                query: {
-                    bsonType: 'object',
-                    //additionalProperties: true,
-                    description: 'Query definition - required'
-                },
-                projections: {
-                    bsonType: 'object',
-                    //additionalProperties: true,
-                    description: 'Projection definition - required'
-                },
-                createdAt: {
-                    bsonType: 'date',
-                    description: 'Creation timestamp - required'
-                },
-                updatedAt: {
-                    bsonType: 'date',
-                    description: 'Update timestamp - required'
-                }
-            }
-        }
-    }
-});
-
-print('Queries init completed');
 
 
 print('Argon database init completed');

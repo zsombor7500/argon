@@ -43,6 +43,15 @@ export const projectSchema = new mongoose.Schema<IProject>({
         }],
         required: [true, '`roleToScopesMap` must be provided']
     },
+    tagObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
+        required: false,
+        minItems: 0,
+        default: []
+    },
     queryObjIds: {
         type: [{
             type: Types.ObjectId,
@@ -87,6 +96,12 @@ projectSchema.virtual('owner', {
 projectSchema.virtual('users', {
     ref: 'User',
     localField: 'userObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('tags', {
+    ref: 'Tag',
+    localField: 'tagObjIds',
     foreignField: '_id'
 });
 

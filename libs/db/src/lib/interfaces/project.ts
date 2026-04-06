@@ -1,10 +1,11 @@
 import { Types, Document } from 'mongoose';
 
 import type {
+    ITag,
     IUser,
     IInvite,
-    IDataset,
-    IQueryDatasetPopulated
+    IQueryPopulated,
+    IDatasetPopulated
 } from '#/db/interfaces';
 
 
@@ -16,6 +17,7 @@ export interface IProject extends Document {
     userObjIds: Types.ObjectId[];
     roleToUserObjIdsMap: Map<string, Types.ObjectId[]>;
     roleToScopesMap: Map<string, string[]>; // TODO: Fix ProjectScopeDtoType
+    tagObjIds: Types.ObjectId[];
     queryObjIds: Types.ObjectId[];
     datasetObjIds: Types.ObjectId[];
     inviteObjIds: Types.ObjectId[];
@@ -27,12 +29,16 @@ export interface IProjectOwnerPopulated extends IProject {
     owner: IUser;
 }
 
+export interface IProjectTagPopulated extends IProject {
+    tags: ITag[];
+}
+
 export interface IProjectQueryPopulated extends IProject {
-    queries: IQueryDatasetPopulated[];
+    queries: IQueryPopulated[];
 }
 
 export interface IProjectDatasetPopulated extends IProject {
-    datasets: IDataset[];
+    datasets: IDatasetPopulated[];
 }
 
 export interface IProjectUserAndInvitePopulated extends IProject {

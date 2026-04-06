@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import type { IDataset } from '#/db/interfaces';
 
@@ -18,12 +18,28 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
         type: String,
         required: [true, '`collectionRef` must be provided']
     },
-    mongooseSchema: {
+    jsonSchema: {
         type: Object,
         required: false,
         default: {}
+    },
+    attributePathToTagObjIdsMap: {
+        type: Map,
+        of: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
+        required: [true, '`tagObjIds` must be provided']
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+datasetSchema.virtual('tags', {
+    ref: 'Tag',
+    localField: 'tagObjIds',
+    foreignField: '_id'
 });

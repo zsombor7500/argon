@@ -1,3 +1,4 @@
+export { Tag } from './tagModel.js';
 export { User } from './userModel.js';
 export { Query } from './queryModel.js';
 export { Invite } from './inviteModel.js';

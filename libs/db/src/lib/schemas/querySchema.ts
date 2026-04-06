@@ -14,27 +14,24 @@ export const querySchema = new mongoose.Schema<IQuery>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
-    baseDatasetObjId: {
-        type: Types.ObjectId,
-        ref: 'Dataset',
-        required: [false, '`baseDatasetObjId` must be provided']
-    },
-    query: {
-        type: Object,
-        required: [true, '`query` must be provided']
-    },
-    projections: {
-        type: Object,
-        required: [true, '`projections` must be provided']
+    tagObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
+        required: false,
+        minItems: 0,
+        default: []
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
 });
 
-querySchema.virtual('baseDataset', {
-    ref: 'Dataset',
-    localField: 'baseDatasetObjId',
-    foreignField: '_id',
-    justOne: true
+querySchema.virtual('Tags', {
+    ref: 'Tag',
+    localField: 'tagObjIds',
+    foreignField: '_id'
 });
