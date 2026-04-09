@@ -33,7 +33,6 @@ export const UserUpdateDto = z.object({
     displayName: z.string().optional(),
     firstName:   z.string().optional(),
     lastName:    z.string().optional(),
-    email:       z.string().optional(),
     description: z.string().optional()
 }).strict();
 export type UserUpdateDtoType = z.infer<typeof UserUpdateDto>;
