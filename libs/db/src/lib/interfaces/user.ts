@@ -17,7 +17,7 @@ export interface IUser extends Document {
     description?: string | undefined;
     projectObjIds: Types.ObjectId[];
     inviteObjIds: Types.ObjectId[];
-    refreshTokens: Map<TokenHash, Expiry>;
+    refreshTokenHashes: Map<TokenHash, Expiry>;
     createdAt?: Date;
     updatedAt?: Date;
 }

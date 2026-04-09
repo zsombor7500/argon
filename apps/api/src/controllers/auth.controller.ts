@@ -46,8 +46,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
             details: { email: userLogin.data.email }
         }));
     // Expired refresh token removal
-    user.refreshTokens = new Map(
-        user.refreshTokens
+    user.refreshTokenHashes = new Map(
+        user.refreshTokenHashes
             .entries()
             .filter(([_, exp]) => exp >= Date.now())
     );
@@ -60,7 +60,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     };
     const refreshToken = jwt.sign(refreshTokenBody, apiConfig.refreshJwtSecret);
     const refreshTokenHash = getSha512Hash(refreshToken);
-    if (user.refreshTokens.get(refreshTokenHash))
+    if (user.refreshTokenHashes.get(refreshTokenHash))
         return next(new ApiError({
             details: {
                 message: 'Hash collision during the insertion of JWT refresh token hash',
@@ -73,7 +73,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         userObjId: user._id
     };
     const accessToken = jwt.sign(accessTokenBody, apiConfig.accessJwtSecret);
-    user.refreshTokens.set(refreshTokenHash, refreshTokenBody.exp);
+    user.refreshTokenHashes.set(refreshTokenHash, refreshTokenBody.exp);
     await user.save();
 
     // Response
@@ -141,13 +141,13 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
             }
         }));
     // Expired refresh token removal + checking for token reusal
-    user.refreshTokens = new Map(
-        user.refreshTokens
+    user.refreshTokenHashes = new Map(
+        user.refreshTokenHashes
             .entries()
             .filter(([_, exp]) => exp >= Date.now())
     );
     const refreshTokenHash = getSha512Hash(cookies.data.refreshToken);
-    const tokenMatch = user.refreshTokens
+    const tokenMatch = user.refreshTokenHashes
         .entries()
         .find(([tokenHash, _]) => tokenHash === refreshTokenHash);
     if (!tokenMatch)
@@ -160,7 +160,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
             }
         }));
     // Old refresh token removal + refresh token gen + collision check + access token gen
-    user.refreshTokens.delete(refreshTokenHash);
+    user.refreshTokenHashes.delete(refreshTokenHash);
     const timestamp = Date.now();
     const newRefreshTokenBody: TokenBodyDtoType = {
         iat: timestamp,
@@ -169,7 +169,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     };
     const newRefreshToken = jwt.sign(newRefreshTokenBody, apiConfig.refreshJwtSecret);
     const newRefreshTokenHash = getSha512Hash(newRefreshToken);
-    if (user.refreshTokens.get(newRefreshTokenHash))
+    if (user.refreshTokenHashes.get(newRefreshTokenHash))
         return next(new ApiError({
             details: {
                 message: 'Hash collision during the insertion of JWT refresh token hash',
@@ -182,7 +182,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
         userObjId: user._id
     };
     const accessToken = jwt.sign(newAccessTokenBody, apiConfig.accessJwtSecret);
-    user.refreshTokens.set(newRefreshTokenHash, newRefreshTokenBody.exp);
+    user.refreshTokenHashes.set(newRefreshTokenHash, newRefreshTokenBody.exp);
     await user.save();
 
     // Response
@@ -254,13 +254,13 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
                 jwtBody: jwtBodyParse.data
             }
         }));
-    user.refreshTokens = new Map(
-        user.refreshTokens
+    user.refreshTokenHashes = new Map(
+        user.refreshTokenHashes
             .entries()
             .filter(([_, exp]) => exp >= Date.now())
     );
     const refreshTokenHash = getSha512Hash(cookies.data.refreshToken);
-    const tokenMatch = user.refreshTokens
+    const tokenMatch = user.refreshTokenHashes
         .entries()
         .find(([tokenHash, _]) => tokenHash === refreshTokenHash);
     if (!tokenMatch)
@@ -272,8 +272,8 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
                 jwtBody: jwtBodyParse.data
             }
         }));
-    user.refreshTokens = new Map(
-        user.refreshTokens
+    user.refreshTokenHashes = new Map(
+        user.refreshTokenHashes
             .entries()
             .filter(([tokenHash, _]) => tokenHash !== refreshTokenHash)
     );

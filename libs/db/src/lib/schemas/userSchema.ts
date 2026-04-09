@@ -59,11 +59,10 @@ export const userSchema = new mongoose.Schema<IUser>({
         minItems: 0,
         default: []
     },
-    refreshTokens: {
+    refreshTokenHashes: {
         type: Map,
         of: { type: Number },
         required: false,
-        minItems: 0,
         default: {}
     }
 },
