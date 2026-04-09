@@ -8,7 +8,6 @@ export interface ITag extends Document {
     name: string;
     description?: string | undefined;
     type: SchemaPrimitiveType;
-    constraints: Map<string, string>;
     createdAt?: Date;
     updatedAt?: Date;
 }

@@ -98,7 +98,7 @@ db.createCollection('projects', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'roleToScopesMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
+            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'roleToScopesMap', 'tagObjIds', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -238,7 +238,7 @@ validationLevel: 'strict',
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'type', 'constraints', 'createdAt', 'updatedAt'],
+            required: ['name', 'type', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {
@@ -254,10 +254,6 @@ validationLevel: 'strict',
                 type: {
                     bsonType: 'string',
                     description: 'Type of data the tag is assigned to - required'
-                },
-                constraints: {
-                    bsonType: 'object',
-                    description: 'Data type specific constraints - required'
                 },
                 createdAt: {
                     bsonType: 'date',

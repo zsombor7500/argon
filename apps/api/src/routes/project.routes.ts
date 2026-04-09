@@ -1,10 +1,11 @@
 import express from 'express';
 
 import {
+    tagRouter,
     queryRouter,
     accessRouter,
     inviteRouter,
-    datasetRouter
+    datasetRouter,
 } from './index.js';
 import {
     PROJECT_UPDATE_SCOPES,
@@ -29,6 +30,7 @@ projectRouter.patch('/:projectObjId', requireScope(PROJECT_UPDATE_SCOPES), updat
 projectRouter.delete('/:projectObjId', requireScope(PROJECT_DELETE_SCOPES), deleteProject);
 projectRouter.delete('/:projectObjId/disband', disbandProject);
 
+projectRouter.use('/:projectObjId/tags', tagRouter);
 projectRouter.use('/:projectObjId/queries', queryRouter);
 projectRouter.use('/:projectObjId/datasets', datasetRouter);
 projectRouter.use('/:projectObjId/invites', inviteRouter);

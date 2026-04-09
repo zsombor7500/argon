@@ -12,6 +12,12 @@ export const PROJECT_CREATE_SCOPES = new Set(PROJECT_BASE_SCOPES).add('project:c
 export const PROJECT_UPDATE_SCOPES = new Set(PROJECT_BASE_SCOPES).add('project:update');
 export const PROJECT_DELETE_SCOPES = new Set(PROJECT_BASE_SCOPES).add('project:delete');
 
+export const TAG_BASE_SCOPES   = new Set<ProjectScopeDtoType>(['tag:all']);
+export const TAG_READ_SCOPES   = TAG_BASE_SCOPES.union(PROJECT_READ_SCOPES).add('tag:read');
+export const TAG_CREATE_SCOPES = TAG_BASE_SCOPES.union(PROJECT_CREATE_SCOPES).add('tag:create');
+export const TAG_UPDATE_SCOPES = TAG_BASE_SCOPES.union(PROJECT_UPDATE_SCOPES).add('tag:update');
+export const TAG_DELETE_SCOPES = TAG_BASE_SCOPES.union(PROJECT_DELETE_SCOPES).add('tag:delete');
+
 export const DATASET_BASE_SCOPES   = new Set<ProjectScopeDtoType>(['dataset:all']);
 export const DATASET_READ_SCOPES   = DATASET_BASE_SCOPES.union(PROJECT_READ_SCOPES).add('dataset:read');
 export const DATASET_CREATE_SCOPES = DATASET_BASE_SCOPES.union(PROJECT_CREATE_SCOPES).add('dataset:create');

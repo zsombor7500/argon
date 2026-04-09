@@ -1,3 +1,4 @@
+export { tagRouter } from './tag.routes.js';
 export { authRouter } from './auth.routes.js';
 export { userRouter } from './user.routes.js';
 export { queryRouter } from './query.routes.js';

@@ -18,12 +18,6 @@ export const tagSchema = new mongoose.Schema<ITag>({
         type: String,
         required: false,
         minlength: [1, '`type` must be at least 1 characters long']
-    },
-    constraints: {
-        type: Map,
-        of: { type: String },
-        required: false,
-        default: {}
     }
 },
 {
