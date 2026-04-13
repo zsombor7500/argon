@@ -1,9 +1,9 @@
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 
 import { dbConfig } from '#/configs/db';
 
 
-export const argonDbConnection: Mongoose = await mongoose.connect(`mongodb://${dbConfig.mongoHost}:${dbConfig.mongoPort}`, {
+export const argonDbConnection: Connection = mongoose.createConnection(`mongodb://${dbConfig.mongoHost}:${dbConfig.mongoPort}`, {
     dbName: dbConfig.mongoServiceDb,
     user: dbConfig.mongoUser,
     pass: dbConfig.mongoPassword,

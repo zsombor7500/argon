@@ -23,3 +23,7 @@ export function getSha512Hash(text: string): string {
 export function verifySha512Hash(text: string, hash: string): boolean {
     return hash === getSha512Hash(text);
 }
+
+export function uniqueString(): string {
+    return crypto.randomUUID();
+}

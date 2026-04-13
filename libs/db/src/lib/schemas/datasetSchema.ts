@@ -37,9 +37,3 @@ export const datasetSchema = new mongoose.Schema<IDataset>({
     toJSON: { virtuals: true },
     timestamps: true
 });
-
-datasetSchema.virtual('tags', {
-    ref: 'Tag',
-    localField: 'tagObjIds',
-    foreignField: '_id'
-});

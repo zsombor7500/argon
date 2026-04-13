@@ -320,7 +320,7 @@ db.createCollection('datasets', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['name', 'collectionRef', 'jsonSchema', 'attributePathToTagObjIdMap', 'createdAt', 'updatedAt'],
+            required: ['name', 'collectionRef', 'jsonSchema', 'attributePathToTagObjIdsMap', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
                 name: {

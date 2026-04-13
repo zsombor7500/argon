@@ -16,6 +16,6 @@ export interface IDataset extends Document {
     updatedAt?: Date;
 }
 
-export interface IDatasetPopulated extends IDataset {
-    tags: ITag[];
+export interface IDatasetPopulated extends Omit<IDataset, 'attributePathToTagObjIdsMap'> {
+    attributePathToTagObjIdsMap: Map<AttributePath, ITag[]>;
 }

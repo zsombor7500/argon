@@ -6,9 +6,9 @@ import { UserProfileDto } from '#/dto/user';
 import { ProjectScopeDto } from '#/dto/scope';
 
 
-export const RoleToScopesMap = z.map(z.string(), ProjectScopeDto.array()).transform((map) => Object.fromEntries(map));
+export const RoleToScopesMap = z.map(z.string(), ProjectScopeDto.array()).transform(map => Object.fromEntries(map));
 export type RoleToScopesMapType = z.infer<typeof RoleToScopesMap>;
-export const RoleToUserObjIdsMap = z.map(z.string(), ObjectId.array()).transform((map) => Object.fromEntries(map));
+export const RoleToUserObjIdsMap = z.map(z.string(), ObjectId.array()).transform(map => Object.fromEntries(map));
 export type RoleToUserObjIdsMapType = z.infer<typeof RoleToUserObjIdsMap>;
 
 export const AccessDto = z.object({

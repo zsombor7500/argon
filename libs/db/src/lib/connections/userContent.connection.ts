@@ -1,9 +1,9 @@
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 
 import { dbConfig } from '#/configs/db';
 
 
-export const userContentDbConnection: Mongoose = await mongoose.connect(`mongodb://${dbConfig.mongoHost}:${dbConfig.mongoPort}`, {
+export const userContentDbConnection: Connection = mongoose.createConnection(`mongodb://${dbConfig.mongoHost}:${dbConfig.mongoPort}`, {
     dbName: dbConfig.mongoUserContentDb,
     user: dbConfig.mongoUser,
     pass: dbConfig.mongoPassword,
