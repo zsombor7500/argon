@@ -61,4 +61,5 @@ export const SchemaObjectNodeDto: z.ZodType<ISchemaObjectNode> = z.lazy(() =>
     })
 );
 
+export type SchemaType = ISchemaObjectNode;
 export const SchemaDto = SchemaObjectNodeDto;
