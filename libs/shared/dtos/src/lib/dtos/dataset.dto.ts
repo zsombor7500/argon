@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 import { TagsDto } from '#/dto/tag';
-import { ObjectId } from '#/dto/oid';
 import { SchemaDto } from '#/dto/schema';
+import { ObjectId, ObjectIds } from '#/dto/oid';
 
 
 export const DatasetDto = z.object({
@@ -23,14 +23,14 @@ export const DatasetCreationDto = z.object({
     name:                        z.string(),
     description:                 z.string().optional(),
     jsonSchema:                  SchemaDto,
-    attributePathToTagObjIdsMap: z.record(z.string(), ObjectId.array())
+    attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds)
 }).strict();
 export type DatasetCreationDtoType = z.infer<typeof DatasetCreationDto>;
 
 export const DatasetUpdateDto = z.object({
     name:                        z.string().optional(),
     description:                 z.string().optional(),
-    attributePathToTagObjIdsMap: z.record(z.string(), ObjectId.array())
+    attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds)
 }).strict();
 export type DatasetUpdateDtoType = z.infer<typeof DatasetUpdateDto>;
 

@@ -8,3 +8,5 @@ export const ObjectId = z.union([
     z.instanceof(Types.ObjectId)
 ]);
 
+export const ObjectIds = ObjectId.array();
+export type ObjectIdsType = z.infer<typeof ObjectIds>;
