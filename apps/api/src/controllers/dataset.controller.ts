@@ -6,7 +6,8 @@ import {
     DatasetsDto,
     DatasetUpdateDto,
     DatasetCreationDto,
-    DatasetPathParamsDto
+    DatasetPathParamsDto,
+    DatasetBatchUploadDto
 } from '#/dto/dataset';
 import { ApiError } from '#/exceptions/api';
 import { SchemaDto } from '#/dto/schema';
@@ -95,9 +96,14 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         });
     // Dataset collection creation
     const collectionName = uniqueString();
-    const collectionSchema = new mongoose.Schema(datasetCreationParse.data.jsonSchema);
+    datasetCreationParse.data.jsonSchema.required = ['field1xd'];
+    const collectionSchema = new mongoose.Schema({}, { collection: collectionName });
     const collection = userContentDbConnection.model(collectionName, collectionSchema);
-    await collection.createCollection();
+    await collection.createCollection({
+        validationLevel: 'strict',
+        validationAction: 'error',
+        validator: { $jsonSchema: datasetCreationParse.data.jsonSchema }
+    });
     // Dataset creation
     // All errors are passed to the error handling middleware, as for errors, there are only code 500 responses
     const newDataset: IDataset = await Dataset.create({
@@ -105,7 +111,7 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         collectionRef: collectionName
     });
     project.datasetObjIds.push(newDataset._id);
-    await project.save()
+    await project.save();
 
     // Response
     const newDatasetPopulated = await newDataset.populate<IDatasetPopulated>('attributePathToTagObjIdsMap.$*');
@@ -265,10 +271,60 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
     res.status(200).json(response);
 }
 
-export function ingestData(_req: Request, res: Response, _next: NextFunction) {
-    res.status(500).json({
-        'message': 'NOT IMPLEMENTED'
-    });
+export async function ingestData(req: Request, res: Response, next: NextFunction) {
+    // Validation
+    const params = DatasetPathParamsDto.safeParse(req.params);
+    if (!params.success)
+        return next(new ApiError({
+            message: 'Malformed path parameters',
+            statusCode: 422,
+            details: params.error.issues
+        }));
+    const datasetBatchParse = DatasetBatchUploadDto.safeParse(req.body);
+    if (!datasetBatchParse.success)
+        return next(new ApiError({
+            message: 'Malformed dataset batch fields',
+            statusCode: 422,
+            details: datasetBatchParse.error.issues
+        }));
+
+    // Dataset ownership check
+    const project = await Project.findOne({ _id: params.data.projectObjId })
+        .populate<IProjectDatasetPopulated>('datasets');
+    if (!project)
+        return next(new ApiError({
+            details: { projectObjId: params.data.projectObjId }
+        }));
+    const dataset = project.datasets
+        .find(d => d._id.equals(params.data.datasetObjId));
+    if (!dataset)
+        return next(new ApiError({
+            message: 'Dataset with provided ID within provided project does not exist',
+            statusCode: 422,
+            details: { datasetObjId: params.data.datasetObjId }
+        }));
+    // Model retrieval/instantiation + insertion
+    let model = mongoose.models[dataset.collectionRef];
+    if (!model) {
+        const anySchema = new mongoose.Schema({}, { strict: false });
+        model = userContentDbConnection.model(dataset.collectionRef, anySchema, dataset.collectionRef);
+    }
+    try {
+        await model.insertMany(datasetBatchParse.data.data);
+    } catch (err) {
+        return next(new ApiError({
+            message: 'Malformed dataset batch',
+            statusCode: 422,
+            details: err
+        }));
+    }
+
+    // Response
+    const response: ApiResponseSuccess<any> = {
+        success: true,
+        data: {}
+    };
+    res.status(200).json(response);
 }
 
 export async function deleteDataset(req: Request, res: Response, next: NextFunction) {
@@ -296,11 +352,12 @@ export async function deleteDataset(req: Request, res: Response, next: NextFunct
     updatedProject.datasetObjIds = updatedProject.datasetObjIds
         .filter((datasetObjId) => !datasetObjId.equals(params.data.datasetObjId));
     await updatedProject.save();
-    const datasetDeleteResult = await Dataset.deleteOne({ _id: params.data.datasetObjId });
-    if (!datasetDeleteResult.acknowledged || datasetDeleteResult.deletedCount === 0)
+    const dataset = await Dataset.findOneAndDelete({ _id: params.data.datasetObjId });
+    if (!dataset)
         return next(new ApiError({
             details: { datasetObjId: params.data.datasetObjId }
         }));
+    await userContentDbConnection.dropCollection(dataset.collectionRef);
 
     // Response
     const response: ApiResponseSuccess<any> = {

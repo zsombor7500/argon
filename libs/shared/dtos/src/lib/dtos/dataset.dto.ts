@@ -35,7 +35,7 @@ export const DatasetUpdateDto = z.object({
 export type DatasetUpdateDtoType = z.infer<typeof DatasetUpdateDto>;
 
 export const DatasetBatchUploadDto = z.object({
-    data: z.object().array()
+    data: z.object().loose().array()
 }).strict();
 export type DatasetUploadDtoType = z.infer<typeof DatasetBatchUploadDto>;
 

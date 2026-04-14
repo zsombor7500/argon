@@ -23,14 +23,14 @@ export const DATASET_READ_SCOPES   = DATASET_BASE_SCOPES.union(PROJECT_READ_SCOP
 export const DATASET_CREATE_SCOPES = DATASET_BASE_SCOPES.union(PROJECT_CREATE_SCOPES).add('dataset:create');
 export const DATASET_UPDATE_SCOPES = DATASET_BASE_SCOPES.union(PROJECT_UPDATE_SCOPES).add('dataset:update');
 export const DATASET_DELETE_SCOPES = DATASET_BASE_SCOPES.union(PROJECT_DELETE_SCOPES).add('dataset:delete');
-export const DATASET_INGEST_SCOPES = new Set(DATASET_BASE_SCOPES).add('dataset:ingest');
+export const DATASET_INGEST_SCOPES = DATASET_BASE_SCOPES.union(PROJECT_UPDATE_SCOPES).add('dataset:ingest');
 
 export const QUERY_BASE_SCOPES    = new Set<ProjectScopeDtoType>(['query:all']);
 export const QUERY_READ_SCOPES    = QUERY_BASE_SCOPES.union(PROJECT_READ_SCOPES).add('query:read');
 export const QUERY_CREATE_SCOPES  = QUERY_BASE_SCOPES.union(PROJECT_CREATE_SCOPES).add('query:create');
 export const QUERY_UPDATE_SCOPES  = QUERY_BASE_SCOPES.union(PROJECT_UPDATE_SCOPES).add('query:update');
 export const QUERY_DELETE_SCOPES  = QUERY_BASE_SCOPES.union(PROJECT_DELETE_SCOPES).add('query:delete');
-export const QUERY_EXECUTE_SCOPES = new Set(QUERY_BASE_SCOPES).add('query:execute');
+export const QUERY_EXECUTE_SCOPES = QUERY_BASE_SCOPES.union(PROJECT_READ_SCOPES).add('query:execute');
 
 export const ACCESS_BASE_SCOPES   = new Set<ProjectScopeDtoType>(['access:all']);
 export const ACCESS_READ_SCOPES   = ACCESS_BASE_SCOPES.union(PROJECT_READ_SCOPES).add('access:read');
