@@ -17,6 +17,7 @@
             "#/routes": ["apps/api/src/routes/index.ts"],
             "#/middlewares": ["apps/api/src/middlewares/index.ts"],
 
+            "#/controllers/tag": ["apps/api/src/controllers/tag.controller.ts"],
             "#/controllers/auth": ["apps/api/src/controllers/auth.controller.ts"],
             "#/controllers/user": ["apps/api/src/controllers/user.controller.ts"],
             "#/controllers/query": ["apps/api/src/controllers/query.controller.ts"],
@@ -31,15 +32,17 @@
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
 
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
+            "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
+            "#/dto/tag": ["libs/shared/dtos/src/lib/dtos/tag.dto.ts"],
             "#/dto/user": ["libs/shared/dtos/src/lib/dtos/user.dto.ts"],
             "#/dto/auth": ["libs/shared/dtos/src/lib/dtos/auth.dto.ts"],
-            "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
             "#/dto/scope": ["libs/shared/dtos/src/lib/dtos/scope.dto.ts"],
             "#/dto/query": ["libs/shared/dtos/src/lib/dtos/query.dto.ts"],
             "#/dto/invite": ["libs/shared/dtos/src/lib/dtos/invite.dto.ts"],
             "#/dto/access": ["libs/shared/dtos/src/lib/dtos/access.dto.ts"],
             "#/dto/project": ["libs/shared/dtos/src/lib/dtos/project.dto.ts"],
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
+            "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
 
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],

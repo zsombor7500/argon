@@ -20,9 +20,7 @@ export function errorHandler(error: Error | ApiError, _req: Request, res: Respon
         stackTrace = error.stack;
 
     if (apiConfig.isProd)
-        logger.error(
-            error.message,
-            {
+        logger.error(error.message, {
                 error: error.name,
                 cause: cause,
                 statusCode: statusCode,

@@ -31,8 +31,6 @@ export async function getAccesses(req: Request, res: Response, next: NextFunctio
         .populate<IProjectUserAndInvitePopulated>('invites');
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));
 
@@ -137,8 +135,6 @@ export async function removeUser(req: Request, res: Response, next: NextFunction
     const project: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
             details: { params: params.data }
         }));
     // Remove user reference from project
