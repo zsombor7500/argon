@@ -1,19 +1,29 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
+
+import type { Expiry, TokenHash } from '#/types/db';
+import type { IProject, IInviteUserAndProjectPopulated } from '#/db/interfaces';
 
 
-export interface User extends Document {
-    userId: Schema.Types.UUID;
-    userGrn: string;
+export interface IUser extends Document {
+    _id: Types.ObjectId;
     username: string;
     displayName: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email: string;
     passwordHash: string;
-    description?: string;
-    projectObjIds?: [Schema.Types.ObjectId];
-    inviteObjIds?: [Schema.Types.ObjectId];
+    description?: string | undefined;
+    projectObjIds: Types.ObjectId[];
+    inviteObjIds: Types.ObjectId[];
+    refreshTokenHashes: Map<TokenHash, Expiry>;
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
+}
+
+export interface IUserInvitePopulated extends IUser {
+    invites: IInviteUserAndProjectPopulated[];
+}
+
+export interface IUserProjectPopulated extends IUser {
+    projects: IProject[];
 }

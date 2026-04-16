@@ -1,20 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import type { Invite } from '../interfaces/index.js';
+import type { IInvite } from '#/db/interfaces';
 
 
-export const inviteSchema = new mongoose.Schema<Invite>({
-    inviteId: {
-        type: Schema.Types.UUID,
-        index: true,
-        unique: [true, '`inviteId` must be unique'],
-        required: [true, '`inviteId` must be provided']
-    },
-    inviteGrn: {
-        type: String,
-        required: [true, '`inviteGrn` must be provided'],
-        minlength: [1, '`inviteGrn` must be at least 1 characters long']
-    },
+export const inviteSchema = new mongoose.Schema<IInvite>({
     name: {
         type: String,
         required: [true, '`name` must be provided'],
@@ -26,26 +15,44 @@ export const inviteSchema = new mongoose.Schema<Invite>({
         minlength: [1, '`description` must be at least 1 characters long']
     },
     invitantObjId: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
+        type: Types.ObjectId,
+        ref: 'User',
         required: [true, '`invitantObjId` must be provided']
     },
     invitedObjId: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
+        type: Types.ObjectId,
+        ref: 'User',
         required: [true, '`invitedObjId` must be provided']
     },
     projectObjId: {
-        type: Schema.Types.ObjectId,
-        ref: 'projects',
+        type: Types.ObjectId,
+        ref: 'Project',
         required: [true, '`projectObjId` must be provided']
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+inviteSchema.virtual('invitant', {
+    ref: 'User',
+    localField: 'invitantObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
+inviteSchema.virtual('invited', {
+    ref: 'User',
+    localField: 'invitedObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
+inviteSchema.virtual('project', {
+    ref: 'Project',
+    localField: 'projectObjId',
+    foreignField: '_id',
+    justOne: true
 });

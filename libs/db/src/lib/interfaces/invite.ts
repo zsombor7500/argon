@@ -1,15 +1,21 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
+
+import type { IProject, IUser } from '#/db/interfaces';
 
 
-export interface Invite extends Document {
-    inviteId: Schema.Types.UUID;
-    inviteGrn: string;
+export interface IInvite extends Document {
+    _id: Types.ObjectId;
     name: string;
-    description?: string;
-    invitantObjId: Schema.Types.ObjectId;
-    invitedObjId: Schema.Types.ObjectId;
-    projectObjId: Schema.Types.ObjectId;
+    description?: string | undefined;
+    invitantObjId: Types.ObjectId;
+    invitedObjId: Types.ObjectId;
+    projectObjId: Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
+}
+
+export interface IInviteUserAndProjectPopulated extends IUser {
+    invitant: IUser;
+    invited: IUser;
+    project: IProject;
 }

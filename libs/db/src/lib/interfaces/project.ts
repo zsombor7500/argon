@@ -1,17 +1,47 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
+
+import type {
+    ITag,
+    IUser,
+    IInvite,
+    IQueryPopulated,
+    IDatasetPopulated
+} from '#/db/interfaces';
 
 
-export interface Project extends Document {
-    projectId: Schema.Types.UUID;
-    projectGrn: string;
+export interface IProject extends Document {
+    _id: Types.ObjectId;
     name: string;
-    ownerObjId: Schema.Types.ObjectId;
-    description?: string;
-    roleToUserObjIdsMap?: Map<string, [Schema.Types.ObjectId]>;
-    queryObjIds?: [Schema.Types.ObjectId];
-    datasetObjIds?: [Schema.Types.ObjectId];
-    inviteObjIds?: [Schema.Types.ObjectId];
+    ownerObjId: Types.ObjectId;
+    description?: string | undefined;
+    userObjIds: Types.ObjectId[];
+    roleToUserObjIdsMap: Map<string, Types.ObjectId[]>;
+    roleToScopesMap: Map<string, string[]>; // TODO: Fix ProjectScopeDtoType
+    tagObjIds: Types.ObjectId[];
+    queryObjIds: Types.ObjectId[];
+    datasetObjIds: Types.ObjectId[];
+    inviteObjIds: Types.ObjectId[];
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
+}
+
+export interface IProjectOwnerPopulated extends IProject {
+    owner: IUser;
+}
+
+export interface IProjectTagPopulated extends IProject {
+    tags: ITag[];
+}
+
+export interface IProjectQueryPopulated extends IProject {
+    queries: IQueryPopulated[];
+}
+
+export interface IProjectDatasetPopulated extends IProject {
+    datasets: IDatasetPopulated[];
+}
+
+export interface IProjectUserAndInvitePopulated extends IProject {
+    users: IUser[];
+    invites: IInvite[];
 }

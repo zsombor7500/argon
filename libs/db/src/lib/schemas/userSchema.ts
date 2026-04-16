@@ -1,20 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import type { User } from '../interfaces/index.js';
+import type { IUser } from '#/db/interfaces';
 
 
-export const userSchema = new mongoose.Schema<User>({
-    userId: {
-        type: Schema.Types.UUID,
-        index: true,
-        unique: [true, '`userId` must be unique'],
-        required: [true, '`userId` must be provided']
-    },
-    userGrn: {
-        type: String,
-        required: [true, '`userGrn` must be provided'],
-        minlength: [1, '`userGrn` must be at least 1 characters long']
-    },
+export const userSchema = new mongoose.Schema<IUser>({
     username: {
         type: String,
         required: [true, '`username` must be provided'],
@@ -37,7 +26,9 @@ export const userSchema = new mongoose.Schema<User>({
     },
     email: {
         type: String,
-        required: false,
+        index: true,
+        unique: [true, '`email` must be unique'],
+        required: [true, '`email` must be provided'],
         pattern: '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/'
     },
     passwordHash: {
@@ -52,8 +43,8 @@ export const userSchema = new mongoose.Schema<User>({
     },
     projectObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
-            ref: 'projects'
+            type: Types.ObjectId,
+            ref: 'Project'
         }],
         required: false,
         minItems: 0,
@@ -61,19 +52,34 @@ export const userSchema = new mongoose.Schema<User>({
     },
     inviteObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
-            ref: 'invites'
+            type: Types.ObjectId,
+            ref: 'Invite'
         }],
         required: false,
         minItems: 0,
         default: []
     },
-    archivedAt: {
-        type: Date,
+    refreshTokenHashes: {
+        type: Map,
+        of: { type: Number },
         required: false,
-        default: null
+        default: {}
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+userSchema.virtual('projects', {
+    ref: 'Project',
+    localField: 'projectObjIds',
+    foreignField: '_id'
+});
+
+userSchema.virtual('invites', {
+    ref: 'Invite',
+    localField: 'inviteObjIds',
+    foreignField: '_id'
 });

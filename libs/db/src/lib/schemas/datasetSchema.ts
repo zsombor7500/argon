@@ -1,20 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import type { Dataset } from '../interfaces/index.js';
+import type { IDataset } from '#/db/interfaces';
 
 
-export const datasetSchema = new mongoose.Schema<Dataset>({
-    datasetId: {
-        type: Schema.Types.UUID,
-        index: true,
-        unique: [true, '`datasetId` must be unique'],
-        required: [true, '`datasetId` must be provided']
-    },
-    datasetGrn: {
-        type: String,
-        required: [true, '`datasetGrn` must be provided'],
-        minlength: [1, '`datasetGrn` must be at least 1 characters long']
-    },
+export const datasetSchema = new mongoose.Schema<IDataset>({
     name: {
         type: String,
         required: [true, '`name` must be provided'],
@@ -29,16 +18,22 @@ export const datasetSchema = new mongoose.Schema<Dataset>({
         type: String,
         required: [true, '`collectionRef` must be provided']
     },
-    mongooseSchema: {
-        type: Schema.Types.Mixed,
-        required: [true, '`mongooseSchema` must be provided']
-    },
-    archivedAt: {
-        type: Date,
+    jsonSchema: {
+        type: Object,
         required: false,
-        default: null
+        default: {}
+    },
+    attributePathToTagObjIdsMap: {
+        type: Map,
+        of: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
+        required: [true, '`tagObjIds` must be provided']
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
 });

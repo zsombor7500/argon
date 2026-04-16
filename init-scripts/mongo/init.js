@@ -15,18 +15,9 @@ db.createCollection('users', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['userId', 'userGrn', 'username', 'displayName', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['username', 'displayName', 'email', 'passwordHash', 'projectObjIds', 'inviteObjIds', 'refreshTokenHashes', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
-                userId: {
-                    bsonType: 'binData',
-                    description: 'User UUID (subtype 4) - required'
-                },
-                userGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'User Global Resource Name - required'
-                },
                 username: {
                     bsonType: 'string',
                     minLength: 1,
@@ -74,6 +65,11 @@ db.createCollection('users', {
                     items: { bsonType: 'objectId' },
                     description: 'Invite ObjectIds - required'
                 },
+                refreshTokenHashes: {
+                    bsonType: 'object',
+                    additionalProperties: { bsonType: 'number' },
+                    description: 'Active JWT refresh token to issued at timstamp map - required'
+                },
                 createdAt: {
                     bsonType: 'date',
                     description: 'Creation timestamp - required'
@@ -81,17 +77,16 @@ db.createCollection('users', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
     }
 });
 
-db.users.createIndex({ userId: 1 }, { unique: true });
+db.users.createIndex(
+    { email: 1 },
+    { unique: true }
+);
 
 print('Users init completed');
 
@@ -103,18 +98,9 @@ db.createCollection('projects', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['projectId', 'projectGrn', 'name', 'ownerObjId', 'roleToUserObjIdsMap', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'ownerObjId', 'roleToUserObjIdsMap', 'roleToScopesMap', 'tagObjIds', 'queryObjIds', 'datasetObjIds', 'inviteObjIds', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
-                projectId: {
-                    bsonType: 'binData',
-                    description: 'Project UUID (subtype 4) - required'
-                },
-                projectGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Project Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -129,6 +115,12 @@ db.createCollection('projects', {
                     minLength: 1,
                     description: 'Project description'
                 },
+                userObjIds: {
+                    bsonType: 'array',
+                    minItems: 1,
+                    items: { bsonType: 'objectId' },
+                    description: 'User ObjectIds - required'
+                },
                 roleToUserObjIdsMap: {
                     bsonType: 'object',
                     additionalProperties: {
@@ -137,6 +129,21 @@ db.createCollection('projects', {
                         items: { bsonType: 'objectId' }
                     },
                     description: 'Map from role name to array of User ObjectIds - required'
+                },
+                roleToScopesMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'array',
+                        minItems: 0,
+                        items: { bsonType: 'string' }
+                    },
+                    description: 'Map from role name to array of permission scopes - required'
+                },
+                tagObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'Tag ObjectIds - required'
                 },
                 queryObjIds: {
                     bsonType: 'array',
@@ -163,17 +170,11 @@ db.createCollection('projects', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
     }
 });
-
-db.projects.createIndex({ projectId: 1 }, { unique: true });
 
 print('Projects init completed');
 
@@ -185,18 +186,9 @@ db.createCollection('invites', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['inviteId', 'inviteGrn', 'name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'invitantObjId', 'invitedObjId', 'projectObjId', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
-                inviteId: {
-                    bsonType: 'binData',
-                    description: 'Invite UUID - required'
-                },
-                inviteGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Invite Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -225,19 +217,114 @@ db.createCollection('invites', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
     }
 });
 
-db.invites.createIndex({ inviteId: 1 }, { unique: true });
+db.invites.createIndex(
+    { invitedObjId: 1, projectObjId: 1 },
+    { unique: true }
+);
 
 print('Invites init completed');
+
+
+// Tags
+db.createCollection('tags', {
+validationLevel: 'strict',
+    validationAction: 'error',
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name', 'type', 'createdAt', 'updatedAt'],
+            additionalProperties: true,
+            properties: {
+                name: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Tag name - required'
+                },
+                description: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Tag description'
+                },
+                type: {
+                    bsonType: 'string',
+                    description: 'Type of data the tag is assigned to - required'
+                },
+                createdAt: {
+                    bsonType: 'date',
+                    description: 'Creation timestamp - required'
+                },
+                updatedAt: {
+                    bsonType: 'date',
+                    description: 'Update timestamp - required'
+                }
+            }
+        }
+    }
+});
+
+print('Tags init completed');
+
+
+// Queries
+db.createCollection('queries', {
+    validationLevel: 'strict',
+    validationAction: 'error',
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name', 'tagObjIds', 'createdAt', 'updatedAt'],
+            additionalProperties: true,
+            properties: {
+                name: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Query name - required'
+                },
+                description: {
+                    bsonType: 'string',
+                    minLength: 1,
+                    description: 'Query description'
+                },
+                datasetToTagToAttributePathMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'object',
+                        additionalProperties: { bsonType: 'string' }
+                    },
+                    description: 'Map from dataset ObjectIds as strings, to tag ObjectIds as strings, to attribute paths - required'
+                },
+                datasetObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'List of datasets choosen to query from - required'
+                },
+                tagObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'List of tags choosen to query by - required'
+                },
+                createdAt: {
+                    bsonType: 'date',
+                    description: 'Creation timestamp - required'
+                },
+                updatedAt: {
+                    bsonType: 'date',
+                    description: 'Update timestamp - required'
+                }
+            }
+        }
+    }
+});
+
+print('Queries init completed');
 
 
 // Datasets
@@ -247,18 +334,9 @@ db.createCollection('datasets', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['datasetId', 'datasetGrn', 'name', 'collectionRef', 'mongooseSchema', 'createdAt', 'updatedAt', 'archivedAt'],
+            required: ['name', 'collectionRef', 'jsonSchema', 'attributePathToTagObjIdsMap', 'createdAt', 'updatedAt'],
             additionalProperties: true,
             properties: {
-                datasetId: {
-                    bsonType: 'binData',
-                    description: 'Dataset UUID - required'
-                },
-                datasetGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Dataset Global Resource Name - required'
-                },
                 name: {
                     bsonType: 'string',
                     minLength: 1,
@@ -274,10 +352,18 @@ db.createCollection('datasets', {
                     minLength: 1,
                     description: 'Reference to MongoDB collection name - required'
                 },
-                mongooseSchema: {
+                jsonSchema: {
                     bsonType: 'object',
                     additionalProperties: true,
-                    description: 'Mongoose schema definition - required'
+                    description: 'Mongo JSON schema validator definition - required'
+                },
+                attributePathToTagObjIdsMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'array',
+                        items: { bsonType: 'objectId' }
+                    },
+                    description: 'Map from schema object attribute path to tag ObjectIds - required'
                 },
                 createdAt: {
                     bsonType: 'date',
@@ -286,84 +372,13 @@ db.createCollection('datasets', {
                 updatedAt: {
                     bsonType: 'date',
                     description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
                 }
             }
         }
     }
 });
-
-db.datasets.createIndex({ datasetId: 1 }, { unique: true });
 
 print('Datasets init completed');
-
-
-// Queries
-db.createCollection('queries', {
-    validationLevel: 'strict',
-    validationAction: 'error',
-    validator: {
-        $jsonSchema: {
-            bsonType: 'object',
-            required: ['queryId', 'queryGrn', 'name', 'baseDatasetObjId', 'query', 'projections', 'createdAt', 'updatedAt', 'archivedAt'],
-            additionalProperties: true,
-            properties: {
-                queryId: {
-                    bsonType: 'binData',
-                    description: 'Query UUID - required'
-                },
-                queryGrn: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query Global Resource Name - required'
-                },
-                name: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query name - required'
-                },
-                description: {
-                    bsonType: 'string',
-                    minLength: 1,
-                    description: 'Query description'
-                },
-                baseDatasetObjId: {
-                    bsonType: 'objectId',
-                    description: 'Dataset on which the query is defined - required'
-                },
-                query: {
-                    bsonType: 'object',
-                    additionalProperties: true,
-                    description: 'Query definition - required'
-                },
-                projections: {
-                    bsonType: 'object',
-                    additionalProperties: true,
-                    description: 'Projection definition - required'
-                },
-                createdAt: {
-                    bsonType: 'date',
-                    description: 'Creation timestamp - required'
-                },
-                updatedAt: {
-                    bsonType: 'date',
-                    description: 'Update timestamp - required'
-                },
-                archivedAt: {
-                    bsonType: ['date', 'null'],
-                    description: 'Archive timestamp - required'
-                }
-            }
-        }
-    }
-});
-
-db.queries.createIndex({ queryId: 1 }, { unique: true });
-
-print('Queries init completed');
 
 
 print('Argon database init completed');

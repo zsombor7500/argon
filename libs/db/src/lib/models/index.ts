@@ -1,5 +1,6 @@
-export { userModel } from './userModel.js';
-export { queryModel } from './queryModel.js';
-export { inviteModel } from './inviteModel.js';
-export { datasetModel } from './datasetModel.js';
-export { projectModel } from './projectModel.js';
+export { Tag } from './tagModel.js';
+export { User } from './userModel.js';
+export { Query } from './queryModel.js';
+export { Invite } from './inviteModel.js';
+export { Dataset } from './datasetModel.js';
+export { Project } from './projectModel.js';

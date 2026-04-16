@@ -1,20 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import type { Query } from '../interfaces/index.js';
+import type { IQuery } from '#/db/interfaces';
 
 
-export const querySchema = new mongoose.Schema<Query>({
-    queryId: {
-        type: Schema.Types.UUID,
-        index: true,
-        unique: [true, '`queryId` must be unique'],
-        required: [true, '`queryId` must be provided']
-    },
-    queryGrn: {
-        type: String,
-        required: [true, '`queryGrn` must be provided'],
-        minlength: [1, '`queryGrn` must be at least 1 characters long']
-    },
+export const querySchema = new mongoose.Schema<IQuery>({
     name: {
         type: String,
         required: [true, '`name` must be provided'],
@@ -25,25 +14,48 @@ export const querySchema = new mongoose.Schema<Query>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
-    baseDatasetObjId: {
-        type: Schema.Types.ObjectId,
-        ref: 'datasets',
-        required: [true, '`baseDatasetObjId` must be provided']
-    },
-    query: {
-        type: Schema.Types.Mixed,
-        required: [true, '`query` must be provided']
-    },
-    projections: {
-        type: Schema.Types.Mixed,
-        required: [true, '`projections` must be provided']
-    },
-    archivedAt: {
-        type: Date,
+    datasetToTagToAttributePathMap: {
+        type: Map,
+        of: {
+            type: Map,
+            of: String
+        },
         required: false,
-        default: null
+        default: {}
+    },
+    datasetObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Dataset'
+        }],
+        required: false,
+        minItems: 0,
+        default: []
+    },
+    tagObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
+        required: false,
+        minItems: 0,
+        default: []
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+querySchema.virtual('datasets', {
+    ref: 'Dataset',
+    localField: 'datasetObjIds',
+    foreignField: '_id'
+});
+
+querySchema.virtual('tags', {
+    ref: 'Tag',
+    localField: 'tagObjIds',
+    foreignField: '_id'
 });

@@ -1,15 +1,21 @@
-import { Schema, Document } from 'mongoose';
+import { Types, Document } from 'mongoose';
+
+import type { ITag, IDataset } from '#/db/interfaces';
+import type { ObjectIdStr, AttributePath } from '#/types/db';
 
 
-export interface Query extends Document {
-    queryId: Schema.Types.UUID;
-    queryGrn: string;
+export interface IQuery extends Document {
+    _id: Types.ObjectId;
     name: string;
-    description?: string;
-    baseDatasetObjId: Schema.Types.ObjectId;
-    query: Schema.Types.Mixed;
-    projections: Schema.Types.Mixed;
+    description?: string | undefined;
+    datasetToTagToAttributePathMap: Map<ObjectIdStr, Map<ObjectIdStr, AttributePath>>;
+    datasetObjIds: Types.ObjectId[];
+    tagObjIds: Types.ObjectId[];
     createdAt?: Date;
     updatedAt?: Date;
-    archivedAt?: Date;
+}
+
+export interface IQueryPopulated extends IQuery {
+    datasets: IDataset[];
+    tags: ITag[];
 }

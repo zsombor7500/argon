@@ -1,28 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-import type { Project } from '../interfaces/index.js';
+import { ProjectScope } from '../dtos/scope.dto.js';
+import type { IProject } from '#/db/interfaces';
 
 
-export const projectSchema = new mongoose.Schema<Project>({
-    projectId: {
-        type: Schema.Types.UUID,
-        index: true,
-        unique: [true, '`projectId` must be unique'],
-        required: [true, '`projectId` must be provided']
-    },
-    projectGrn: {
-        type: String,
-        required: [true, '`projectGrn` must be provided'],
-        minlength: [1, '`projectGrn` must be at least 1 characters long']
-    },
+export const projectSchema = new mongoose.Schema<IProject>({
     name: {
         type: String,
         required: [true, '`name` must be provided'],
         minlength: [1, '`name` must be at least 1 characters long']
     },
     ownerObjId: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
+        type: Types.ObjectId,
+        ref: 'User',
         required: [true, '`ownerObjId` must be provided']
     },
     description: {
@@ -30,19 +20,42 @@ export const projectSchema = new mongoose.Schema<Project>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
+    userObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'User'
+        }],
+        required: [true, '`userObjIds` must be provided']
+    },
     roleToUserObjIdsMap: {
         type: Map,
-        of: {
-            type: Schema.Types.ObjectId,
-            ref: 'users'
-        },
+        of: [{
+            type: Types.ObjectId,
+            ref: 'User'
+        }],
+        required: [true, '`roleToUserObjIdsMap` must be provided']
+    },
+    roleToScopesMap: {
+        type: Map,
+        of: [{
+            type: String,
+            enum: ProjectScope
+        }],
+        required: [true, '`roleToScopesMap` must be provided']
+    },
+    tagObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Tag'
+        }],
         required: false,
-        default: {} // TODO: Add default roles + owner
+        minItems: 0,
+        default: []
     },
     queryObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
-            ref: 'queries'
+            type: Types.ObjectId,
+            ref: 'Query'
         }],
         required: false,
         minItems: 0,
@@ -50,8 +63,8 @@ export const projectSchema = new mongoose.Schema<Project>({
     },
     datasetObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
-            ref: 'datasets'
+            type: Types.ObjectId,
+            ref: 'Dataset'
         }],
         required: false,
         minItems: 0,
@@ -59,19 +72,53 @@ export const projectSchema = new mongoose.Schema<Project>({
     },
     inviteObjIds: {
         type: [{
-            type: Schema.Types.ObjectId,
-            ref: 'invites'
+            type: Types.ObjectId,
+            ref: 'Invite'
         }],
         required: false,
         minItems: 0,
         default: []
-    },
-    archivedAt: {
-        type: Date,
-        required: false,
-        default: null
     }
 },
 {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
     timestamps: true
+});
+
+projectSchema.virtual('owner', {
+    ref: 'User',
+    localField: 'ownerObjId',
+    foreignField: '_id',
+    justOne: true
+});
+
+projectSchema.virtual('users', {
+    ref: 'User',
+    localField: 'userObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('tags', {
+    ref: 'Tag',
+    localField: 'tagObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('queries', {
+    ref: 'Query',
+    localField: 'queryObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('datasets', {
+    ref: 'Dataset',
+    localField: 'datasetObjIds',
+    foreignField: '_id'
+});
+
+projectSchema.virtual('invites', {
+    ref: 'Invite',
+    localField: 'inviteObjIds',
+    foreignField: '_id'
 });

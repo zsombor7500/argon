@@ -1,5 +1,5 @@
 {
-    "name": "@argon/models",
+    "name": "@argon/dtos",
     "version": "0.0.1",
     "private": true,
     "type": "module",
