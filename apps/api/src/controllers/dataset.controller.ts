@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import type { Request, Response, NextFunction } from 'express';
 
 import {
@@ -24,6 +24,7 @@ import type {
 } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { DatasetDtoType, DatasetsDtoType } from '#/dto/dataset';
+import type { AttributePath } from '#/types/db';
 
 
 export async function createDataset(req: Request, res: Response, next: NextFunction) {
@@ -203,11 +204,17 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
             statusCode: 422,
             details: { datasetObjId: params.data.datasetObjId }
         }));
-    Object.entries(datasetUpdateParse.data.attributePathToTagObjIdsMap)
+    // Prep of optional attribute path to tag ObjectId mapping
+    const originalAttributePathMap: Record<AttributePath, Types.ObjectId[]> = {};
+    for (const [attributePath, tags] of dataset.attributePathToTagObjIdsMap)
+        originalAttributePathMap[attributePath] = tags.map(tag => tag._id);
+    const attributePathToTagObjIdsMap = datasetUpdateParse.data.attributePathToTagObjIdsMap ??
+        originalAttributePathMap;
+    Object.entries(attributePathToTagObjIdsMap)
         .forEach(([path, tagObjIds]) => {
             if (tagObjIds.length !== new Set(tagObjIds.map(id => id.toString())).size)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Malformed dataset update fields',
                     statusCode: 422,
                     details: { message: 'List of tag ObjectIds contained duplicates' }
                 });
@@ -215,7 +222,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
             const attribute = jsonSchema.properties[path];
             if (!attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Malformed dataset update fields',
                     statusCode: 422,
                     details: {
                         jsonSchema: jsonSchema,
@@ -224,7 +231,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
                 });
             if ('oneOf' in attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Malformed dataset update fields',
                     statusCode: 422,
                     details: { message: 'oneOf handling has not yet been implemented' }
                 });
@@ -232,13 +239,13 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
                 const tag = project.tags.find((t) => t._id.equals(tagObjId));
                 if (!tag)
                     throw new ApiError({
-                        message: 'Malformed dataset creation fields',
+                        message: 'Malformed dataset update fields',
                         statusCode: 422,
                         details: { nonExistentTag: tagObjId.toString() }
                     });
                 if (tag.type !== attribute.bsonType)
                     throw new ApiError({
-                        message: 'Malformed dataset creation fields',
+                        message: 'Malformed dataset update fields',
                         statusCode: 422,
                         details: {
                             tagType: tag.type,

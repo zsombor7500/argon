@@ -44,7 +44,7 @@ export type DatasetCreationDtoType = z.infer<typeof DatasetCreationDto>;
 export const DatasetUpdateDto = z.object({
     name:                        z.string().optional(),
     description:                 z.string().optional(),
-    attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds) // Optional
+    attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds).optional()
 }).strict();
 export type DatasetUpdateDtoType = z.infer<typeof DatasetUpdateDto>;
 
