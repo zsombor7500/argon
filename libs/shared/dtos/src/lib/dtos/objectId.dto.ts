@@ -10,3 +10,6 @@ export const ObjectId = z.union([
 
 export const ObjectIds = ObjectId.array();
 export type ObjectIdsType = z.infer<typeof ObjectIds>;
+
+export const ObjectIdsToString = ObjectId.array();
+export type ObjectIdsToStringType = z.infer<typeof ObjectIdsToString>;

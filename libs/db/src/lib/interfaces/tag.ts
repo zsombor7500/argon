@@ -1,7 +1,7 @@
 import { Types, Document } from 'mongoose';
 
+import type { SchemaPrimitiveType } from '#/types/db';
 
-export type SchemaPrimitiveType = 'string' | 'int' | 'long' | 'decimal' | 'double' | 'bool' | 'date';
 
 export interface ITag extends Document {
     _id: Types.ObjectId;

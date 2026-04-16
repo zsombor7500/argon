@@ -1,10 +1,8 @@
 import { Types, Document } from 'mongoose';
 
+import type { Expiry, TokenHash } from '#/types/db';
 import type { IProject, IInviteUserAndProjectPopulated } from '#/db/interfaces';
 
-
-type TokenHash = string;
-type Expiry = number;
 
 export interface IUser extends Document {
     _id: Types.ObjectId;

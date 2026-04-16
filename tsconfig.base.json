@@ -44,6 +44,8 @@
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
             "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
 
+            "#/types/db": ["libs/db/src/lib/types/index.ts"],
+
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
 

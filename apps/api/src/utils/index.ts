@@ -6,5 +6,6 @@ export {
     verifySha512Hash
 } from './security.js';
 export { getJwtBody } from './authorization.js';
-export { isAllowedSchema } from './schema.js';
+export { nestedMapToRecord } from './general.js';
 export { logger, winstonHttpLogStream } from './logging.js';
+export { isAllowedSchema, getFilterValidator } from './schema.js';

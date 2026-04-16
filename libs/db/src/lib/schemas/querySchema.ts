@@ -14,6 +14,24 @@ export const querySchema = new mongoose.Schema<IQuery>({
         required: false,
         minlength: [1, '`description` must be at least 1 characters long']
     },
+    datasetToTagToAttributePathMap: {
+        type: Map,
+        of: {
+            type: Map,
+            of: String
+        },
+        required: false,
+        default: {}
+    },
+    datasetObjIds: {
+        type: [{
+            type: Types.ObjectId,
+            ref: 'Dataset'
+        }],
+        required: false,
+        minItems: 0,
+        default: []
+    },
     tagObjIds: {
         type: [{
             type: Types.ObjectId,
@@ -30,7 +48,13 @@ export const querySchema = new mongoose.Schema<IQuery>({
     timestamps: true
 });
 
-querySchema.virtual('Tags', {
+querySchema.virtual('datasets', {
+    ref: 'Dataset',
+    localField: 'datasetObjIds',
+    foreignField: '_id'
+});
+
+querySchema.virtual('tags', {
     ref: 'Tag',
     localField: 'tagObjIds',
     foreignField: '_id'

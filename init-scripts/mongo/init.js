@@ -291,6 +291,20 @@ db.createCollection('queries', {
                     minLength: 1,
                     description: 'Query description'
                 },
+                datasetToTagToAttributePathMap: {
+                    bsonType: 'object',
+                    additionalProperties: {
+                        bsonType: 'object',
+                        additionalProperties: { bsonType: 'string' }
+                    },
+                    description: 'Map from dataset ObjectIds as strings, to tag ObjectIds as strings, to attribute paths - required'
+                },
+                datasetObjIds: {
+                    bsonType: 'array',
+                    minItems: 0,
+                    items: { bsonType: 'objectId' },
+                    description: 'List of datasets choosen to query from - required'
+                },
                 tagObjIds: {
                     bsonType: 'array',
                     minItems: 0,

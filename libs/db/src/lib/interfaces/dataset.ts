@@ -1,9 +1,8 @@
 import { Types, Document } from 'mongoose';
 
 import type { ITag } from '#/db/interfaces';
+import type { AttributePath } from '#/types/db';
 
-
-type AttributePath = string;
 
 export interface IDataset extends Document {
     _id: Types.ObjectId;
