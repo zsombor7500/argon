@@ -33,9 +33,8 @@ export async function createUser(req: Request, res: Response, next: NextFunction
 
     // User creation
     const passwordHash = await getBcryptHash(userCredentialsParse.data.password);
-    let newUser: IUser;
     try {
-        newUser = await User.create({
+        await User.create({
             username: userCredentialsParse.data.username,
             displayName: userCredentialsParse.data.username,
             email: userCredentialsParse.data.email,
@@ -52,9 +51,9 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     }
 
     // Response
-    const response: ApiResponseSuccess<UserProfileDtoType> = {
+    const response: ApiResponseSuccess<any> = {
         success: true,
-        data: UserProfileDto.parse(newUser)
+        data: {}
     };
     return res.status(200).json(response);
 }
