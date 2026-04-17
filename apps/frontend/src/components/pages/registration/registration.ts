@@ -1,9 +1,19 @@
+import {
+    inject,
+    effect,
+    Component,
+    DestroyRef,
+    ViewEncapsulation
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
-import { effect, inject, Component, DestroyRef, ViewEncapsulation } from '@angular/core';
 
+import {
+    PASSWORD_PATTERN,
+    PASSWORD_MIN_LENGTH,
+    USERNAME_MIN_LENGTH
+} from '#/constants/dtos';
 import { UserService } from '#/services';
-import { PASSWORD_PATTERN, PASSWORD_MIN_LENGTH, USERNAME_MIN_LENGTH } from '#/constants/dtos';
 import type { UserRegistrationDtoType } from '#/dto/user';
 
 
@@ -15,12 +25,13 @@ import type { UserRegistrationDtoType } from '#/dto/user';
     encapsulation: ViewEncapsulation.None
 })
 export class RegistrationPage {
+    private router = inject(Router);
+    private destroyRef = inject(DestroyRef);
+
     readonly passwordPattern = PASSWORD_PATTERN;
     readonly passwordMinLength = PASSWORD_MIN_LENGTH;
     readonly usernameMinLength = USERNAME_MIN_LENGTH;
 
-    router = inject(Router);
-    destroyRef = inject(DestroyRef);
     userService = inject(UserService);
     formData: UserRegistrationDtoType = {
         username: '',
@@ -33,7 +44,7 @@ export class RegistrationPage {
             const isSuccessful = this.userService.isRegistrationSuccessful();
             const error = this.userService.error();
             if (error === null && isSuccessful) {
-                this.userService.resetSuccess();
+                this.userService.resetRegistrationSignals();
                 this.router.navigate(['/login'])
                     .catch(err => console.log(`Couldn't route to /login: ${err}`));
             }

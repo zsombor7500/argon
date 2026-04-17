@@ -1,5 +1,11 @@
+import {
+    inject,
+    effect,
+    signal,
+    Injectable,
+    DestroyRef
+} from '@angular/core';
 import { timeout } from 'rxjs';
-import { inject, signal, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '#/services';
@@ -15,24 +21,33 @@ import type { UserProfileDtoType, UserRegistrationDtoType } from '#/dto/user';
 export class UserService {
     private endpoint = getApiEndpoint(['users']);
     private httpClient = inject(HttpClient);
+    private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
 
     private userProfileSignal = signal<UserProfileDtoType | null>(null);
     private isRegistrationSuccessfulSignal = signal<boolean>(false);
-    private isLoadingSignal = signal(false);
     private errorSignal = signal<string | null>(null);
 
     readonly userProfile = this.userProfileSignal.asReadonly();
     readonly isRegistrationSuccessful = this.isRegistrationSuccessfulSignal.asReadonly();
-    readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
-    resetSuccess(): void {
-        this.isRegistrationSuccessfulSignal.set(false)
+    constructor() {
+        const logoutEffectRef = effect(() => {
+            const isAuthenticated = this.authService.isAuthenticated();
+            if (!isAuthenticated)
+                this.userProfileSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => logoutEffectRef.destroy());
+    }
+
+    resetRegistrationSignals(): void {
+        this.isRegistrationSuccessfulSignal.set(false);
+        this.errorSignal.set(null);
     }
 
     register(userCredentials: UserRegistrationDtoType): void {
-        if (this.authService.isLoggedIn())
+        if (this.authService.isAuthenticated())
             return;
         this.isRegistrationSuccessfulSignal.set(false);
         this.errorSignal.set(null);
