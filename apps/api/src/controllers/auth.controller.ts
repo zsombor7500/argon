@@ -41,9 +41,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     // Password validation
     if (!await verifyBcryptHash(userLogin.data.password, user.passwordHash))
         return next(new ApiError({
-            message: 'User with provided email does not exist',
-            statusCode: 422,
-            details: { email: userLogin.data.email }
+            message: 'Incorrect user credentials',
+            statusCode: 422
         }));
     // Expired refresh token removal
     user.refreshTokenHashes = new Map(
