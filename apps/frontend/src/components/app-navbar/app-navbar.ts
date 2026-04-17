@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Component, ViewEncapsulation } from '@angular/core';
+import { inject, Component, ViewEncapsulation } from '@angular/core';
+
+import { AuthService } from '#/services';
 
 
 @Component({
@@ -11,5 +13,5 @@ import { Component, ViewEncapsulation } from '@angular/core';
     encapsulation: ViewEncapsulation.None
 })
 export class AppNavbar {
-
+    authService = inject(AuthService)
 }

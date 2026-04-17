@@ -1,1 +1,99 @@
 @import 'tailwindcss';
+
+@layer base {
+  :root {
+    /* Base */
+    --color-dark-0: #000000;
+    --color-light-0: #ffffff;
+
+    --color-primary-0: #76be55;
+    --color-primary-10: #86c568;
+    --color-primary-20: #96cd7b;
+    --color-primary-30: #a6d48e;
+    --color-primary-40: #b5dba0;
+    --color-primary-50: #c4e2b3;
+
+    --color-surface-0: #121212;
+    --color-surface-10: #282828;
+    --color-surface-20: #3f3f3f;
+    --color-surface-30: #575757;
+    --color-surface-40: #717171;
+    --color-surface-50: #8b8b8b;
+
+    --color-surface-ton-0: #1c2119;
+    --color-surface-ton-10: #31362e;
+    --color-surface-ton-20: #474c44;
+    --color-surface-ton-30: #5f635c;
+    --color-surface-ton-40: #777b75;
+    --color-surface-ton-50: #91948f;
+
+    /* States */
+    --color-success-0: #22946e;
+    --color-success-10: #47d5a6;
+    --color-success-20: #9ae8ce;
+
+    --color-warning-0: #a87a2a;
+    --color-warning-10: #d7ac61;
+    --color-warning-20: #ecd7b2;
+
+    --color-danger-0: #9c2121;
+    --color-danger-10: #d94a4a;
+    --color-danger-20: #eb9e9e;
+
+    --color-info-0: #21498a;
+    --color-info-10: #4077d1;
+    --color-info-20: #92b2e5;
+  }
+}
+
+@font-face {
+  font-family: 'FunnelSans';
+  src: url('/fonts/FunnelSans.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal italic oblique;
+  font-display: swap;
+}
+
+@theme {
+  --font-default: 'FunnelSans', sans-serif;
+
+  --color-dark-0: var(--clr-dark-a0);
+  --color-light-0: var(--clr-light-a0);
+
+  --color-primary-0: var(--clr-primary-a0);
+  --color-primary-10: var(--clr-primary-a10);
+  --color-primary-20: var(--clr-primary-a20);
+  --color-primary-30: var(--clr-primary-a30);
+  --color-primary-40: var(--clr-primary-a40);
+  --color-primary-50: var(--clr-primary-a50);
+
+  --color-surface-0: var(--clr-surface-a0);
+  --color-surface-10: var(--clr-surface-a10);
+  --color-surface-20: var(--clr-surface-a20);
+  --color-surface-30: var(--clr-surface-a30);
+  --color-surface-40: var(--clr-surface-a40);
+  --color-surface-50: var(--clr-surface-a50);
+
+  --color-surface-tonal-0: var(--clr-surface-tonal-a0);
+  --color-surface-tonal-10: var(--clr-surface-tonal-a10);
+  --color-surface-tonal-20: var(--clr-surface-tonal-a20);
+  --color-surface-tonal-30: var(--clr-surface-tonal-a30);
+  --color-surface-tonal-40: var(--clr-surface-tonal-a40);
+  --color-surface-tonal-50: var(--clr-surface-tonal-a50);
+
+  --color-success-0: var(--clr-success-a0);
+  --color-success-10: var(--clr-success-a10);
+  --color-success-20: var(--clr-success-a20);
+
+  --color-warning-0: var(--clr-warning-a0);
+  --color-warning-10: var(--clr-warning-a10);
+  --color-warning-20: var(--clr-warning-a20);
+
+  --color-danger-0: var(--clr-danger-a0);
+  --color-danger-10: var(--clr-danger-a10);
+  --color-danger-20: var(--clr-danger-a20);
+
+  --color-info-0: var(--clr-info-a0);
+  --color-info-10: var(--clr-info-a10);
+  --color-info-20: var(--clr-info-a20);
+}

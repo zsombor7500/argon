@@ -1,9 +1,29 @@
-<nav class="fixed w-full z-100 top-0 start-0 border-b">
-    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <span class="self-center text-xl text-heading font-semibold whitespace-nowrap">Argon</span>
-        <div class="md:block md:w-auto">
-            <ul class="flex flex-col font-medium md:flex-row md:space-x-8">
-            </ul>
-        </div>
+<nav class="fixed w-full z-100 top-0 start-0 bg-surface-10 shadow-md/20 shadow-surface-10">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <span class="self-center whitespace-nowrap text-xl text-heading font-black text-primary-0">
+      Argon
+    </span>
+    <div class="md:block md:w-auto text-primary-20">
+      <ul class="flex flex-col md:flex-row md:space-x-8 font-xl font-medium">
+        @if (authService.isLoggedIn()) {
+          <li>
+            <a routerLink="/projects" routerLinkActive="active" class="px-2 text-heading">Projects</a>
+          </li>
+          <li>
+            <a routerLink="/profile" routerLinkActive="active" class="px-2 text-heading">Profile</a>
+          </li>
+          <li>
+            <a routerLink="/logout" routerLinkActive="active" class="px-2 text-heading">Logout</a>
+          </li>
+        } @else {
+          <li>
+            <a routerLink="/login" routerLinkActive="active" class="px-2 text-heading">Login</a>
+          </li>
+          <li>
+            <a routerLink="/register" routerLinkActive="active" class="px-2 text-heading">Register</a>
+          </li>
+        }
+      </ul>
     </div>
+  </div>
 </nav>
