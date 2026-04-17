@@ -14,6 +14,7 @@
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
         "paths": {
+            // API
             "#/routes": ["apps/api/src/routes/index.ts"],
             "#/middlewares": ["apps/api/src/middlewares/index.ts"],
 
@@ -26,11 +27,18 @@
             "#/controllers/dataset": ["apps/api/src/controllers/dataset.controller.ts"],
             "#/controllers/project": ["apps/api/src/controllers/project.controller.ts"],
 
+            // DB
             "#/db/models": ["libs/db/src/lib/models/index.ts"],
             "#/db/schemas": ["libs/db/src/lib/schemas/index.ts"],
             "#/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
 
+            // Frontend
+            "#/pages": ["apps/frontend/src/components/pages/index.ts"],
+            "#/guards": ["apps/frontend/src/guards/index.ts"],
+            "#/services": ["apps/frontend/src/services/index.ts"],
+
+            // Shared
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
             "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
             "#/dto/tag": ["libs/shared/dtos/src/lib/dtos/tag.dto.ts"],
@@ -44,13 +52,16 @@
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
             "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
 
+            // General
             "#/types/db": ["libs/db/src/lib/types/index.ts"],
 
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
+            "#/utils/frontend": ["apps/frontend/src/utils/index.ts"],
 
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
+            "#/configs/frontend": ["apps/frontend/src/configs/frontend.config.ts"],
 
             "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
