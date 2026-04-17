@@ -18,5 +18,5 @@ indent_size = 2
 [*.md]
 max_line_length = off
 
-[*.html]
+[*.{html,css}]
 indent_size = 2
