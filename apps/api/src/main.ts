@@ -3,7 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 
 import { logger } from '#/utils/api';
-import { apiRouter } from '#/routes';
+import { apiRouter } from '#/routes/api';
 import { apiConfig } from '#/configs/api';
 import { errorHandler, notFoundHandler } from '#/middlewares';
 

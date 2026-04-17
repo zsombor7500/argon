@@ -15,7 +15,6 @@
         "baseUrl": ".",
         "paths": {
             // API
-            "#/routes": ["apps/api/src/routes/index.ts"],
             "#/middlewares": ["apps/api/src/middlewares/index.ts"],
 
             "#/controllers/tag": ["apps/api/src/controllers/tag.controller.ts"],
@@ -34,9 +33,10 @@
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
 
             // Frontend
-            "#/pages": ["apps/frontend/src/components/pages/index.ts"],
             "#/guards": ["apps/frontend/src/guards/index.ts"],
             "#/services": ["apps/frontend/src/services/index.ts"],
+            "#/components": ["apps/frontend/src/components/index.ts"],
+            "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
 
             // Shared
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
@@ -61,13 +61,16 @@
 
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
-            "#/configs/frontend": ["apps/frontend/src/configs/frontend.config.ts"],
+            "#/configs/frontend": ["apps/frontend/src/configs/index.ts"],
 
             "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
             "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
 
             "#/exceptions/api": ["apps/api/src/exceptions/api.exception.ts"],
+
+            "#/routes/api": ["apps/api/src/routes/index.ts"],
+            "#/routes/frontend": ["apps/frontend/src/routes/index.ts"],
         },
 
         /* Modules */

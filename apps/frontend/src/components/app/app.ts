@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { AppNavbar } from '../components/app-navbar/app-navbar';
+import { AppNavbar } from '#/components';
 
 
 @Component({
