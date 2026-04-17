@@ -1,14 +1,33 @@
-import { CommonModule } from '@angular/common';
-import { Component, ViewEncapsulation } from '@angular/core';
+import {
+    inject,
+    Component,
+    ViewEncapsulation
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { NgForm, FormsModule } from '@angular/forms';
+
+import { AuthService, UserService } from '#/services';
+import type { UserLoginDtoType } from '#/dto/auth';
 
 
 @Component({
     selector: 'app-login',
-    imports: [CommonModule],
+    imports: [FormsModule, RouterLink],
     templateUrl: './login.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
 export class LoginPage {
+    authService = inject(AuthService);
+    userService = inject(UserService);
+    formData: UserLoginDtoType = {
+        email: '',
+        password: ''
+    };
 
+    onSubmit(form: NgForm): void {
+        if (!form.valid)
+            return;
+        this.authService.login(this.formData);
+    }
 }

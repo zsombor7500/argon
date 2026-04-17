@@ -91,9 +91,9 @@
         >
           Register
         </button>
-        <div class="text-danger-10 text-sm mt-1">
+        <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
             @if (userService.error() !== null) {
-              <small>{{ userService.error() }}</small>
+              <p>{{ userService.error() }}</p>
             }
         </div>
     </form>
