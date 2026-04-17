@@ -35,7 +35,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (!user)
         return next(new ApiError({
             message: 'User with provided email does not exist',
-            statusCode: 422,
+            statusCode: 404,
             details: { email: userLogin.data.email }
         }));
     // Password validation

@@ -44,7 +44,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         if (isDuplicateKeyError(err))
             return next(new ApiError({
                 message: 'User already exists with provided email',
-                statusCode: 422,
+                statusCode: 409,
                 details: err
             }));
         return next(err);
