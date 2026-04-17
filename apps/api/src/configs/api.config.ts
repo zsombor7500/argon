@@ -31,7 +31,8 @@ const apiEnv = cleanEnv(process.env, {
     API_ACCESS_JWT_EXPIRY: num(),
     API_ACCESS_JWT_SECRET: str(),
     API_REFRESH_JWT_EXPIRY: num(),
-    API_REFRESH_JWT_SECRET: str()
+    API_REFRESH_JWT_SECRET: str(),
+    CORS_ORIGIN: str()
 });
 
 export const apiConfig = {
@@ -48,5 +49,12 @@ export const apiConfig = {
     accessJwtExpiry: apiEnv.API_ACCESS_JWT_EXPIRY,
     accessJwtSecret: apiEnv.API_ACCESS_JWT_SECRET,
     refreshJwtExpiry: apiEnv.API_REFRESH_JWT_EXPIRY,
-    refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET
+    refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET,
+    corsOrigin: !apiEnv.isProduction ? ['http://127.0.0.1:4200', 'http://localhost:4200'] : apiEnv.CORS_ORIGIN,
+    corsMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    corsAllowedHeaders: ['Content-Type', 'Authorization'],
+    corsCredentials: true,
+    corsOptionsSuccessStatus: 200
 };
+
+

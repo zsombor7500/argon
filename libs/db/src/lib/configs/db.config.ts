@@ -9,8 +9,8 @@ dotenv.config({ path: envFilePath });
 const dbEnv = cleanEnv(process.env, {
     MONGO_HOST: host(),
     MONGO_PORT: port(),
-    MONGO_USER: str(),
-    MONGO_PASSWORD: str(),
+    MONGO_INITDB_ROOT_USERNAME: str(),
+    MONGO_INITDB_ROOT_PASSWORD: str(),
     MONGO_AUTH_SOURCE: str(),
     MONGO_AUTH_MECHANISM: str({ choices: ['SCRAM-SHA-256', 'MONGODB-X509']}),
     MONGO_SERVICE_DB: str(),
@@ -25,8 +25,8 @@ const dbEnv = cleanEnv(process.env, {
 export const dbConfig = {
     mongoHost: dbEnv.MONGO_HOST,
     mongoPort: dbEnv.MONGO_PORT,
-    mongoUser: dbEnv.MONGO_USER,
-    mongoPassword: dbEnv.MONGO_PASSWORD,
+    mongoUser: dbEnv.MONGO_INITDB_ROOT_USERNAME,
+    mongoPassword: dbEnv.MONGO_INITDB_ROOT_PASSWORD,
     mongoAuthSource: dbEnv.MONGO_AUTH_SOURCE,
     mongoAuthMechanism: dbEnv.MONGO_AUTH_MECHANISM,
     mongoServiceDb: dbEnv.MONGO_SERVICE_DB,
