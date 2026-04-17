@@ -1,6 +1,6 @@
 import { Router, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
-import { Component, DestroyRef, effect, inject, ViewEncapsulation } from '@angular/core';
+import { effect, inject, Component, DestroyRef, ViewEncapsulation } from '@angular/core';
 
 import { UserService } from '#/services';
 import { PASSWORD_PATTERN, PASSWORD_MIN_LENGTH, USERNAME_MIN_LENGTH } from '#/constants/dtos';
