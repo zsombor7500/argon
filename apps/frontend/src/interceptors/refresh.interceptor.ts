@@ -42,7 +42,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
                         return next(req);
                     }),
                     catchError((err2: unknown) => {
-                        authService.logout();
+                        authService.logoutClientside();
                         tokenDtoSubject.next(null);
                         return throwError(() => err2);
                     })

@@ -18,6 +18,6 @@ export const appConfig: ApplicationConfig = {
                 refreshInterceptor
             ])
         ),
-        provideAppInitializer(() => inject(AuthService).getAuthStatus())
+        provideAppInitializer(() => inject(AuthService).refreshAuthState())
     ]
 };

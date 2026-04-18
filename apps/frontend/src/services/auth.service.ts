@@ -30,7 +30,12 @@ export class AuthService {
     readonly isRefreshing = this.isRefreshingSignal.asReadonly();
     readonly isAuthenticated = computed(() => !!this.tokenDataSignal());
 
-    getAuthStatus(): void {
+    resetAuthState() {
+        this.tokenDataSignal.set(null);
+    }
+
+    refreshAuthState(): void {
+        this.resetAuthState();
         this.httpClient
             .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
             .subscribe({
@@ -47,6 +52,7 @@ export class AuthService {
     }
 
     login(userCredentials: UserLoginDtoType): void {
+        this.resetAuthState();
         this.errorSignal.set(null);
         this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
@@ -84,13 +90,18 @@ export class AuthService {
                     this.isRefreshingSignal.set(false);
                 },
                 error: (err) => {
-                    console.error(`Failure during login request: ${err}`);
-                    this.router.navigate(['/login'])
-                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                    this.logoutClientside();
                     this.isRefreshingSignal.set(false);
+                    console.error(`Failure during login request: ${err}`);
                 }
             });
         return response;
+    }
+
+    logoutClientside(): void {
+        this.resetAuthState();
+        this.router.navigate(['/login'])
+            .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
     }
 
     logout(): void {
@@ -98,11 +109,10 @@ export class AuthService {
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/logout`, {})
             .subscribe({
                 next: (_) => {
-                    this.tokenDataSignal.set(null);
-                    this.router.navigate(['/login'])
-                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                    this.logoutClientside();
                 },
                 error: (err) => {
+                    this.logoutClientside();
                     console.error(`Failure during logout request: ${err}`);
                 }
             });
