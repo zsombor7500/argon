@@ -41,10 +41,10 @@ export class RegistrationPage {
 
     constructor() {
         const registrationEffectRef = effect(() => {
-            const isSuccessful = this.userService.isRegistrationSuccessful();
+            const isSuccessful = this.userService.isRegistrating();
             const error = this.userService.error();
             if (error === null && isSuccessful) {
-                this.userService.resetRegistrationSignals();
+                this.userService.resetFeedbackSignals();
                 this.router.navigate(['/login'])
                     .catch(err => console.log(`Couldn't route to /login: ${err}`));
             }
