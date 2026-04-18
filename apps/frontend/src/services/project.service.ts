@@ -31,6 +31,7 @@ export class ProjectService {
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
+    private isDisbandingSignal = signal<boolean | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly projects = this.projectsSignal.asReadonly();
@@ -38,6 +39,7 @@ export class ProjectService {
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
+    readonly isDisbanding = this.isDisbandingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -173,6 +175,34 @@ export class ProjectService {
                     this.errorSignal.set('Failed to delete project.');
                     this.isDeletingSignal.set(false);
                     console.error(`Failure during project deletion request: ${err}`);
+                }
+            });
+    }
+
+    disbandProject(projectId: string): void {
+        if (!this.authService.isAuthenticated())
+            return;
+        const finalEndpoint = `${this.endpoint}/${projectId}/disband`;
+        this.isDisbandingSignal.set(true);
+        this.errorSignal.set(null);
+        this.httpClient
+            .delete<ApiResponse<any>>(finalEndpoint)
+            .pipe(
+                timeout(frontendConfig.defaultTimeout),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe({
+                next: (res => {
+                    if (!res.success)
+                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                    else
+                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
+                    this.isDisbandingSignal.set(false);
+                }),
+                error: (err) => {
+                    this.errorSignal.set('Failed to disband project.');
+                    this.isDisbandingSignal.set(false);
+                    console.error(`Failure during project disband request: ${err}`);
                 }
             });
     }
