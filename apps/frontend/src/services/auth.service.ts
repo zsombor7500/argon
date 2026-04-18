@@ -6,9 +6,10 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 
 import { getApiEndpoint } from '#/utils/frontend';
-import type { ApiResponseSuccess } from '#/dto/api';
+import type { ApiResponse, ApiResponseSuccess } from '#/dto/api';
 import type { UserLoginDtoType, TokenRefreshDtoType } from '#/dto/auth';
 
 
@@ -57,21 +58,23 @@ export class AuthService {
             });
     }
 
-    refreshToken(): void {
+    refreshToken(): Observable<ApiResponse<TokenRefreshDtoType>> {
         this.isRefreshingSignal.set(true);
-        this.httpClient
+        const response = this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {})
-            .subscribe({
+        response.subscribe({
                 next: (res) => {
                     this.tokenDataSignal.set(res.data);
+                    this.isRefreshingSignal.set(false);
                 },
                 error: (err) => {
                     console.error(`Failure during login request: ${err}`);
                     this.router.navigate(['/login'])
                         .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                    this.isRefreshingSignal.set(false);
                 }
             });
-        this.isRefreshingSignal.set(false);
+        return response;
     }
 
     logout(): void {

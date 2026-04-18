@@ -35,6 +35,7 @@
             // Frontend
             "#/guards": ["apps/frontend/src/guards/index.ts"],
             "#/services": ["apps/frontend/src/services/index.ts"],
+            "#/interceptors": ["apps/frontend/src/interceptors/index.ts"],
             "#/components": ["apps/frontend/src/components/index.ts"],
             "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
 
