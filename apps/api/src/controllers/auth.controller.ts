@@ -79,17 +79,21 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const response: ApiResponseSuccess<TokenRefreshDtoType> = {
         success: true,
         data: TokenRefreshDto.parse({
-            accessToken: accessToken,
-            tokenType: 'Bearer',
             tokenBody: accessTokenBody
         })
     };
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        maxAge: apiConfig.accessJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}`
+    }).cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        maxAge: apiConfig.refreshJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
 }
@@ -180,7 +184,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
         exp: timestamp + apiConfig.accessJwtExpiry * 1000,
         userObjId: user._id
     };
-    const accessToken = jwt.sign(newAccessTokenBody, apiConfig.accessJwtSecret);
+    const newAccessToken = jwt.sign(newAccessTokenBody, apiConfig.accessJwtSecret);
     user.refreshTokenHashes.set(newRefreshTokenHash, newRefreshTokenBody.exp);
     await user.save();
 
@@ -188,17 +192,21 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const response: ApiResponseSuccess<TokenRefreshDtoType> = {
         success: true,
         data: TokenRefreshDto.parse({
-            accessToken: accessToken,
-            tokenType: 'Bearer',
             tokenBody: newAccessTokenBody
         })
     };
-    res.cookie('refreshToken', newRefreshToken, {
+    res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        maxAge: apiConfig.accessJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}`
+    }).cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        maxAge: apiConfig.refreshJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
 }
@@ -283,12 +291,16 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
         success: true,
         data: {}
     };
-    res.clearCookie('refreshToken', {
+    res.clearCookie('accessToken', {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        path: `/api/${apiConfig.version}`
+    }).clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
 }

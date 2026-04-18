@@ -5,29 +5,22 @@ import type { Request, Response, NextFunction } from 'express';
 import { Project } from '#/db/models';
 import { ApiError } from '#/exceptions/api';
 import { apiConfig } from '#/configs/api';
-import { TokenBodyDto } from '#/dto/auth';
+import { AccessTokenCoookies, TokenBodyDto } from '#/dto/auth';
 import { RES_LOCALS_JWT_KEY } from '#/constants/api';
 import { ProjectPathParamsDto } from '#/dto/project';
 import type { ProjectScopeDtoType } from '#/dto/scope';
 
 
 export function authJwt(req: Request, res: Response, next: NextFunction) {
-    // Validation
-    if (!req.headers.authorization)
+    const cookies = AccessTokenCoookies.safeParse(req.cookies);
+    if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing Authorization HTTP header',
-            statusCode: 401
-        }));
-
-    // Token validation
-    const token = req.headers.authorization.split('Bearer: ')[1];
-    if (!token)
-        return next(new ApiError({
-            message: 'Malformed Authorization HTTP header',
-            statusCode: 401
+            message: 'Missing accessToken cookie',
+            statusCode: 401,
+            details: { error: cookies.error }
         }));
     try {
-        const jwtBody = jwt.verify(token, apiConfig.accessJwtSecret)
+        const jwtBody = jwt.verify(cookies.data.accessToken, apiConfig.accessJwtSecret)
         const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
         if (!jwtBodyParse.success)
             return next(new ApiError({
@@ -76,7 +69,7 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
                 statusCode: 422,
                 details: { _id: params.data.projectObjId }
             }));
-        // Check scope   -   TODO: Set instead of array
+        // Scope check, TODO: Set instead of array
         const authorizedUserObjId: Types.ObjectId | undefined = project.userObjIds
             .find((userObjId) => userObjId.equals(jwtBody.data.userObjId));
         if (!authorizedUserObjId)
