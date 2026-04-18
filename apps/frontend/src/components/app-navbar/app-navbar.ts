@@ -14,4 +14,8 @@ import { AuthService } from '#/services';
 })
 export class AppNavbar {
     authService = inject(AuthService)
+
+    onLogout() {
+        this.authService.logout();
+    }
 }
