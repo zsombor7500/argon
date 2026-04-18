@@ -305,8 +305,20 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
       .json(response);
 }
 
-export function status(_req: Request, res: Response, _next: NextFunction) {
+export async function status(_req: Request, res: Response, next: NextFunction) {
     const jwtBody = getJwtBody(res);
+    const user: IUser | null = await User.findOne({
+        _id: jwtBody.userObjId
+    });
+    if (!user)
+        return next(new ApiError({
+            message: 'Forbidden',
+            statusCode: 403,
+            details: {
+                message: 'User tried using an expired refresh token',
+                jwtBody: jwtBody
+            }
+        }));
     const response: ApiResponseSuccess<TokenBodyDtoType> = {
         success: true,
         data: TokenBodyDto.parse(jwtBody)
