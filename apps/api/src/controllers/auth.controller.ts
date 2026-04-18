@@ -304,3 +304,12 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     }).status(200)
       .json(response);
 }
+
+export function status(_req: Request, res: Response, _next: NextFunction) {
+    const response: ApiResponseSuccess<any> = {
+        success: true,
+        data: {}
+    };
+    return res.status(200)
+        .json(response);
+}
