@@ -79,10 +79,16 @@ export class UserService {
             });
     }
 
-    getUser(): void {
+    getCurrentUser(): void {
         if (!this.authService.isAuthenticated())
             return;
-        const finalEndpoint = `${this.endpoint}/${this.authService.tokenData()!.userObjId.toString()}`;
+        this.getUser(this.authService.tokenData()!.userObjId.toString());
+    }
+
+    getUser(userId: string): void {
+        if (!this.authService.isAuthenticated())
+            return;
+        const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isLoadingSignal.set(true);
         this.userProfileSignal.set(null);
         this.errorSignal.set(null);
@@ -111,10 +117,16 @@ export class UserService {
             });
     }
 
-    updateUser(userData: UserUpdateDtoType): void {
+    updateCurrentUser(userData: UserUpdateDtoType) {
         if (!this.authService.isAuthenticated())
             return;
-        const finalEndpoint = `${this.endpoint}/${this.authService.tokenData()!.userObjId.toString()}`;
+        this.updateUser(this.authService.tokenData()!.userObjId.toString(), userData);
+    }
+
+    updateUser(userId: string, userData: UserUpdateDtoType): void {
+        if (!this.authService.isAuthenticated())
+            return;
+        const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isUpdatingSignal.set(true);
         this.errorSignal.set(null);
         this.httpClient
@@ -142,10 +154,16 @@ export class UserService {
             });
     }
 
-    deleteUser(): void {
+    deleteCurrentUser(): void {
         if (!this.authService.isAuthenticated())
             return;
-        const finalEndpoint = `${this.endpoint}/${this.authService.tokenData()!.userObjId.toString()}`;
+        this.deleteUser(this.authService.tokenData()!.userObjId.toString());
+    }
+
+    deleteUser(userId: string): void {
+        if (!this.authService.isAuthenticated())
+            return;
+        const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isDeletingSignal.set(true);
         this.userProfileSignal.set(null);
         this.errorSignal.set(null);
