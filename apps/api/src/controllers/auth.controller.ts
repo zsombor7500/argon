@@ -11,7 +11,7 @@ import {
 import { User } from '#/db/models';
 import { ApiError } from '#/exceptions/api';
 import { apiConfig } from '#/configs/api';
-import { getSha512Hash } from '#/utils/api';
+import { getJwtBody, getSha512Hash } from '#/utils/api';
 import { verifyBcryptHash } from '#/utils/api';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
@@ -306,9 +306,10 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 }
 
 export function status(_req: Request, res: Response, _next: NextFunction) {
-    const response: ApiResponseSuccess<any> = {
+    const jwtBody = getJwtBody(res);
+    const response: ApiResponseSuccess<TokenBodyDtoType> = {
         success: true,
-        data: {}
+        data: TokenBodyDto.parse(jwtBody)
     };
     return res.status(200)
         .json(response);
