@@ -60,7 +60,7 @@ export class UserService {
     register(userCredentials: UserRegistrationDtoType): void {
         if (this.authService.isAuthenticated())
             return;
-        this.isRegistratingSignal.set(false);
+        this.isRegistratingSignal.set(true);
         this.errorSignal.set(null);
         this.httpClient
             .post<ApiResponse<any>>(this.endpoint, userCredentials)
@@ -69,10 +69,11 @@ export class UserService {
                 takeUntilDestroyed(this.destroyRef)
             )
             .subscribe({
-                next: (_) => this.isRegistratingSignal.set(true),
+                next: (_) => this.isRegistratingSignal.set(false),
                 error: (err) => {
                     if (err instanceof HttpErrorResponse && err.status === 409)
                         this.errorSignal.set('User already exists with given email!');
+                    this.isRegistratingSignal.set(false)
                     console.error(`Failure during registration request: ${err}`);
                 }
             });
