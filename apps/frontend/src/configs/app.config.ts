@@ -1,10 +1,11 @@
 import { provideRouter } from '@angular/router';
-import { provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { withInterceptors, provideHttpClient } from '@angular/common/http';
 import type { ApplicationConfig } from '@angular/core';
 
 import { appRoutes } from '#/routes/frontend';
-import { authInterceptor } from '#/interceptors';
+import { refreshInterceptor, withCredentialsInterceptor } from '#/interceptors';
+import { AuthService } from '#/services';
 
 
 export const appConfig: ApplicationConfig = {
@@ -13,8 +14,10 @@ export const appConfig: ApplicationConfig = {
         provideRouter(appRoutes),
         provideHttpClient(
             withInterceptors([
-                authInterceptor
+                withCredentialsInterceptor,
+                refreshInterceptor
             ])
-        )
+        ),
+        provideAppInitializer(() => inject(AuthService).getAuthStatus())
     ]
 };

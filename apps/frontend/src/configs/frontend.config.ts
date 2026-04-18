@@ -5,8 +5,10 @@ export interface Endpoint {
 
 const apiVersion = 'v1';
 
-const noAuthEndpoints: Endpoint[] = [
+const interceptorSkipEndpoints: Endpoint[] = [
     { method: 'POST', prefix: `/api/${apiVersion}/auth/login`},
+    { method: 'POST', prefix: `/api/${apiVersion}/auth/refresh`},
+    { method: 'POST', prefix: `/api/${apiVersion}/auth/logout`},
     { method: 'POST', prefix: `/api/${apiVersion}/users`}
 ];
 
@@ -14,6 +16,5 @@ export const frontendConfig = {
     apiUrl: 'http://127.0.0.1:9000',
     apiVersion: apiVersion,
     defaultTimeout: 10000,
-    noAuthEndpoints: noAuthEndpoints,
-    tokenType: 'Bearer'
+    interceptorSkipEndpoints: interceptorSkipEndpoints
 };

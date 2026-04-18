@@ -1,2 +1,2 @@
-export { authInterceptor } from './auth.interceptor.js';
 export { refreshInterceptor } from './refresh.interceptor.js';
+export { withCredentialsInterceptor } from './cookie.interceptor.js';

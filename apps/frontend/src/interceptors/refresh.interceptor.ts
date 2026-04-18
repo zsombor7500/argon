@@ -19,10 +19,9 @@ import type { TokenRefreshDtoType } from '#/dto/auth';
 const tokenDtoSubject = new BehaviorSubject<TokenRefreshDtoType | null>(null);
 
 export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
-    const isPublic = frontendConfig.noAuthEndpoints
-        .some(({ method, prefix }) => req.method === method && req.url.includes(prefix));
-    const isAuth = req.url.includes(`/api/${frontendConfig.apiVersion}/auth`);
-    if (isPublic || isAuth)
+    const isSkipped = frontendConfig.interceptorSkipEndpoints
+        .find(({ method, prefix }) => req.method === method && req.url.includes(prefix));
+    if (isSkipped)
         return next(req);
     const authService = inject(AuthService);
     return next(req)
@@ -34,21 +33,13 @@ export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
                     return tokenDtoSubject.pipe(
                         filter(tokenDto => tokenDto !== null),
                         take(1),
-                        switchMap(tokenDto => {
-                            const newReq = req.clone({
-                                setHeaders: { Authorization: `${frontendConfig.tokenType} ${tokenDto.accessToken}` }
-                            })
-                            return next(newReq);
-                        })
+                        switchMap(_ => next(req))
                     );
                 return authService.refreshToken().pipe(
-                    switchMap(response => {
-                        response = response as ApiResponseSuccess<TokenRefreshDtoType>;
-                        tokenDtoSubject.next(response.data);
-                        const authReq = req.clone({
-                            setHeaders: { Authorization: `Bearer ${response.data.accessToken}` }
-                        });
-                        return next(authReq);
+                    switchMap(res => {
+                        res = res as ApiResponseSuccess<TokenRefreshDtoType>;
+                        tokenDtoSubject.next(res.data);
+                        return next(req);
                     }),
                     catchError((err2: unknown) => {
                         authService.logout();

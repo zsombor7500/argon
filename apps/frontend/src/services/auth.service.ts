@@ -10,7 +10,8 @@ import type { Observable } from 'rxjs';
 
 import { getApiEndpoint } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/api';
-import type { UserLoginDtoType, TokenRefreshDtoType } from '#/dto/auth';
+import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/dto/auth';
+//import { frontendConfig } from '../configs';
 
 
 @Injectable({
@@ -21,7 +22,7 @@ export class AuthService {
     private router = inject(Router);
     private httpClient = inject(HttpClient);
 
-    private tokenDataSignal = signal<TokenRefreshDtoType | null>(null);
+    private tokenDataSignal = signal<TokenBodyDtoType | null>(null);
     private errorSignal = signal<string | null>(null);
     private isRefreshingSignal = signal(false);
 
@@ -30,13 +31,29 @@ export class AuthService {
     readonly isRefreshing = this.isRefreshingSignal.asReadonly();
     readonly isAuthenticated = computed(() => !!this.tokenDataSignal());
 
+    getAuthStatus(): void {
+        this.httpClient
+            .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
+            .subscribe({
+                next: (res) => {
+                    this.tokenDataSignal.set(res.data);
+                    this.router.navigate(['/projects'])
+                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                },
+                error: (err) => {
+                    if (!(err instanceof HttpErrorResponse))
+                        console.error(`Uncrecognized failure during login request: ${err}`);
+                }
+            });
+    }
+
     login(userCredentials: UserLoginDtoType): void {
         this.errorSignal.set(null);
         this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
             .subscribe({
                 next: (res) => {
-                    this.tokenDataSignal.set(res.data);
+                    this.tokenDataSignal.set(res.data.tokenBody);
                     this.router.navigate(['/projects'])
                         .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
                 },
@@ -61,10 +78,10 @@ export class AuthService {
     refreshToken(): Observable<ApiResponse<TokenRefreshDtoType>> {
         this.isRefreshingSignal.set(true);
         const response = this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {})
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {});
         response.subscribe({
                 next: (res) => {
-                    this.tokenDataSignal.set(res.data);
+                    this.tokenDataSignal.set(res.data.tokenBody);
                     this.isRefreshingSignal.set(false);
                 },
                 error: (err) => {
@@ -78,8 +95,17 @@ export class AuthService {
     }
 
     logout(): void {
-        this.tokenDataSignal.set(null);
-        this.router.navigate(['/login'])
-            .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+        this.httpClient
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/logout`, {})
+            .subscribe({
+                next: (_) => {
+                    this.tokenDataSignal.set(null);
+                    this.router.navigate(['/login'])
+                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                },
+                error: (err) => {
+                    console.error(`Failure during logout request: ${err}`);
+                }
+            });
     }
 }
