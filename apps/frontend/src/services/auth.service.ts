@@ -31,30 +31,30 @@ export class AuthService {
 
     login(userCredentials: UserLoginDtoType): void {
         this.errorSignal.set(null);
-        const response = this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials);
-        response.subscribe({
-            next: (res) => {
-                this.tokenDataSignal.set(res.data);
-                this.router.navigate(['/projects'])
-                    .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
-            },
-            error: (err) => {
-                if (!(err instanceof HttpErrorResponse)) {
-                    console.error(`Failure during login request: ${err}`);
-                    return;
+        this.httpClient
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
+            .subscribe({
+                next: (res) => {
+                    this.tokenDataSignal.set(res.data);
+                    this.router.navigate(['/projects'])
+                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                },
+                error: (err) => {
+                    if (!(err instanceof HttpErrorResponse)) {
+                        console.error(`Failure during login request: ${err}`);
+                        return;
+                    }
+                    if (err.status === 404) {
+                        this.errorSignal.set('User does not exists with given email!');
+                        return;
+                    }
+                    if (err.status === 422) {
+                        this.errorSignal.set('Incorrect user credentials!');
+                        return;
+                    }
+                    console.error(`Uncrecognized failure during login request: ${err.message}`);
                 }
-                if (err.status === 404) {
-                    this.errorSignal.set('User does not exists with given email!');
-                    return;
-                }
-                if (err.status === 422) {
-                    this.errorSignal.set('Incorrect user credentials!');
-                    return;
-                }
-                console.error(`Uncrecognized failure during login request: ${err.message}`);
-            }
-        });
+            });
     }
 
     refreshToken(): void {
