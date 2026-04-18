@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ObjectId } from '#/dto/frontend/oid';
 import { ProjectDto } from '#/dto/frontend/project';
 import { UserProfileDto } from '#/dto/frontend/user';
+import { DateFromString } from '#/dto/frontend/general';
 
 
 export const InviteDto = z.object({
@@ -12,8 +13,8 @@ export const InviteDto = z.object({
     invitant:    UserProfileDto,
     invited:     UserProfileDto,
     project:     ProjectDto,
-    createdAt:   z.date(),
-    updatedAt:   z.date()
+    createdAt:   DateFromString,
+    updatedAt:   DateFromString
 });
 export type InviteDtoType = z.infer<typeof InviteDto>;
 

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/frontend/oid';
+import { DateFromString } from '#/dto/frontend/general';
 import { SchemaPrimitiveTypeDto } from '#/dto/frontend/schema';
 
 
@@ -14,8 +15,8 @@ export const TagDto = z.object({
     name:        z.string(),
     description: z.string().optional(),
     type:        TagTypeDto,
-    createdAt:   z.date(),
-    updatedAt:   z.date()
+    createdAt:   DateFromString,
+    updatedAt:   DateFromString
 });
 export type TagDtoType = z.infer<typeof TagDto>;
 

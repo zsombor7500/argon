@@ -6,6 +6,7 @@ import {
     USERNAME_MIN_LENGTH
 } from '#/constants/dtos';
 import { ObjectId } from '#/dto/frontend/oid';
+import { DateFromString } from '#/dto/frontend/general';
 
 
 export const UserProfileDto = z.object({
@@ -16,8 +17,8 @@ export const UserProfileDto = z.object({
     lastName:    z.string().optional(),
     email:       z.string(),
     description: z.string().optional(),
-    createdAt:   z.date(),
-    updatedAt:   z.date()
+    createdAt:   DateFromString,
+    updatedAt:   DateFromString
 });
 export type UserProfileDtoType = z.infer<typeof UserProfileDto>;
 

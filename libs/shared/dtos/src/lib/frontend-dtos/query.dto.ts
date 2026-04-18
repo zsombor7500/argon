@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { TagsDto } from '#/dto/frontend/tag';
+import { DateFromString } from '#/dto/frontend/general';
 import { ObjectId, ObjectIds } from '#/dto/frontend/oid';
 import { DatasetsDto, DatasetsUnpopulatedMapDto } from '#/dto/frontend/dataset';
 
@@ -24,8 +25,8 @@ export const QueryDto = z.object({
     datasetToTagToAttributePathMap: NestedStringMapDto.transform(map => Object.fromEntries(map)),
     datasets:                       DatasetsUnpopulatedMapDto,
     tags:                           TagsDto,
-    createdAt:                      z.date(),
-    updatedAt:                      z.date()
+    createdAt:                      DateFromString,
+    updatedAt:                      DateFromString
 });
 export type QueryDtoType = z.infer<typeof QueryDto>;
 

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { ObjectId } from '#/dto/frontend/oid';
 import { UserProfileDto } from '#/dto/frontend/user';
+import { DateFromString } from '#/dto/frontend/general';
 
 
 export const ProjectDto = z.object({
@@ -9,8 +10,8 @@ export const ProjectDto = z.object({
     name:        z.string(),
     owner:       UserProfileDto,
     description: z.string().optional(),
-    createdAt:   z.date(),
-    updatedAt:   z.date()
+    createdAt:   DateFromString,
+    updatedAt:   DateFromString
 });
 export type ProjectDtoType = z.infer<typeof ProjectDto>;
 

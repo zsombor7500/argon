@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { TagsDto } from '#/dto/frontend/tag';
 import { SchemaDto } from '#/dto/frontend/schema';
+import { DateFromString } from '#/dto/frontend/general';
 import { ObjectId, ObjectIds } from '#/dto/frontend/oid';
 
 
@@ -11,8 +12,8 @@ export const DatasetDto = z.object({
     description:            z.string().optional(),
     jsonSchema:             SchemaDto,
     attributePathToTagsMap: z.map(z.string(), TagsDto).transform((map) => Object.fromEntries(map)),
-    createdAt:              z.date(),
-    updatedAt:              z.date()
+    createdAt:              DateFromString,
+    updatedAt:              DateFromString
 });
 export type DatasetDtoType = z.infer<typeof DatasetDto>;
 
@@ -25,8 +26,8 @@ export const DatasetUnpopulatedMapDto = z.object({
     description:                 z.string().optional(),
     jsonSchema:                  SchemaDto,
     attributePathToTagObjIdsMap: z.map(z.string(), ObjectId).transform((map) => Object.fromEntries(map)),
-    createdAt:                   z.date(),
-    updatedAt:                   z.date()
+    createdAt:                   DateFromString,
+    updatedAt:                   DateFromString
 });
 export type DatasetUnpopulatedMapDtoType = z.infer<typeof DatasetUnpopulatedMapDto>;
 

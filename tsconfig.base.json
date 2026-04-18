@@ -64,6 +64,7 @@
             "#/dto/frontend/access": ["libs/shared/dtos/src/lib/frontend-dtos/access.dto.ts"],
             "#/dto/frontend/project": ["libs/shared/dtos/src/lib/frontend-dtos/project.dto.ts"],
             "#/dto/frontend/dataset": ["libs/shared/dtos/src/lib/frontend-dtos/dataset.dto.ts"],
+            "#/dto/frontend/general": ["libs/shared/dtos/src/lib/frontend-dtos/general.dto.ts"],
             "#/dto/frontend/schema": ["libs/shared/dtos/src/lib/frontend-dtos/schema.dto.ts"],
 
 
