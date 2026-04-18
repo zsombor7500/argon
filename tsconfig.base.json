@@ -53,6 +53,20 @@
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
             "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
 
+            "#/dto/frontend/api": ["libs/shared/dtos/src/lib/frontend-dtos/api.dto.ts"],
+            "#/dto/frontend/oid": ["libs/shared/dtos/src/lib/frontend-dtos/objectId.dto.ts"],
+            "#/dto/frontend/tag": ["libs/shared/dtos/src/lib/frontend-dtos/tag.dto.ts"],
+            "#/dto/frontend/user": ["libs/shared/dtos/src/lib/frontend-dtos/user.dto.ts"],
+            "#/dto/frontend/auth": ["libs/shared/dtos/src/lib/frontend-dtos/auth.dto.ts"],
+            "#/dto/frontend/scope": ["libs/shared/dtos/src/lib/frontend-dtos/scope.dto.ts"],
+            "#/dto/frontend/query": ["libs/shared/dtos/src/lib/frontend-dtos/query.dto.ts"],
+            "#/dto/frontend/invite": ["libs/shared/dtos/src/lib/frontend-dtos/invite.dto.ts"],
+            "#/dto/frontend/access": ["libs/shared/dtos/src/lib/frontend-dtos/access.dto.ts"],
+            "#/dto/frontend/project": ["libs/shared/dtos/src/lib/frontend-dtos/project.dto.ts"],
+            "#/dto/frontend/dataset": ["libs/shared/dtos/src/lib/frontend-dtos/dataset.dto.ts"],
+            "#/dto/frontend/schema": ["libs/shared/dtos/src/lib/frontend-dtos/schema.dto.ts"],
+
+
             // General
             "#/types/db": ["libs/db/src/lib/types/index.ts"],
 

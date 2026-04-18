@@ -9,9 +9,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import type { Observable } from 'rxjs';
 
 import { getApiEndpoint } from '#/utils/frontend';
-import type { ApiResponse, ApiResponseSuccess } from '#/dto/api';
-import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/dto/auth';
-//import { frontendConfig } from '../configs';
+import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
+import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/dto/frontend/auth';
 
 
 @Injectable({
@@ -38,7 +37,7 @@ export class AuthService {
                 next: (res) => {
                     this.tokenDataSignal.set(res.data);
                     this.router.navigate(['/projects'])
-                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                        .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
                 },
                 error: (err) => {
                     if (!(err instanceof HttpErrorResponse))

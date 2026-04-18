@@ -8,12 +8,12 @@ import {
 } from 'rxjs';
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import type { HttpRequest, HttpHandlerFn, HttpInterceptorFn, } from '@angular/common/http';
+import type { HttpRequest, HttpHandlerFn, HttpInterceptorFn } from '@angular/common/http';
 
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
-import type { ApiResponseSuccess } from '#/dto/api';
-import type { TokenRefreshDtoType } from '#/dto/auth';
+import type { ApiResponseSuccess } from '#/dto/frontend/api';
+import type { TokenRefreshDtoType } from '#/dto/frontend/auth';
 
 
 const tokenDtoSubject = new BehaviorSubject<TokenRefreshDtoType | null>(null);

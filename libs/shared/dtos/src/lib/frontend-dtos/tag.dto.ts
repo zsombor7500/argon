@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ObjectId } from '#/dto/oid';
+import { ObjectId } from '#/dto/frontend/oid';
 import { SchemaPrimitiveTypeDto } from '#/dto/frontend/schema';
 
 
