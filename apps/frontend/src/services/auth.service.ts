@@ -34,11 +34,11 @@ export class AuthService {
         this.tokenDataSignal.set(null);
     }
 
-    refreshAuthState(): void {
+    refreshAuthState(): Observable<ApiResponseSuccess<TokenBodyDtoType>> {
         this.resetAuthState();
-        this.httpClient
-            .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
-            .subscribe({
+        const response = this.httpClient
+            .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {});
+        response.subscribe({
                 next: (res) => {
                     this.tokenDataSignal.set(res.data);
                     this.router.navigate(['/projects'])
@@ -49,14 +49,15 @@ export class AuthService {
                         console.error(`Uncrecognized failure during login request: ${err}`);
                 }
             });
+        return response;
     }
 
-    login(userCredentials: UserLoginDtoType): void {
+    login(userCredentials: UserLoginDtoType): Observable<ApiResponseSuccess<TokenRefreshDtoType>> {
         this.resetAuthState();
         this.errorSignal.set(null);
-        this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
-            .subscribe({
+        const response = this.httpClient
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials);
+        response.subscribe({
                 next: (res) => {
                     this.tokenDataSignal.set(res.data.tokenBody);
                     this.router.navigate(['/projects'])
@@ -78,6 +79,7 @@ export class AuthService {
                     console.error(`Uncrecognized failure during login request: ${err.message}`);
                 }
             });
+        return response;
     }
 
     refreshToken(): Observable<ApiResponse<TokenRefreshDtoType>> {
@@ -104,10 +106,10 @@ export class AuthService {
             .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
     }
 
-    logout(): void {
-        this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/logout`, {})
-            .subscribe({
+    logout(): Observable<ApiResponseSuccess<any>> {
+        const response = this.httpClient
+            .post<ApiResponseSuccess<any>>(`${this.endpoint}/logout`, {});
+        response.subscribe({
                 next: (_) => {
                     this.logoutClientside();
                 },
@@ -116,5 +118,6 @@ export class AuthService {
                     console.error(`Failure during logout request: ${err}`);
                 }
             });
+        return response;
     }
 }

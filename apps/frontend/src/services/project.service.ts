@@ -5,15 +5,15 @@ import {
     Injectable,
     DestroyRef
 } from '@angular/core';
-import { timeout } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timeout, Observable } from 'rxjs';
 
 import { AuthService } from '#/services';
 import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { ProjectDto, ProjectsDto } from '#/dto/frontend/project';
-import type { ApiResponse } from '#/dto/frontend/api';
+import type { ApiResponseSuccess } from '#/dto/frontend/api';
 import type { ProjectDtoType, ProjectUpdateDtoType, ProjectCreationDtoType } from '#/dto/frontend/project';
 
 
@@ -59,18 +59,16 @@ export class ProjectService {
         this.errorSignal.set(null);
     }
 
-    createProject(projectData: ProjectCreationDtoType): void {
-        if (!this.authService.isAuthenticated())
-            return;
+    createProject(projectData: ProjectCreationDtoType): Observable<ApiResponseSuccess<ProjectDtoType>> {
         this.isCreatingSignal.set(true);
         this.errorSignal.set(null);
-        this.httpClient
-            .post<ApiResponse<ProjectDtoType>>(this.endpoint, projectData)
+        const response = this.httpClient
+            .post<ApiResponseSuccess<ProjectDtoType>>(this.endpoint, projectData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
+            );
+        response.subscribe({
                 next: (res => {
                     if (!res.data)
                         this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
@@ -91,21 +89,20 @@ export class ProjectService {
                     console.error(`Failure during project creation request: ${err}`);
                 }
             });
+        return response;
     }
 
-    getProjects(): void {
-        if (!this.authService.isAuthenticated())
-            return;
+    getProjects(): Observable<ApiResponseSuccess<ProjectDtoType[]>> {
         this.isLoadingSignal.set(true);
         this.projectsSignal.set(null);
         this.errorSignal.set(null);
-        this.httpClient
-            .get<ApiResponse<ProjectDtoType[]>>(this.endpoint)
+        const response = this.httpClient
+            .get<ApiResponseSuccess<ProjectDtoType[]>>(this.endpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
+            );
+        response.subscribe({
                 next: (res => {
                     if (!res.data)
                         this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
@@ -126,21 +123,20 @@ export class ProjectService {
                     console.error(`Failure during projects retrieval request: ${err}`);
                 }
             });
+        return response;
     }
 
-    updateProject(projectId: string, projectData: ProjectUpdateDtoType): void {
-        if (!this.authService.isAuthenticated())
-            return;
+    updateProject(projectId: string, projectData: ProjectUpdateDtoType): Observable<ApiResponseSuccess<ProjectDtoType>> {
         const finalEndpoint = `${this.endpoint}/${projectId}`;
         this.isUpdatingSignal.set(true);
         this.errorSignal.set(null);
-        this.httpClient
-            .patch<ApiResponse<ProjectDtoType>>(finalEndpoint, projectData)
+        const response = this.httpClient
+            .patch<ApiResponseSuccess<ProjectDtoType>>(finalEndpoint, projectData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
+            );
+        response.subscribe({
                 next: (res => {
                     if (!res.data)
                         this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
@@ -161,21 +157,20 @@ export class ProjectService {
                     console.error(`Failure during project update request: ${err}`);
                 }
             });
+        return response;
     }
 
-    deleteProject(projectId: string): void {
-        if (!this.authService.isAuthenticated())
-            return;
+    deleteProject(projectId: string): Observable<ApiResponseSuccess<any>> {
         const finalEndpoint = `${this.endpoint}/${projectId}`;
         this.isDeletingSignal.set(true);
         this.errorSignal.set(null);
-        this.httpClient
-            .delete<ApiResponse<any>>(finalEndpoint)
+        const response = this.httpClient
+            .delete<ApiResponseSuccess<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
+            );
+        response.subscribe({
                 next: (res => {
                     if (!res.success)
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
@@ -193,21 +188,20 @@ export class ProjectService {
                     console.error(`Failure during project deletion request: ${err}`);
                 }
             });
+        return response;
     }
 
-    disbandProject(projectId: string): void {
-        if (!this.authService.isAuthenticated())
-            return;
+    disbandProject(projectId: string): Observable<ApiResponseSuccess<any>> {
         const finalEndpoint = `${this.endpoint}/${projectId}/disband`;
         this.isDisbandingSignal.set(true);
         this.errorSignal.set(null);
-        this.httpClient
-            .delete<ApiResponse<any>>(finalEndpoint)
+        const response = this.httpClient
+            .delete<ApiResponseSuccess<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
+            );
+        response.subscribe({
                 next: (res => {
                     if (!res.success)
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
@@ -225,5 +219,6 @@ export class ProjectService {
                     console.error(`Failure during project disband request: ${err}`);
                 }
             });
+        return response;
     }
 }
