@@ -67,26 +67,26 @@ export class InviteService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
-                    const inviteParse = InviteDto.safeParse(res.data);
-                    if (!inviteParse.success)
-                        this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
-                    else
-                        this.invitesSignal.update(arr => [...(arr ?? []), inviteParse.data]);
-                    this.isLoadingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to create new invite.');
-                    this.isCreatingSignal.set(false);
-                    console.error(`Failure during invite creation request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
+                const inviteParse = InviteDto.safeParse(res.data);
+                if (!inviteParse.success)
+                    this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
+                else
+                    this.invitesSignal.update(arr => [...(arr ?? []), inviteParse.data]);
+                this.isLoadingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to create new invite.');
+                this.isCreatingSignal.set(false);
+                console.error(`Failure during invite creation request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -106,26 +106,26 @@ export class InviteService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse invites data. Server response format mismatch.');
-                    const invitesParse = InvitesDto.safeParse(res.data);
-                    if (!invitesParse.success)
-                        this.errorSignal.set('Failed to parse invites data. Invites data format mismatch.');
-                    else
-                        this.invitesSignal.set(invitesParse.data);
-                    this.isLoadingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to retrieve invites.');
-                    this.isLoadingSignal.set(false);
-                    console.error(`Failure during invites retrieval request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse invites data. Server response format mismatch.');
+                const invitesParse = InvitesDto.safeParse(res.data);
+                if (!invitesParse.success)
+                    this.errorSignal.set('Failed to parse invites data. Invites data format mismatch.');
+                else
+                    this.invitesSignal.set(invitesParse.data);
+                this.isLoadingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to retrieve invites.');
+                this.isLoadingSignal.set(false);
+                console.error(`Failure during invites retrieval request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -140,26 +140,26 @@ export class InviteService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
-                    const inviteParse = InviteDto.safeParse(res.data);
-                    if (!inviteParse.success)
-                        this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
-                    else
-                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId), inviteParse.data]);
-                    this.isUpdatingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to update invite.');
-                    this.isUpdatingSignal.set(false);
-                    console.error(`Failure during invite update request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
+                const inviteParse = InviteDto.safeParse(res.data);
+                if (!inviteParse.success)
+                    this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
+                else
+                    this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId), inviteParse.data]);
+                this.isUpdatingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to update invite.');
+                this.isUpdatingSignal.set(false);
+                console.error(`Failure during invite update request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -174,23 +174,23 @@ export class InviteService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.success)
-                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
-                    this.isDeletingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to delete invite.');
-                    this.isDeletingSignal.set(false);
-                    console.error(`Failure during invite deletion request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.success)
+                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                else
+                    this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
+                this.isDeletingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to delete invite.');
+                this.isDeletingSignal.set(false);
+                console.error(`Failure during invite deletion request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -205,23 +205,23 @@ export class InviteService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.success)
-                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
-                    this.isDeletingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to delete invite.');
-                    this.isDeletingSignal.set(false);
-                    console.error(`Failure during invite deletion request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.success)
+                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                else
+                    this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
+                this.isDeletingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to delete invite.');
+                this.isDeletingSignal.set(false);
+                console.error(`Failure during invite deletion request: ${err}`);
+            }
+        });
         return response;
     }
 }

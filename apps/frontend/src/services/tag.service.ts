@@ -67,26 +67,26 @@ export class TagService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse tag data. Server response format mismatch.');
-                    const tagParse = TagDto.safeParse(res.data);
-                    if (!tagParse.success)
-                        this.errorSignal.set('Failed to parse tag data. Tag data format mismatch.');
-                    else
-                        this.tagsSignal.update(arr => [...(arr ?? []), tagParse.data]);
-                    this.isLoadingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to create new tag.');
-                    this.isCreatingSignal.set(false);
-                    console.error(`Failure during tag creation request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse tag data. Server response format mismatch.');
+                const tagParse = TagDto.safeParse(res.data);
+                if (!tagParse.success)
+                    this.errorSignal.set('Failed to parse tag data. Tag data format mismatch.');
+                else
+                    this.tagsSignal.update(arr => [...(arr ?? []), tagParse.data]);
+                this.isLoadingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to create new tag.');
+                this.isCreatingSignal.set(false);
+                console.error(`Failure during tag creation request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -102,26 +102,26 @@ export class TagService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse tags data. Server response format mismatch.');
-                    const tagsParse = TagsDto.safeParse(res.data);
-                    if (!tagsParse.success)
-                        this.errorSignal.set('Failed to parse tags data. Tags data format mismatch.');
-                    else
-                        this.tagsSignal.set(tagsParse.data);
-                    this.isLoadingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to retrieve tags.');
-                    this.isLoadingSignal.set(false);
-                    console.error(`Failure during tags retrieval request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse tags data. Server response format mismatch.');
+                const tagsParse = TagsDto.safeParse(res.data);
+                if (!tagsParse.success)
+                    this.errorSignal.set('Failed to parse tags data. Tags data format mismatch.');
+                else
+                    this.tagsSignal.set(tagsParse.data);
+                this.isLoadingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to retrieve tags.');
+                this.isLoadingSignal.set(false);
+                console.error(`Failure during tags retrieval request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -136,26 +136,26 @@ export class TagService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse tag data. Server response format mismatch.');
-                    const tagParse = TagDto.safeParse(res.data);
-                    if (!tagParse.success)
-                        this.errorSignal.set('Failed to parse tag data. Tag data format mismatch.');
-                    else
-                        this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId), tagParse.data]);
-                    this.isUpdatingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to update tag.');
-                    this.isUpdatingSignal.set(false);
-                    console.error(`Failure during tag update request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse tag data. Server response format mismatch.');
+                const tagParse = TagDto.safeParse(res.data);
+                if (!tagParse.success)
+                    this.errorSignal.set('Failed to parse tag data. Tag data format mismatch.');
+                else
+                    this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId), tagParse.data]);
+                this.isUpdatingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to update tag.');
+                this.isUpdatingSignal.set(false);
+                console.error(`Failure during tag update request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -170,23 +170,23 @@ export class TagService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.success)
-                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId)]);
-                    this.isDeletingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to delete tag.');
-                    this.isDeletingSignal.set(false);
-                    console.error(`Failure during tag deletion request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.success)
+                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                else
+                    this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId)]);
+                this.isDeletingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to delete tag.');
+                this.isDeletingSignal.set(false);
+                console.error(`Failure during tag deletion request: ${err}`);
+            }
+        });
         return response;
     }
 }

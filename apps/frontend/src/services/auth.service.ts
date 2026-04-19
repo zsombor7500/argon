@@ -2,13 +2,16 @@ import {
     signal,
     inject,
     computed,
-    Injectable
+    Injectable,
+    DestroyRef
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timeout, Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import type { Observable } from 'rxjs';
 
 import { getApiEndpoint } from '#/utils/frontend';
+import { frontendConfig } from '#/configs/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/dto/frontend/auth';
 
@@ -19,6 +22,7 @@ import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/
 export class AuthService {
     private endpoint: string = getApiEndpoint(['auth']);
     private router = inject(Router);
+    private destroyRef = inject(DestroyRef);
     private httpClient = inject(HttpClient);
 
     private tokenDataSignal = signal<TokenBodyDtoType | null>(null);
@@ -37,18 +41,22 @@ export class AuthService {
     refreshAuthState(): Observable<ApiResponseSuccess<TokenBodyDtoType>> {
         this.resetAuthState();
         const response = this.httpClient
-            .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {});
+            .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
+            .pipe(
+                timeout(frontendConfig.defaultTimeout),
+                takeUntilDestroyed(this.destroyRef)
+            );
         response.subscribe({
-                next: (res) => {
-                    this.tokenDataSignal.set(res.data);
-                    this.router.navigate(['/projects'])
-                        .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
-                },
-                error: (err) => {
-                    if (!(err instanceof HttpErrorResponse))
-                        console.error(`Uncrecognized failure during login request: ${err}`);
-                }
-            });
+            next: (res) => {
+                this.tokenDataSignal.set(res.data);
+                this.router.navigate(['/projects'])
+                    .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
+            },
+            error: (err) => {
+                if (!(err instanceof HttpErrorResponse))
+                    console.error(`Uncrecognized failure during login request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -56,47 +64,55 @@ export class AuthService {
         this.resetAuthState();
         this.errorSignal.set(null);
         const response = this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials);
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
+            .pipe(
+                timeout(frontendConfig.defaultTimeout),
+                takeUntilDestroyed(this.destroyRef)
+            );
         response.subscribe({
-                next: (res) => {
-                    this.tokenDataSignal.set(res.data.tokenBody);
-                    this.router.navigate(['/projects'])
-                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
-                },
-                error: (err) => {
-                    if (!(err instanceof HttpErrorResponse)) {
-                        console.error(`Failure during login request: ${err}`);
-                        return;
-                    }
-                    if (err.status === 404) {
-                        this.errorSignal.set('User does not exists with given email!');
-                        return;
-                    }
-                    if (err.status === 422) {
-                        this.errorSignal.set('Incorrect user credentials!');
-                        return;
-                    }
-                    console.error(`Uncrecognized failure during login request: ${err.message}`);
+            next: (res) => {
+                this.tokenDataSignal.set(res.data.tokenBody);
+                this.router.navigate(['/projects'])
+                    .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+            },
+            error: (err) => {
+                if (!(err instanceof HttpErrorResponse)) {
+                    console.error(`Failure during login request: ${err}`);
+                    return;
                 }
-            });
+                if (err.status === 404) {
+                    this.errorSignal.set('User does not exists with given email!');
+                    return;
+                }
+                if (err.status === 422) {
+                    this.errorSignal.set('Incorrect user credentials!');
+                    return;
+                }
+                console.error(`Uncrecognized failure during login request: ${err.message}`);
+            }
+        });
         return response;
     }
 
     refreshToken(): Observable<ApiResponse<TokenRefreshDtoType>> {
         this.isRefreshingSignal.set(true);
         const response = this.httpClient
-            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {});
+            .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {})
+            .pipe(
+                timeout(frontendConfig.defaultTimeout),
+                takeUntilDestroyed(this.destroyRef)
+            );
         response.subscribe({
-                next: (res) => {
-                    this.tokenDataSignal.set(res.data.tokenBody);
-                    this.isRefreshingSignal.set(false);
-                },
-                error: (err) => {
-                    this.logoutClientside();
-                    this.isRefreshingSignal.set(false);
-                    console.error(`Failure during login request: ${err}`);
-                }
-            });
+            next: (res) => {
+                this.tokenDataSignal.set(res.data.tokenBody);
+                this.isRefreshingSignal.set(false);
+            },
+            error: (err) => {
+                this.logoutClientside();
+                this.isRefreshingSignal.set(false);
+                console.error(`Failure during login request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -108,16 +124,20 @@ export class AuthService {
 
     logout(): Observable<ApiResponseSuccess<any>> {
         const response = this.httpClient
-            .post<ApiResponseSuccess<any>>(`${this.endpoint}/logout`, {});
+            .post<ApiResponseSuccess<any>>(`${this.endpoint}/logout`, {})
+            .pipe(
+                timeout(frontendConfig.defaultTimeout),
+                takeUntilDestroyed(this.destroyRef)
+            );
         response.subscribe({
-                next: (_) => {
-                    this.logoutClientside();
-                },
-                error: (err) => {
-                    this.logoutClientside();
-                    console.error(`Failure during logout request: ${err}`);
-                }
-            });
+            next: (_) => {
+                this.logoutClientside();
+            },
+            error: (err) => {
+                this.logoutClientside();
+                console.error(`Failure during logout request: ${err}`);
+            }
+        });
         return response;
     }
 }

@@ -69,26 +69,26 @@ export class ProjectService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
-                    const projectParse = ProjectDto.safeParse(res.data);
-                    if (!projectParse.success)
-                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
-                    else
-                        this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
-                    this.isCreatingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to create new project.');
-                    this.isCreatingSignal.set(false);
-                    console.error(`Failure during project creation request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
+                const projectParse = ProjectDto.safeParse(res.data);
+                if (!projectParse.success)
+                    this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                else
+                    this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
+                this.isCreatingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to create new project.');
+                this.isCreatingSignal.set(false);
+                console.error(`Failure during project creation request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -103,26 +103,26 @@ export class ProjectService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
-                    const projectsParse = ProjectsDto.safeParse(res.data);
-                    if (!projectsParse.success)
-                        this.errorSignal.set('Failed to parse projects data. Projects data format mismatch.');
-                    else
-                        this.projectsSignal.set(projectsParse.data);
-                    this.isLoadingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to retrieve projects.');
-                    this.isLoadingSignal.set(false);
-                    console.error(`Failure during projects retrieval request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
+                const projectsParse = ProjectsDto.safeParse(res.data);
+                if (!projectsParse.success)
+                    this.errorSignal.set('Failed to parse projects data. Projects data format mismatch.');
+                else
+                    this.projectsSignal.set(projectsParse.data);
+                this.isLoadingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to retrieve projects.');
+                this.isLoadingSignal.set(false);
+                console.error(`Failure during projects retrieval request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -137,26 +137,26 @@ export class ProjectService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.data)
-                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
-                    const projectParse = ProjectDto.safeParse(res.data);
-                    if (!projectParse.success)
-                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
-                    else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId), projectParse.data]);
-                    this.isUpdatingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to update project.');
-                    this.isUpdatingSignal.set(false);
-                    console.error(`Failure during project update request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.data)
+                    this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
+                const projectParse = ProjectDto.safeParse(res.data);
+                if (!projectParse.success)
+                    this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                else
+                    this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId), projectParse.data]);
+                this.isUpdatingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to update project.');
+                this.isUpdatingSignal.set(false);
+                console.error(`Failure during project update request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -171,23 +171,23 @@ export class ProjectService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.success)
-                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
-                    this.isDeletingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to delete project.');
-                    this.isDeletingSignal.set(false);
-                    console.error(`Failure during project deletion request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.success)
+                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                else
+                    this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
+                this.isDeletingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to delete project.');
+                this.isDeletingSignal.set(false);
+                console.error(`Failure during project deletion request: ${err}`);
+            }
+        });
         return response;
     }
 
@@ -202,23 +202,23 @@ export class ProjectService {
                 takeUntilDestroyed(this.destroyRef)
             );
         response.subscribe({
-                next: (res => {
-                    if (!res.success)
-                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
-                    this.isDisbandingSignal.set(false);
-                }),
-                error: (err) => {
-                    const message = getErrorMessage(err);
-                    if (message !== undefined)
-                        this.errorSignal.set(message);
-                    else
-                        this.errorSignal.set('Failed to disband project.');
-                    this.isDisbandingSignal.set(false);
-                    console.error(`Failure during project disband request: ${err}`);
-                }
-            });
+            next: (res => {
+                if (!res.success)
+                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                else
+                    this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
+                this.isDisbandingSignal.set(false);
+            }),
+            error: (err) => {
+                const message = getErrorMessage(err);
+                if (message !== undefined)
+                    this.errorSignal.set(message);
+                else
+                    this.errorSignal.set('Failed to disband project.');
+                this.isDisbandingSignal.set(false);
+                console.error(`Failure during project disband request: ${err}`);
+            }
+        });
         return response;
     }
 }
