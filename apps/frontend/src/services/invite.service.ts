@@ -75,7 +75,7 @@ export class InviteService {
                     this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
                 else
                     this.invitesSignal.update(arr => [...(arr ?? []), inviteParse.data]);
-                this.isLoadingSignal.set(false);
+                this.isCreatingSignal.set(false);
             }),
             error: (err) => {
                 const message = getErrorMessage(err);

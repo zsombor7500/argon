@@ -75,7 +75,7 @@ export class TagService {
                     this.errorSignal.set('Failed to parse tag data. Tag data format mismatch.');
                 else
                     this.tagsSignal.update(arr => [...(arr ?? []), tagParse.data]);
-                this.isLoadingSignal.set(false);
+                this.isCreatingSignal.set(false);
             }),
             error: (err) => {
                 const message = getErrorMessage(err);
