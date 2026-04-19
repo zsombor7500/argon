@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 
-export const SchemaPrimitiveTypeDto = z.enum(['string', 'int', 'long', 'double', 'bool']);
+export const SchemaPrimitiveTypeDto = z.enum(['string', 'int', 'bool']);
 export type SchemaPrimitiveType = z.infer<typeof SchemaPrimitiveTypeDto>;
 
 export const SchemaArrayTypeDto = z.enum(['array']);

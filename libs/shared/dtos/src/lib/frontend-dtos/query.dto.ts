@@ -48,7 +48,7 @@ export type QueryUpdateDtoType = z.infer<typeof QueryUpdateDto>;
 export const QueryExecutionDto = z.object({
     filter: z.record(
         z.string(),
-        z.union([z.string(), z.int(), z.int64(), z.float64(), z.boolean()]))
+        z.union([z.string(), z.int(), z.boolean()]))
 }).strict();
 export type QueryExecutionDtoType = z.infer<typeof QueryExecutionDto>;
 
