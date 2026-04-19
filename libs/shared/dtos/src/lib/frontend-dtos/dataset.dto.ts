@@ -11,7 +11,7 @@ export const DatasetDto = z.object({
     name:                   z.string(),
     description:            z.string().optional(),
     jsonSchema:             SchemaDto,
-    attributePathToTagsMap: z.map(z.string(), TagsDto).transform((map) => Object.fromEntries(map)),
+    attributePathToTagsMap: z.record(z.string(), TagsDto),
     createdAt:              DateFromString,
     updatedAt:              DateFromString
 });
@@ -25,7 +25,7 @@ export const DatasetUnpopulatedMapDto = z.object({
     name:                        z.string(),
     description:                 z.string().optional(),
     jsonSchema:                  SchemaDto,
-    attributePathToTagObjIdsMap: z.map(z.string(), ObjectId).transform((map) => Object.fromEntries(map)),
+    attributePathToTagObjIdsMap: z.record(z.string(), ObjectId),
     createdAt:                   DateFromString,
     updatedAt:                   DateFromString
 });
