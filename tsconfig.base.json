@@ -38,6 +38,7 @@
             "#/interceptors": ["apps/frontend/src/interceptors/index.ts"],
             "#/components": ["apps/frontend/src/components/index.ts"],
             "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
+            "#/components/pages/projects": ["apps/frontend/src/components/pages/projects/index.ts"],
 
             // Shared
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
