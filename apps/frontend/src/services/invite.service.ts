@@ -12,7 +12,7 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { InviteDto, InvitesDto } from '#/dto/frontend/invite';
-import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
+import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { InviteDtoType, InviteUpdateDtoType, InviteCreationDtoType } from '#/dto/frontend/invite';
 
@@ -30,6 +30,7 @@ export class InviteService {
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
+    private isAcceptingSignal = signal<boolean | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly invites = this.invitesSignal.asReadonly();
@@ -37,6 +38,7 @@ export class InviteService {
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
+    readonly isAccepting = this.isAcceptingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -53,6 +55,7 @@ export class InviteService {
         this.isLoadingSignal.set(null);
         this.isUpdatingSignal.set(null);
         this.isDeletingSignal.set(null);
+        this.isAcceptingSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -77,15 +80,7 @@ export class InviteService {
                     this.invitesSignal.update(arr => [...(arr ?? []), inviteParse.data]);
                 this.isCreatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to create new invite.');
-                this.isCreatingSignal.set(false);
-                console.error(`Failure during invite creation request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
         });
         return response;
     }
@@ -116,15 +111,7 @@ export class InviteService {
                     this.invitesSignal.set(invitesParse.data);
                 this.isLoadingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to retrieve invites.');
-                this.isLoadingSignal.set(false);
-                console.error(`Failure during invites retrieval request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
         });
         return response;
     }
@@ -150,15 +137,7 @@ export class InviteService {
                     this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId), inviteParse.data]);
                 this.isUpdatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to update invite.');
-                this.isUpdatingSignal.set(false);
-                console.error(`Failure during invite update request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
         });
         return response;
     }
@@ -181,22 +160,14 @@ export class InviteService {
                     this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
                 this.isDeletingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to delete invite.');
-                this.isDeletingSignal.set(false);
-                console.error(`Failure during invite deletion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
         });
         return response;
     }
 
     acceptRejectInvite(projectId: string, inviteId: string, doAccept: boolean): Observable<ApiResponse<any>> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'invites', inviteId]);
-        this.isDeletingSignal.set(true);
+        this.isAcceptingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
             .post<ApiResponse<any>>(finalEndpoint, { accept: doAccept })
@@ -210,17 +181,9 @@ export class InviteService {
                     this.errorSignal.set('Failed to parse response. Server response format mismatch.');
                 else
                     this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
-                this.isDeletingSignal.set(false);
+                this.isAcceptingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to delete invite.');
-                this.isDeletingSignal.set(false);
-                console.error(`Failure during invite deletion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isAcceptingSignal)
         });
         return response;
     }

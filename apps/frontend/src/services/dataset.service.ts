@@ -12,7 +12,7 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { DatasetDto, DatasetsDto } from '#/dto/frontend/dataset';
-import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
+import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { DatasetDtoType, DatasetUpdateDtoType, DatasetCreationDtoType } from '#/dto/frontend/dataset';
 
@@ -55,6 +55,7 @@ export class DatasetService {
         this.isLoadingSignal.set(null);
         this.isUpdatingSignal.set(null);
         this.isDeletingSignal.set(null);
+        this.isIngestingSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -79,15 +80,7 @@ export class DatasetService {
                     this.datasetsSignal.update(arr => [...(arr ?? []), datasetParse.data]);
                 this.isCreatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to create new dataset.');
-                this.isCreatingSignal.set(false);
-                console.error(`Failure during dataset creation request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
         });
         return response;
     }
@@ -114,15 +107,7 @@ export class DatasetService {
                     this.datasetsSignal.set(datasetsParse.data);
                 this.isLoadingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to retrieve datasets.');
-                this.isLoadingSignal.set(false);
-                console.error(`Failure during datasets retrieval request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
         });
         return response;
     }
@@ -143,20 +128,12 @@ export class DatasetService {
                     this.errorSignal.set('Failed to parse dataset data. Server response format mismatch.');
                 const datasetParse = DatasetDto.safeParse(res.data);
                 if (!datasetParse.success)
-                    this.errorSignal.set('Failed to parse dataset data. dataset data format mismatch.');
+                    this.errorSignal.set('Failed to parse dataset data. Dataset data format mismatch.');
                 else
                     this.datasetsSignal.update(arr => [...(arr ?? []).filter(d => d._id !== datasetId), datasetParse.data]);
                 this.isUpdatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to update dataset.');
-                this.isUpdatingSignal.set(false);
-                console.error(`Failure during dataset update request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
         });
         return response;
     }
@@ -179,15 +156,7 @@ export class DatasetService {
                     this.datasetsSignal.update(arr => [...(arr ?? []).filter(d => d._id !== datasetId)]);
                 this.isDeletingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to delete dataset.');
-                this.isDeletingSignal.set(false);
-                console.error(`Failure during dataset deletion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
         });
         return response;
     }
@@ -208,15 +177,7 @@ export class DatasetService {
                     this.errorSignal.set('Failed to parse response. Server response format mismatch.');
                 this.isIngestingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to ingest dataset batch.');
-                this.isIngestingSignal.set(false);
-                console.error(`Failure during dataset batch ingestion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isIngestingSignal)
         });
         return response;
     }

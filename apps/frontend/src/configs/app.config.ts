@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() => {
             const userService = inject(UserService)
             inject(AuthService)
-                .refreshAuthState()
+                .checkAuthState()
                 .subscribe({
                     next: (_) => userService.getCurrentUserProfile(),
                     error: (_) => userService.resetCurrentUserProfile()

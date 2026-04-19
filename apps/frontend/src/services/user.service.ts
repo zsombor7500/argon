@@ -12,7 +12,7 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { UserProfileDto } from '#/dto/frontend/user';
-import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
+import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserUpdateDtoType, UserProfileDtoType, UserRegistrationDtoType } from '#/dto/frontend/user';
 
@@ -73,15 +73,7 @@ export class UserService {
             );
         response.subscribe({
             next: (_) => this.isRegistratingSignal.set(false),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to register user.');
-                this.isRegistratingSignal.set(false)
-                console.error(`Failure during registration request: ${err}`);
-            }
+            error: (err) =>  handleErrorResponse(err, this.errorSignal, this.isRegistratingSignal)
         });
         return response;
     }
@@ -112,15 +104,7 @@ export class UserService {
                     this.userProfileSignal.set(userProfileParse.data);
                 this.isLoadingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to retrieve user profile.');
-                this.isLoadingSignal.set(false);
-                console.error(`Failure during profile retrieval request: ${err}`);
-            }
+            error: (err) =>  handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
         });
         return response;
     }
@@ -150,15 +134,7 @@ export class UserService {
                     this.userProfileSignal.set(userProfileParse.data);
                 this.isUpdatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to update user profile.');
-                this.isUpdatingSignal.set(false);
-                console.error(`Failure during profile update request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
         });
         return response;
     }
@@ -188,15 +164,7 @@ export class UserService {
                 }
                 this.isDeletingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to delete user profile.');
-                this.isDeletingSignal.set(false);
-                console.error(`Failure during profile deletion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
         });
         return response;
     }

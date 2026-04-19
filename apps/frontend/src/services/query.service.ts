@@ -14,8 +14,14 @@ import { getApiEndpoint } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { handleErrorResponse } from '#/utils/frontend';
 import { QueryDto, QueriesDto } from '#/dto/frontend/query';
+import type {
+    QueryDtoType,
+    QueryResultDtoType,
+    QueryUpdateDtoType,
+    QueryCreationDtoType,
+    QueryExecutionDtoType
+} from '#/dto/frontend/query';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
-import type { QueryDtoType, QueryUpdateDtoType, QueryCreationDtoType, QueryResultDtoType, QueryExecutionDtoType } from '#/dto/frontend/query';
 
 
 @Injectable({
@@ -31,7 +37,7 @@ export class QueryService {
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
-    private isIngestingSignal = signal<boolean | null>(null);
+    private isQueryingSignal = signal<boolean | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly queries = this.queriesSignal.asReadonly();
@@ -39,7 +45,7 @@ export class QueryService {
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
-    readonly isIngesting = this.isIngestingSignal.asReadonly();
+    readonly isQuerying = this.isQueryingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -56,6 +62,7 @@ export class QueryService {
         this.isLoadingSignal.set(null);
         this.isUpdatingSignal.set(null);
         this.isDeletingSignal.set(null);
+        this.isQueryingSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -163,7 +170,7 @@ export class QueryService {
 
     executeQuery(projectId: string, queryId: string, filter: QueryExecutionDtoType): Observable<ApiResponseSuccess<QueryResultDtoType>> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'queries', queryId, 'execute']);
-        this.isIngestingSignal.set(true);
+        this.isQueryingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
             .post<ApiResponseSuccess<QueryResultDtoType>>(finalEndpoint, filter)
@@ -175,9 +182,9 @@ export class QueryService {
             next: (res => {
                 if (!res.success)
                     this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                this.isIngestingSignal.set(false);
+                this.isQueryingSignal.set(false);
             }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isIngestingSignal)
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isQueryingSignal)
         });
         return response;
     }

@@ -10,10 +10,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timeout, Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
-import { getApiEndpoint } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
+import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
-import type { UserLoginDtoType, TokenRefreshDtoType, TokenBodyDtoType } from '#/dto/frontend/auth';
+import type { UserLoginDtoType, TokenBodyDtoType, TokenRefreshDtoType } from '#/dto/frontend/auth';
 
 
 @Injectable({
@@ -26,20 +26,35 @@ export class AuthService {
     private httpClient = inject(HttpClient);
 
     private tokenDataSignal = signal<TokenBodyDtoType | null>(null);
+    private isCheckingSignal = signal<boolean | null>(false);
+    private isAuthenticatingSignal = signal<boolean | null>(false);
+    private isRefreshingSignal = signal<boolean | null>(false);
+    private isLoggingOutSignal = signal<boolean | null>(false);
     private errorSignal = signal<string | null>(null);
-    private isRefreshingSignal = signal(false);
 
     readonly tokenData = this.tokenDataSignal.asReadonly();
-    readonly error = this.errorSignal.asReadonly();
+    readonly isChecking = this.isCheckingSignal.asReadonly();
+    readonly isAuthenticating = this.isAuthenticatingSignal.asReadonly();
     readonly isRefreshing = this.isRefreshingSignal.asReadonly();
+    readonly isLoggingOut = this.isLoggingOutSignal.asReadonly();
+    readonly error = this.errorSignal.asReadonly();
     readonly isAuthenticated = computed(() => !!this.tokenDataSignal());
+
+    resetFeedbackSignals(): void {
+        this.isCheckingSignal.set(null);
+        this.isAuthenticatingSignal.set(null);
+        this.isRefreshingSignal.set(null);
+        this.isLoggingOutSignal.set(null);
+        this.errorSignal.set(null);
+    }
 
     resetAuthState() {
         this.tokenDataSignal.set(null);
     }
 
-    refreshAuthState(): Observable<ApiResponseSuccess<TokenBodyDtoType>> {
+    checkAuthState(): Observable<ApiResponseSuccess<TokenBodyDtoType>> {
         this.resetAuthState();
+        this.isCheckingSignal.set(true);
         const response = this.httpClient
             .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
             .pipe(
@@ -49,19 +64,18 @@ export class AuthService {
         response.subscribe({
             next: (res) => {
                 this.tokenDataSignal.set(res.data);
+                this.isCheckingSignal.set(false);
                 this.router.navigate(['/projects'])
                     .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
             },
-            error: (err) => {
-                if (!(err instanceof HttpErrorResponse))
-                    console.error(`Uncrecognized failure during login request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCheckingSignal)
         });
         return response;
     }
 
     login(userCredentials: UserLoginDtoType): Observable<ApiResponseSuccess<TokenRefreshDtoType>> {
         this.resetAuthState();
+        this.isAuthenticatingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
@@ -72,6 +86,7 @@ export class AuthService {
         response.subscribe({
             next: (res) => {
                 this.tokenDataSignal.set(res.data.tokenBody);
+                this.isAuthenticatingSignal.set(false);
                 this.router.navigate(['/projects'])
                     .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
             },
@@ -88,7 +103,7 @@ export class AuthService {
                     this.errorSignal.set('Incorrect user credentials!');
                     return;
                 }
-                console.error(`Uncrecognized failure during login request: ${err.message}`);
+                handleErrorResponse(err, this.errorSignal, this.isAuthenticatingSignal);
             }
         });
         return response;
@@ -109,8 +124,7 @@ export class AuthService {
             },
             error: (err) => {
                 this.logoutClientside();
-                this.isRefreshingSignal.set(false);
-                console.error(`Failure during login request: ${err}`);
+                handleErrorResponse(err, this.errorSignal, this.isRefreshingSignal);
             }
         });
         return response;
@@ -123,6 +137,7 @@ export class AuthService {
     }
 
     logout(): Observable<ApiResponseSuccess<any>> {
+        this.isLoggingOutSignal.set(true);
         const response = this.httpClient
             .post<ApiResponseSuccess<any>>(`${this.endpoint}/logout`, {})
             .pipe(
@@ -132,10 +147,11 @@ export class AuthService {
         response.subscribe({
             next: (_) => {
                 this.logoutClientside();
+                this.isLoggingOutSignal.set(false);
             },
             error: (err) => {
                 this.logoutClientside();
-                console.error(`Failure during logout request: ${err}`);
+                handleErrorResponse(err, this.errorSignal, this.isLoggingOutSignal);
             }
         });
         return response;

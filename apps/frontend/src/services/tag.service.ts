@@ -12,7 +12,7 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { TagDto, TagsDto } from '#/dto/frontend/tag';
-import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
+import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { TagDtoType, TagUpdateDtoType, TagCreationDtoType } from '#/dto/frontend/tag';
 
@@ -77,15 +77,7 @@ export class TagService {
                     this.tagsSignal.update(arr => [...(arr ?? []), tagParse.data]);
                 this.isCreatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to create new tag.');
-                this.isCreatingSignal.set(false);
-                console.error(`Failure during tag creation request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
         });
         return response;
     }
@@ -112,15 +104,7 @@ export class TagService {
                     this.tagsSignal.set(tagsParse.data);
                 this.isLoadingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to retrieve tags.');
-                this.isLoadingSignal.set(false);
-                console.error(`Failure during tags retrieval request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
         });
         return response;
     }
@@ -146,15 +130,7 @@ export class TagService {
                     this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId), tagParse.data]);
                 this.isUpdatingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to update tag.');
-                this.isUpdatingSignal.set(false);
-                console.error(`Failure during tag update request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
         });
         return response;
     }
@@ -177,15 +153,7 @@ export class TagService {
                     this.tagsSignal.update(arr => [...(arr ?? []).filter(t => t._id !== tagId)]);
                 this.isDeletingSignal.set(false);
             }),
-            error: (err) => {
-                const message = getErrorMessage(err);
-                if (message !== undefined)
-                    this.errorSignal.set(message);
-                else
-                    this.errorSignal.set('Failed to delete tag.');
-                this.isDeletingSignal.set(false);
-                console.error(`Failure during tag deletion request: ${err}`);
-            }
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
         });
         return response;
     }
