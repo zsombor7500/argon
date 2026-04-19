@@ -1,6 +1,7 @@
 import nx from '@nx/eslint-plugin';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import angularEslint from '@angular-eslint/eslint-plugin';
 
 export default [
     ...nx.configs['flat/base'],
@@ -72,6 +73,7 @@ export default [
         ],
         // Override or add rules here
         rules: {
+            '@angular-eslint/component-selector': [],
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-vars': [
