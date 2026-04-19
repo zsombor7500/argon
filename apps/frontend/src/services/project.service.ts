@@ -62,7 +62,7 @@ export class ProjectService {
     createProject(projectData: ProjectCreationDtoType): void {
         if (!this.authService.isAuthenticated())
             return;
-        this.isCreatingSignal.set(false);
+        this.isCreatingSignal.set(true);
         this.errorSignal.set(null);
         this.httpClient
             .post<ApiResponse<ProjectDtoType>>(this.endpoint, projectData)
@@ -79,7 +79,7 @@ export class ProjectService {
                         this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
                     else
                         this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
-                    this.isLoadingSignal.set(false);
+                    this.isCreatingSignal.set(false);
                 }),
                 error: (err) => {
                     this.errorSignal.set('Failed to create new project.');
