@@ -1,3 +1,4 @@
+export { TagService } from './tag.service.js';
 export { AuthService } from './auth.service.js';
 export { UserService } from './user.service.js';
 export { InviteService } from './invite.service.js';
