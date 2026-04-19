@@ -173,10 +173,6 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
     // Project retrieval
     const project = await Project.findOne({ _id: params.data.projectObjId })
         .populate<IProjectTagPopulated>('tags')
-        .populate<IProjectDatasetPopulated>({
-            path: 'datasets',
-            populate: 'attributePathToTagObjIdsMap.$*'
-        })
         .populate<IProjectQueryPopulated>({
             path: 'queries',
             populate: [
@@ -194,17 +190,7 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
     // Response
     const response: ApiResponseSuccess<QueriesDtoType> = {
         success: true,
-        data: QueriesDto.parse({
-            queries: project.queries,
-            availableDatasets: project.datasets
-                .map<unknown>((dataset) => {
-                    return {
-                        ...dataset.toObject(),
-                        attributePathToTagsMap: dataset.attributePathToTagObjIdsMap
-                    }
-                }),
-            availableTags: project.tags
-        })
+        data: QueriesDto.parse(project.queries)
     };
     return res.status(200).json(response);
 }

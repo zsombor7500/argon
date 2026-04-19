@@ -29,11 +29,7 @@ export const QueryDto = z.object({
 });
 export type QueryDtoType = z.infer<typeof QueryDto>;
 
-export const QueriesDto = z.object({
-    queries: z.array(QueryDto),
-    availableDatasets: DatasetsDto,
-    availableTags: TagsDto
-});
+export const QueriesDto = QueryDto.array();
 export type QueriesDtoType = z.infer<typeof QueriesDto>;
 
 export const QueryCreationDto = z.object({
