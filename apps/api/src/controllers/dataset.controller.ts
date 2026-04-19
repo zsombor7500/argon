@@ -97,7 +97,11 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         });
     // Dataset collection creation
     const collectionName = uniqueString();
-    datasetCreationParse.data.jsonSchema.required = ['field1xd'];
+    // TODO: !!! Remove constraint, all fields are required by default
+    //  All specified attributes must exist during ingestion.
+    datasetCreationParse.data.jsonSchema.required = Object.keys(
+        datasetCreationParse.data.jsonSchema.properties
+    )
     const collectionSchema = new mongoose.Schema({}, { collection: collectionName });
     const collection = userContentDbConnection.model(collectionName, collectionSchema);
     await collection.createCollection({
