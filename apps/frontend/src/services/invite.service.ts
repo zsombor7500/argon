@@ -11,42 +11,39 @@ import { timeout, Observable } from 'rxjs';
 
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
-import { ProjectDto, ProjectsDto } from '#/dto/frontend/project';
+import { InviteDto, InvitesDto } from '#/dto/frontend/invite';
 import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
-import type { ApiResponseSuccess } from '#/dto/frontend/api';
-import type { ProjectDtoType, ProjectUpdateDtoType, ProjectCreationDtoType } from '#/dto/frontend/project';
+import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
+import type { InviteDtoType, InviteUpdateDtoType, InviteCreationDtoType } from '#/dto/frontend/invite';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class ProjectService {
-    private endpoint = getApiEndpoint(['projects']);
+export class InviteService {
     private httpClient = inject(HttpClient);
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
 
-    private projectsSignal = signal<ProjectDtoType[] | null>(null);
+    private invitesSignal = signal<InviteDtoType[] | null>(null);
     private isCreatingSignal = signal<boolean | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
-    private isDisbandingSignal = signal<boolean | null>(null);
     private errorSignal = signal<string | null>(null);
 
-    readonly projects = this.projectsSignal.asReadonly();
+    readonly invites = this.invitesSignal.asReadonly();
     readonly isCreating = this.isCreatingSignal.asReadonly();
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
-    readonly isDisbanding = this.isDisbandingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
         const logoutEffectRef = effect(() => {
             const isAuthenticated = this.authService.isAuthenticated();
             if (!isAuthenticated)
-                this.projectsSignal.set(null);
+                this.invitesSignal.set(null);
         });
         this.destroyRef.onDestroy(() => logoutEffectRef.destroy());
     }
@@ -59,11 +56,12 @@ export class ProjectService {
         this.errorSignal.set(null);
     }
 
-    createProject(projectData: ProjectCreationDtoType): Observable<ApiResponseSuccess<ProjectDtoType>> {
+    createInvite(projectId: string, inviteData: InviteCreationDtoType): Observable<ApiResponseSuccess<InviteDtoType>> {
+        const finalEndpoint = getApiEndpoint(['projects', projectId, 'invites']);
         this.isCreatingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .post<ApiResponseSuccess<ProjectDtoType>>(this.endpoint, projectData)
+            .post<ApiResponseSuccess<InviteDtoType>>(finalEndpoint, inviteData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
@@ -71,33 +69,38 @@ export class ProjectService {
         response.subscribe({
                 next: (res => {
                     if (!res.data)
-                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
-                    const projectParse = ProjectDto.safeParse(res.data);
-                    if (!projectParse.success)
-                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                        this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
+                    const inviteParse = InviteDto.safeParse(res.data);
+                    if (!inviteParse.success)
+                        this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
                     else
-                        this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
-                    this.isCreatingSignal.set(false);
+                        this.invitesSignal.update(arr => [...(arr ?? []), inviteParse.data]);
+                    this.isLoadingSignal.set(false);
                 }),
                 error: (err) => {
                     const message = getErrorMessage(err);
                     if (message !== undefined)
                         this.errorSignal.set(message);
                     else
-                        this.errorSignal.set('Failed to create new project.');
+                        this.errorSignal.set('Failed to create new invite.');
                     this.isCreatingSignal.set(false);
-                    console.error(`Failure during project creation request: ${err}`);
+                    console.error(`Failure during invite creation request: ${err}`);
                 }
             });
         return response;
     }
 
-    getProjects(): Observable<ApiResponseSuccess<ProjectDtoType[]>> {
+    getCurrentUserInvites(): Observable<ApiResponseSuccess<InviteDtoType[]>> {
+        return this.getInvites(this.authService.tokenData()!.userObjId.toString());
+    }
+
+    getInvites(userId: string): Observable<ApiResponseSuccess<InviteDtoType[]>> {
+        const finalEndpoint = getApiEndpoint(['users', userId, 'invites']);
         this.isLoadingSignal.set(true);
-        this.projectsSignal.set(null);
+        this.invitesSignal.set(null);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .get<ApiResponseSuccess<ProjectDtoType[]>>(this.endpoint)
+            .get<ApiResponseSuccess<InviteDtoType[]>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
@@ -105,12 +108,12 @@ export class ProjectService {
         response.subscribe({
                 next: (res => {
                     if (!res.data)
-                        this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
-                    const projectsParse = ProjectsDto.safeParse(res.data);
-                    if (!projectsParse.success)
-                        this.errorSignal.set('Failed to parse projects data. Projects data format mismatch.');
+                        this.errorSignal.set('Failed to parse invites data. Server response format mismatch.');
+                    const invitesParse = InvitesDto.safeParse(res.data);
+                    if (!invitesParse.success)
+                        this.errorSignal.set('Failed to parse invites data. Invites data format mismatch.');
                     else
-                        this.projectsSignal.set(projectsParse.data);
+                        this.invitesSignal.set(invitesParse.data);
                     this.isLoadingSignal.set(false);
                 }),
                 error: (err) => {
@@ -118,20 +121,20 @@ export class ProjectService {
                     if (message !== undefined)
                         this.errorSignal.set(message);
                     else
-                        this.errorSignal.set('Failed to retrieve projects.');
+                        this.errorSignal.set('Failed to retrieve invites.');
                     this.isLoadingSignal.set(false);
-                    console.error(`Failure during projects retrieval request: ${err}`);
+                    console.error(`Failure during invites retrieval request: ${err}`);
                 }
             });
         return response;
     }
 
-    updateProject(projectId: string, projectData: ProjectUpdateDtoType): Observable<ApiResponseSuccess<ProjectDtoType>> {
-        const finalEndpoint = `${this.endpoint}/${projectId}`;
+    updateInvite(projectId: string, inviteId: string, inviteData: InviteUpdateDtoType): Observable<ApiResponse<InviteDtoType>> {
+        const finalEndpoint = getApiEndpoint(['projects', projectId, 'invites', inviteId]);
         this.isUpdatingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .patch<ApiResponseSuccess<ProjectDtoType>>(finalEndpoint, projectData)
+            .patch<ApiResponseSuccess<InviteDtoType>>(finalEndpoint, inviteData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
@@ -139,12 +142,12 @@ export class ProjectService {
         response.subscribe({
                 next: (res => {
                     if (!res.data)
-                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
-                    const projectParse = ProjectDto.safeParse(res.data);
-                    if (!projectParse.success)
-                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                        this.errorSignal.set('Failed to parse invite data. Server response format mismatch.');
+                    const inviteParse = InviteDto.safeParse(res.data);
+                    if (!inviteParse.success)
+                        this.errorSignal.set('Failed to parse invite data. Invite data format mismatch.');
                     else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId), projectParse.data]);
+                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId), inviteParse.data]);
                     this.isUpdatingSignal.set(false);
                 }),
                 error: (err) => {
@@ -152,20 +155,20 @@ export class ProjectService {
                     if (message !== undefined)
                         this.errorSignal.set(message);
                     else
-                        this.errorSignal.set('Failed to update project.');
+                        this.errorSignal.set('Failed to update invite.');
                     this.isUpdatingSignal.set(false);
-                    console.error(`Failure during project update request: ${err}`);
+                    console.error(`Failure during invite update request: ${err}`);
                 }
             });
         return response;
     }
 
-    deleteProject(projectId: string): Observable<ApiResponseSuccess<any>> {
-        const finalEndpoint = `${this.endpoint}/${projectId}`;
+    cancelInvite(projectId: string, inviteId: string): Observable<ApiResponse<any>> {
+        const finalEndpoint = getApiEndpoint(['projects', projectId, 'invites', inviteId]);
         this.isDeletingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .delete<ApiResponseSuccess<any>>(finalEndpoint)
+            .delete<ApiResponse<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
@@ -175,7 +178,7 @@ export class ProjectService {
                     if (!res.success)
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
                     else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
+                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
                     this.isDeletingSignal.set(false);
                 }),
                 error: (err) => {
@@ -183,20 +186,20 @@ export class ProjectService {
                     if (message !== undefined)
                         this.errorSignal.set(message);
                     else
-                        this.errorSignal.set('Failed to delete project.');
+                        this.errorSignal.set('Failed to delete invite.');
                     this.isDeletingSignal.set(false);
-                    console.error(`Failure during project deletion request: ${err}`);
+                    console.error(`Failure during invite deletion request: ${err}`);
                 }
             });
         return response;
     }
 
-    disbandProject(projectId: string): Observable<ApiResponseSuccess<any>> {
-        const finalEndpoint = `${this.endpoint}/${projectId}/disband`;
-        this.isDisbandingSignal.set(true);
+    acceptRejectInvite(projectId: string, inviteId: string, doAccept: boolean): Observable<ApiResponse<any>> {
+        const finalEndpoint = getApiEndpoint(['projects', projectId, 'invites', inviteId]);
+        this.isDeletingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .delete<ApiResponseSuccess<any>>(finalEndpoint)
+            .post<ApiResponse<any>>(finalEndpoint, { accept: doAccept })
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
@@ -206,17 +209,17 @@ export class ProjectService {
                     if (!res.success)
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
                     else
-                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
-                    this.isDisbandingSignal.set(false);
+                        this.invitesSignal.update(arr => [...(arr ?? []).filter(i => i._id !== inviteId)]);
+                    this.isDeletingSignal.set(false);
                 }),
                 error: (err) => {
                     const message = getErrorMessage(err);
                     if (message !== undefined)
                         this.errorSignal.set(message);
                     else
-                        this.errorSignal.set('Failed to disband project.');
-                    this.isDisbandingSignal.set(false);
-                    console.error(`Failure during project disband request: ${err}`);
+                        this.errorSignal.set('Failed to delete invite.');
+                    this.isDeletingSignal.set(false);
+                    console.error(`Failure during invite deletion request: ${err}`);
                 }
             });
         return response;
