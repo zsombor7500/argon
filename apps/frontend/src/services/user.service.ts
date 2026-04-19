@@ -6,11 +6,11 @@ import {
     DestroyRef
 } from '@angular/core';
 import { timeout } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '#/services';
-import { getApiEndpoint } from '#/utils/frontend';
+import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { UserProfileDto } from '#/dto/frontend/user';
 import type { ApiResponse } from '#/dto/frontend/api';
@@ -71,8 +71,11 @@ export class UserService {
             .subscribe({
                 next: (_) => this.isRegistratingSignal.set(false),
                 error: (err) => {
-                    if (err instanceof HttpErrorResponse && err.status === 409)
-                        this.errorSignal.set('User already exists with given email!');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to register user.');
                     this.isRegistratingSignal.set(false)
                     console.error(`Failure during registration request: ${err}`);
                 }
@@ -110,7 +113,11 @@ export class UserService {
                     this.isLoadingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to retrieve user profile.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to retrieve user profile.');
                     this.isLoadingSignal.set(false);
                     console.error(`Failure during profile retrieval request: ${err}`);
                 }
@@ -147,7 +154,11 @@ export class UserService {
                     this.isUpdatingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to update user profile.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to update user profile.');
                     this.isUpdatingSignal.set(false);
                     console.error(`Failure during profile update request: ${err}`);
                 }
@@ -184,7 +195,11 @@ export class UserService {
                     this.isDeletingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to delete user profile.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to delete user profile.');
                     this.isDeletingSignal.set(false);
                     console.error(`Failure during profile deletion request: ${err}`);
                 }

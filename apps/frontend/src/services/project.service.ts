@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '#/services';
-import { getApiEndpoint } from '#/utils/frontend';
+import { getApiEndpoint, getErrorMessage } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { ProjectDto, ProjectsDto } from '#/dto/frontend/project';
 import type { ApiResponse } from '#/dto/frontend/api';
@@ -82,7 +82,11 @@ export class ProjectService {
                     this.isCreatingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to create new project.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to create new project.');
                     this.isCreatingSignal.set(false);
                     console.error(`Failure during project creation request: ${err}`);
                 }
@@ -113,7 +117,11 @@ export class ProjectService {
                     this.isLoadingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to retrieve projects.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to retrieve projects.');
                     this.isLoadingSignal.set(false);
                     console.error(`Failure during projects retrieval request: ${err}`);
                 }
@@ -144,7 +152,11 @@ export class ProjectService {
                     this.isUpdatingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to update project.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to update project.');
                     this.isUpdatingSignal.set(false);
                     console.error(`Failure during project update request: ${err}`);
                 }
@@ -172,7 +184,11 @@ export class ProjectService {
                     this.isDeletingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to delete project.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to delete project.');
                     this.isDeletingSignal.set(false);
                     console.error(`Failure during project deletion request: ${err}`);
                 }
@@ -200,7 +216,11 @@ export class ProjectService {
                     this.isDisbandingSignal.set(false);
                 }),
                 error: (err) => {
-                    this.errorSignal.set('Failed to disband project.');
+                    const message = getErrorMessage(err);
+                    if (message !== undefined)
+                        this.errorSignal.set(message);
+                    else
+                        this.errorSignal.set('Failed to disband project.');
                     this.isDisbandingSignal.set(false);
                     console.error(`Failure during project disband request: ${err}`);
                 }
