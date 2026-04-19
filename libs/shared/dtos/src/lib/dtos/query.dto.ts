@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { TagsDto } from '#/dto/tag';
 import { ObjectId, ObjectIds } from '#/dto/oid';
-import { DatasetsDto, DatasetsUnpopulatedMapDto } from '#/dto/dataset';
+import { DatasetsUnpopulatedMapDto } from '#/dto/dataset';
 
 
 export const NestedStringMapDto = z.map(

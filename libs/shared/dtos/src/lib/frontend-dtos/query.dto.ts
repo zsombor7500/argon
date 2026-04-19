@@ -3,14 +3,8 @@ import { z } from 'zod';
 import { TagsDto } from '#/dto/frontend/tag';
 import { DateFromString } from '#/dto/frontend/general';
 import { ObjectId, ObjectIds } from '#/dto/frontend/oid';
-import { DatasetsDto, DatasetsUnpopulatedMapDto } from '#/dto/frontend/dataset';
+import { DatasetsUnpopulatedMapDto } from '#/dto/frontend/dataset';
 
-
-export const NestedStringMapDto = z.map(
-    z.string(),
-    z.map(z.string(), z.string()).transform(map => Object.fromEntries(map))
-);
-export type NestedStringMapDtoType = z.infer<typeof NestedStringMapDto>;
 
 export const NestedStringRecordDto = z.record(
     z.string(),
@@ -22,7 +16,7 @@ export const QueryDto = z.object({
     _id:                            ObjectId,
     name:                           z.string(),
     description:                    z.string().optional(),
-    datasetToTagToAttributePathMap: NestedStringMapDto.transform(map => Object.fromEntries(map)),
+    datasetToTagToAttributePathMap: NestedStringRecordDto,
     datasets:                       DatasetsUnpopulatedMapDto,
     tags:                           TagsDto,
     createdAt:                      DateFromString,
