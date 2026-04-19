@@ -26,6 +26,7 @@ export class AuthService {
     private httpClient = inject(HttpClient);
 
     private tokenDataSignal = signal<TokenBodyDtoType | null>(null);
+    private isLandingSignal = signal<boolean>(true);
     private isCheckingSignal = signal<boolean | null>(false);
     private isAuthenticatingSignal = signal<boolean | null>(false);
     private isRefreshingSignal = signal<boolean | null>(false);
@@ -33,6 +34,7 @@ export class AuthService {
     private errorSignal = signal<string | null>(null);
 
     readonly tokenData = this.tokenDataSignal.asReadonly();
+    readonly isLanding = this.isLandingSignal.asReadonly();
     readonly isChecking = this.isCheckingSignal.asReadonly();
     readonly isAuthenticating = this.isAuthenticatingSignal.asReadonly();
     readonly isRefreshing = this.isRefreshingSignal.asReadonly();
@@ -46,6 +48,10 @@ export class AuthService {
         this.isRefreshingSignal.set(null);
         this.isLoggingOutSignal.set(null);
         this.errorSignal.set(null);
+    }
+
+    landed() {
+        this.isLandingSignal.set(false);
     }
 
     resetAuthState() {
