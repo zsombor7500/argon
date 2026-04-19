@@ -159,9 +159,9 @@ export async function removeUser(req: Request, res: Response, next: NextFunction
     await user.save();
 
     // Response
-    const response: ApiResponseSuccess<any> = {
+    const response: ApiResponseSuccess<RoleToUserObjIdsMapType> = {
         success: true,
-        data: {}
+        data: RoleToUserObjIdsMap.parse(project.roleToUserObjIdsMap)
     };
     res.status(200).json(response);
 }
