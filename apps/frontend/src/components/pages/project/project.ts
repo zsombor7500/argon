@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewEncapsulation } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { inject, Component, ViewEncapsulation } from '@angular/core';
+
+import { UserService } from '#/services';
 
 
 @Component({
     selector: 'app-project',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './project.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class ProjectPage {
-
+export class ProjectPageComponent {
+    userService = inject(UserService);
 }
