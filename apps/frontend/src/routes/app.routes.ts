@@ -43,7 +43,8 @@ export const appRoutes: Route[] = [
             { path: 'queries', component: ProjectQueryListComponent },
             { path: 'datasets', component: ProjectDatasetListComponent },
             { path: 'tags', component: ProjectTagListComponent },
-            { path: 'access', component: ProjectAccessListComponent }
+            { path: 'access', component: ProjectAccessListComponent },
+            { path: '**', redirectTo: 'queries' }
         ]
     },
     { path: '**', redirectTo: 'projects' }

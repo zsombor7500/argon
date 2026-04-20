@@ -41,12 +41,12 @@ export class UserService {
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
-        const logoutEffectRef = effect(() => {
+        const authEffectRef = effect(() => {
             const isAuthenticated = this.authService.isAuthenticated();
             if (!isAuthenticated)
                 this.userProfileSignal.set(null);
         });
-        this.destroyRef.onDestroy(() => logoutEffectRef.destroy());
+        this.destroyRef.onDestroy(() => authEffectRef.destroy());
     }
 
     resetFeedbackSignals(): void {

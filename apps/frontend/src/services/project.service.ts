@@ -1,4 +1,11 @@
 import {
+    of,
+    map,
+    timeout,
+    catchError,
+    Observable
+} from 'rxjs';
+import {
     inject,
     effect,
     signal,
@@ -8,7 +15,6 @@ import {
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
 
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
@@ -92,7 +98,18 @@ export class ProjectService {
         return response;
     }
 
-    getProjects(): Observable<ApiResponseSuccess<ProjectDtoType[]>> {
+    getProject(projectId: string) {
+        return this.getProjects()
+            .pipe(
+                map(projects => {
+                    if (projects === null)
+                        return null;
+                    return projects.find(p => p._id === projectId) ?? null;
+                })
+            )
+    }
+
+    getProjects() {
         this.isLoadingSignal.set(true);
         this.projectsSignal.set(null);
         this.errorSignal.set(null);
@@ -100,21 +117,28 @@ export class ProjectService {
             .get<ApiResponseSuccess<ProjectDtoType[]>>(this.endpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isLoadingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
+                        return null;
+                    }
+                    const projectsParse = ProjectsDto.safeParse(res.data);
+                    if (!projectsParse.success) {
+                        this.errorSignal.set('Failed to parse projects data. Projects data format mismatch.');
+                        return null;
+                    }
+                    else {
+                        this.projectsSignal.set(projectsParse.data);
+                        return projectsParse.data;
+                    }
+                }),
+                catchError(err => {
+                    return of(handleErrorResponse(err, this.errorSignal, this.isLoadingSignal));
+                })
             );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse projects data. Server response format mismatch.');
-                const projectsParse = ProjectsDto.safeParse(res.data);
-                if (!projectsParse.success)
-                    this.errorSignal.set('Failed to parse projects data. Projects data format mismatch.');
-                else
-                    this.projectsSignal.set(projectsParse.data);
-                this.isLoadingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
-        });
+        response.subscribe();
         return response;
     }
 

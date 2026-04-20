@@ -7,9 +7,10 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
+import { timeout, Observable, map, catchError, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
+import { TokenBodyDto } from '#/dto/frontend/auth';
 import { frontendConfig } from '#/configs/frontend';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
@@ -58,24 +59,34 @@ export class AuthService {
         this.tokenDataSignal.set(null);
     }
 
-    checkAuthState(): Observable<ApiResponseSuccess<TokenBodyDtoType>> {
+    checkAuthState(){
         this.resetAuthState();
         this.isCheckingSignal.set(true);
         const response = this.httpClient
             .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.landed();
+                    this.isCheckingSignal.set(false);
+                    const tokenBodyParse = TokenBodyDto.safeParse(res.data);
+                    let result: TokenBodyDtoType | null  = null;
+                    if (!tokenBodyParse.success)
+                        this.router.navigate(['/login'])
+                            .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                    else {
+                        this.tokenDataSignal.set(tokenBodyParse.data);
+                        result = this.tokenData();
+                    }
+                    return result;
+                }),
+                catchError(err => {
+                    this.landed();
+                    return of(handleErrorResponse(err, null, this.isCheckingSignal));
+                })
             );
-        response.subscribe({
-            next: (res) => {
-                this.tokenDataSignal.set(res.data);
-                this.isCheckingSignal.set(false);
-                this.router.navigate(['/projects'])
-                    .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
-            },
-            error: (err) => handleErrorResponse(err, null, this.isCheckingSignal)
-        });
+        response.subscribe();
         return response;
     }
 

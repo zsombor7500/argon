@@ -7,16 +7,17 @@ export function handleErrorResponse(
     error: any,
     errorSignal: WritableSignal<string | null> | null,
     processSignal: WritableSignal<boolean | null>
-): void {
+): null {
     processSignal.set(false);
     console.error(`Failure during request: ${error}`);
     if (errorSignal === null)
-        return;
+        return null;
     const message = getErrorMessage(error);
     if (message !== undefined)
         errorSignal.set(message);
     else
         errorSignal.set('Action failed.');
+    return null;
 }
 
 export function getErrorMessage(err: unknown): string | undefined {
