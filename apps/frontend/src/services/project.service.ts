@@ -5,6 +5,7 @@ import {
     Injectable,
     DestroyRef
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timeout, Observable } from 'rxjs';
@@ -22,11 +23,13 @@ import type { ProjectDtoType, ProjectUpdateDtoType, ProjectCreationDtoType } fro
 })
 export class ProjectService {
     private endpoint = getApiEndpoint(['projects']);
+    private router = inject(Router);
     private httpClient = inject(HttpClient);
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
 
     private projectsSignal = signal<ProjectDtoType[] | null>(null);
+    private selectedProjectSignal = signal<ProjectDtoType | null>(null);
     private isCreatingSignal = signal<boolean | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
@@ -35,6 +38,7 @@ export class ProjectService {
     private errorSignal = signal<string | null>(null);
 
     readonly projects = this.projectsSignal.asReadonly();
+    readonly selectedProject = this.selectedProjectSignal.asReadonly();
     readonly isCreating = this.isCreatingSignal.asReadonly();
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
@@ -79,6 +83,9 @@ export class ProjectService {
                 else
                     this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
                 this.isCreatingSignal.set(false);
+                this.selectedProjectSignal.set(res.data);
+                this.router.navigate(['/projects', res.data._id])
+                    .catch(err => console.log(`Couldn't navigate to /projects/${res.data._id}: ${err}`));
             }),
             error: (err) => handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
         });
