@@ -1,3 +1,63 @@
-<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Profile</h2>
-<div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
+<div class="flex-1 overflow-y-auto p-8">
+  <h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Profile</h2>
+  <div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+    <div class="ml-3">
+      <h3 class="text-xl font-bold text-light-0 mb-5">Account details</h3>
+
+      <div class="flex md:flex-row flex-col space-x-15">
+        <div class="text-primary-0 flex-1">
+          <h3 class="text-l">Username</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.username }}</p>
+          <h3 class="text-l">Display name</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.displayName }}</p>
+          <h3 class="text-l">First name</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.firstName ?? '-' }}</p>
+          <h3 class="text-l">Last name</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.firstName ?? '-' }}</p>
+          <h3 class="text-l">Email</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.email }}</p>
+        </div>
+
+        <div class="md:pl-5 text-primary-0 md:border-l-1 md:border-light-0 flex-2">
+          <h3 class="text-l">ID</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?._id }}</p>
+          <h3 class="text-l">Description</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.description ?? '-' }}</p>
+          <h3 class="text-l">Joined at</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.createdAt | date:'yyyy.MM.dd HH:mm:ss' }}</p>
+          <h3 class="text-l">Last updated at</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ userService.userProfile()?.updatedAt | date:'yyyy.MM.dd HH:mm:ss' }}</p>
+        </div>
+      </div>
+
+      <div class="max-w-screen-xl flex flex-col space-y-2 flex-wrap items-center justify-between mx-auto p-3 px-5">
+        @if (!isDeleting) {
+          <button
+          type="button"
+          (click)="isDeleting = true"
+          class="ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+          >
+            Delete
+          </button>
+        } @else {
+          <div class="ml-auto">
+            <button
+            type="button"
+            (click)="onConfirmDeleteUser()"
+            class="mr-2 ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+            >
+              Confirm
+            </button>
+            <button
+            type="button"
+            (click)="isDeleting = false"
+            class="ml-auto w-25 place-items-end bg-primary-20 hover:bg-primary-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>
