@@ -74,7 +74,7 @@ export class AuthService {
                 this.router.navigate(['/projects'])
                     .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
             },
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCheckingSignal)
+            error: (err) => handleErrorResponse(err, null, this.isCheckingSignal)
         });
         return response;
     }

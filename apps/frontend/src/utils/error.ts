@@ -5,16 +5,18 @@ import type { WritableSignal } from '@angular/core';
 
 export function handleErrorResponse(
     error: any,
-    errorSignal: WritableSignal<string | null>,
+    errorSignal: WritableSignal<string | null> | null,
     processSignal: WritableSignal<boolean | null>
 ): void {
+    processSignal.set(false);
+    console.error(`Failure during request: ${error}`);
+    if (errorSignal === null)
+        return;
     const message = getErrorMessage(error);
     if (message !== undefined)
         errorSignal.set(message);
     else
         errorSignal.set('Action failed.');
-    processSignal.set(false);
-    console.error(`Failure during request: ${error}`);
 }
 
 export function getErrorMessage(err: unknown): string | undefined {
