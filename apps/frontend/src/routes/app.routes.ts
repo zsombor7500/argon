@@ -7,6 +7,7 @@ import {
 } from '#/components/pages/projects';
 import {
     LoginPageComponent,
+    ProfilePageComponent,
     ProjectPageComponent,
     ProjectsPageComponent,
     RegistrationPageComponent
@@ -23,6 +24,7 @@ import { authGuard, noAuthGuard, projectAuthGuard } from '#/guards';
 export const appRoutes: Route[] = [
     { path: 'login', component: LoginPageComponent, canActivate: [noAuthGuard] },
     { path: 'register', component: RegistrationPageComponent, canActivate: [noAuthGuard] },
+    { path: 'profile', component: ProfilePageComponent, canActivate: [authGuard] },
     {
         path: 'projects',
         component: ProjectsPageComponent,
