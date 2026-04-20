@@ -105,7 +105,6 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
     const collectionSchema = new mongoose.Schema({}, { collection: collectionName });
     const collection = userContentDbConnection.model(collectionName, collectionSchema);
     await collection.createCollection({
-        validationLevel: 'strict',
         validationAction: 'error',
         validator: { $jsonSchema: datasetCreationParse.data.jsonSchema }
     });
