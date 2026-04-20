@@ -2,13 +2,14 @@ import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
 import { UserProfileDto } from '#/dto/user';
+import { Name, Description } from '#/dto/general';
 
 
 export const ProjectDto = z.object({
     _id:         ObjectId,
-    name:        z.string(),
+    name:        Name,
     owner:       UserProfileDto,
-    description: z.string().optional(),
+    description: Description.optional(),
     createdAt:   z.date(),
     updatedAt:   z.date()
 });
@@ -18,14 +19,14 @@ export const ProjectsDto = ProjectDto.array();
 export type ProjectsDtoType = z.infer<typeof ProjectsDto>;
 
 export const ProjectCreationDto = z.object({
-    name:        z.string(),
-    description: z.string().optional()
+    name:        Name,
+    description: Description.optional()
 }).strict();
 export type ProjectCreationDtoType = z.infer<typeof ProjectCreationDto>;
 
 export const ProjectUpdateDto = z.object({
-    name:        z.string().optional(),
-    description: z.string().optional()
+    name:        Name.optional(),
+    description: Description.optional()
 }).strict();
 export type ProjectUpdateDtoType = z.infer<typeof ProjectUpdateDto>;
 

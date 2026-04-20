@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 import { TagsDto } from '#/dto/frontend/tag';
 import { SchemaDto } from '#/dto/frontend/schema';
-import { DateFromString } from '#/dto/frontend/general';
 import { ObjectId, ObjectIds } from '#/dto/frontend/oid';
+import { Name, Description, DateFromString } from '#/dto/general';
 
 
 export const DatasetDto = z.object({
     _id:                    ObjectId,
-    name:                   z.string(),
-    description:            z.string().optional(),
+    name:                   Name,
+    description:            Description.optional(),
     jsonSchema:             SchemaDto,
     attributePathToTagsMap: z.record(z.string(), TagsDto),
     createdAt:              DateFromString,
@@ -22,8 +22,8 @@ export type DatasetsDtoType = z.infer<typeof DatasetsDto>;
 
 export const DatasetUnpopulatedMapDto = z.object({
     _id:                         ObjectId,
-    name:                        z.string(),
-    description:                 z.string().optional(),
+    name:                        Name,
+    description:                 Description.optional(),
     jsonSchema:                  SchemaDto,
     attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds),
     createdAt:                   DateFromString,
@@ -35,16 +35,16 @@ export const DatasetsUnpopulatedMapDto = DatasetUnpopulatedMapDto.array();
 export type DatasetsUnpopulatedMapDtoType = z.infer<typeof DatasetsUnpopulatedMapDto>;
 
 export const DatasetCreationDto = z.object({
-    name:                        z.string(),
-    description:                 z.string().optional(),
+    name:                        Name,
+    description:                 Description.optional(),
     jsonSchema:                  SchemaDto,
     attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds)
 }).strict();
 export type DatasetCreationDtoType = z.infer<typeof DatasetCreationDto>;
 
 export const DatasetUpdateDto = z.object({
-    name:                        z.string().optional(),
-    description:                 z.string().optional(),
+    name:                        Name.optional(),
+    description:                 Description.optional(),
     attributePathToTagObjIdsMap: z.record(z.string(), ObjectIds).optional()
 }).strict();
 export type DatasetUpdateDtoType = z.infer<typeof DatasetUpdateDto>;

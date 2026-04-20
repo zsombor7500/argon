@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
+import { Email, Password } from '#/dto/general';
 
 
 export const UserLoginDto = z.object({
-    email:    z.string(),
-    password: z.string()
+    email:    Email,
+    password: Password
 }).strict();
 export type UserLoginDtoType = z.infer<typeof UserLoginDto>;
 

@@ -1,40 +1,42 @@
 import { z } from 'zod';
 
 import {
-    PASSWORD_PATTERN,
-    PASSWORD_MIN_LENGTH,
-    USERNAME_MIN_LENGTH
-} from '#/constants/dtos';
+    Name,
+    Email,
+    Username,
+    Password,
+    Description,
+    DateFromString
+} from '#/dto/general';
 import { ObjectId } from '#/dto/frontend/oid';
-import { DateFromString } from '#/dto/frontend/general';
 
 
 export const UserProfileDto = z.object({
     _id:         ObjectId,
-    username:    z.string(),
-    displayName: z.string(),
-    firstName:   z.string().optional(),
-    lastName:    z.string().optional(),
-    email:       z.string(),
-    description: z.string().optional(),
+    username:    Username,
+    displayName: Name,
+    firstName:   Name.optional(),
+    lastName:    Name.optional(),
+    email:       Email,
+    description: Description.optional(),
     createdAt:   DateFromString,
     updatedAt:   DateFromString
 });
 export type UserProfileDtoType = z.infer<typeof UserProfileDto>;
 
 export const UserRegistrationDto = z.object({
-    username: z.string().min(USERNAME_MIN_LENGTH),
-    email:    z.email(),
-    password: z.string().min(PASSWORD_MIN_LENGTH).regex(PASSWORD_PATTERN)
+    username: Username,
+    email:    Email,
+    password: Password
 }).strict();
 export type UserRegistrationDtoType = z.infer<typeof UserRegistrationDto>;
 
 export const UserUpdateDto = z.object({
-    username:    z.string().optional(),
-    displayName: z.string().optional(),
-    firstName:   z.string().optional(),
-    lastName:    z.string().optional(),
-    description: z.string().optional()
+    username:    Username.optional(),
+    displayName: Name.optional(),
+    firstName:   Name.optional(),
+    lastName:    Name.optional(),
+    description: Description.optional()
 }).strict();
 export type UserUpdateDtoType = z.infer<typeof UserUpdateDto>;
 

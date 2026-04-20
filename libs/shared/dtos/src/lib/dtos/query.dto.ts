@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { TagsDto } from '#/dto/tag';
+import { Name, Description } from '#/dto/general';
 import { ObjectId, ObjectIds } from '#/dto/oid';
 import { DatasetsUnpopulatedMapDto } from '#/dto/dataset';
 
@@ -19,8 +20,8 @@ export type NestedStringRecordDtoType = z.infer<typeof NestedStringRecordDto>;
 
 export const QueryDto = z.object({
     _id:                            ObjectId,
-    name:                           z.string(),
-    description:                    z.string().optional(),
+    name:                           Name,
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringMapDto.transform(map => Object.fromEntries(map)),
     datasets:                       DatasetsUnpopulatedMapDto,
     tags:                           TagsDto,
@@ -33,8 +34,8 @@ export const QueriesDto = QueryDto.array();
 export type QueriesDtoType = z.infer<typeof QueriesDto>;
 
 export const QueryCreationDto = z.object({
-    name:                           z.string(),
-    description:                    z.string().optional(),
+    name:                           Name,
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringRecordDto,
     datasetObjIds:                  ObjectIds,
     tagObjIds:                      ObjectIds
@@ -42,8 +43,8 @@ export const QueryCreationDto = z.object({
 export type QueryCreationDtoType = z.infer<typeof QueryCreationDto>;
 
 export const QueryUpdateDto = z.object({
-    name:                           z.string().optional(),
-    description:                    z.string().optional(),
+    name:                           Name.optional(),
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringRecordDto.optional(),
     datasetObjIds:                  ObjectIds.optional(),
     tagObjIds:                      ObjectIds.optional(),

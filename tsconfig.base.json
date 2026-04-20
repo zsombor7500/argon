@@ -38,9 +38,12 @@
             "#/interceptors": ["apps/frontend/src/interceptors/index.ts"],
             "#/components": ["apps/frontend/src/components/index.ts"],
             "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
+            "#/components/pages/project": ["apps/frontend/src/components/pages/project/index.ts"],
             "#/components/pages/projects": ["apps/frontend/src/components/pages/projects/index.ts"],
 
             // Shared
+            "#/dto/general": ["libs/shared/dtos/src/lib/general.dto.ts"],
+
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
             "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
             "#/dto/tag": ["libs/shared/dtos/src/lib/dtos/tag.dto.ts"],

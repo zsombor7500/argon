@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 import { TagsDto } from '#/dto/frontend/tag';
-import { DateFromString } from '#/dto/frontend/general';
 import { ObjectId, ObjectIds } from '#/dto/frontend/oid';
 import { DatasetsUnpopulatedMapDto } from '#/dto/frontend/dataset';
+import { Name, Description, DateFromString } from '#/dto/general';
 
 
 export const NestedStringRecordDto = z.record(
@@ -14,8 +14,8 @@ export type NestedStringRecordDtoType = z.infer<typeof NestedStringRecordDto>;
 
 export const QueryDto = z.object({
     _id:                            ObjectId,
-    name:                           z.string(),
-    description:                    z.string().optional(),
+    name:                           Name,
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringRecordDto,
     datasets:                       DatasetsUnpopulatedMapDto,
     tags:                           TagsDto,
@@ -28,8 +28,8 @@ export const QueriesDto = QueryDto.array();
 export type QueriesDtoType = z.infer<typeof QueriesDto>;
 
 export const QueryCreationDto = z.object({
-    name:                           z.string(),
-    description:                    z.string().optional(),
+    name:                           Name,
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringRecordDto,
     datasetObjIds:                  ObjectIds,
     tagObjIds:                      ObjectIds
@@ -37,8 +37,8 @@ export const QueryCreationDto = z.object({
 export type QueryCreationDtoType = z.infer<typeof QueryCreationDto>;
 
 export const QueryUpdateDto = z.object({
-    name:                           z.string().optional(),
-    description:                    z.string().optional(),
+    name:                           Name.optional(),
+    description:                    Description.optional(),
     datasetToTagToAttributePathMap: NestedStringRecordDto.optional(),
     datasetObjIds:                  ObjectIds.optional(),
     tagObjIds:                      ObjectIds.optional(),
