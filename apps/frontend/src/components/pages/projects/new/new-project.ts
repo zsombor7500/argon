@@ -1,6 +1,8 @@
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { ProjectService } from '#/services';
+import type { ProjectCreationDtoType } from '#/dto/frontend/project';
 
 
 @Component({
@@ -11,5 +13,17 @@ import { Component, ViewEncapsulation } from '@angular/core';
     encapsulation: ViewEncapsulation.None
 })
 export class NewProjectComponent {
+    projectService = inject(ProjectService);
+    formData: ProjectCreationDtoType = {
+        name: '',
+        description: ''
+    };
 
+    onSubmit(form: NgForm): void {
+        if (!form.valid)
+            return;
+        if (this.formData.description === '')
+            this.formData.description = undefined;
+        this.projectService.createProject(this.formData);
+    }
 }

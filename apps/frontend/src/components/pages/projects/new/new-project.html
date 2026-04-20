@@ -1,3 +1,59 @@
 <h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">New project</h2>
 <div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
+  <div>
+    <form #createForm="ngForm" (ngSubmit)="onSubmit(createForm)" class="space-y-4 text-light-0">
+      <div>
+        <label for="name" class="block text-md font-medium mb-1">Name*</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          [(ngModel)]="formData.name"
+          minlength="4"
+          maxlength="30"
+          required
+          #name="ngModel"
+          placeholder="My project"
+        />
+        @if (name.invalid && (name.dirty || name.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (name.hasError('required')) {
+              <small>Name is required.</small>
+            }
+            @if (name.hasError('minlength')) {
+              <small>Minimum name length is 4.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="block text-md font-medium mb-1">Description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          [(ngModel)]="formData.description"
+          maxlength="100"
+          #name="ngModel"
+          placeholder="This project is about...."
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        [disabled]="!createForm.valid"
+      >
+        Create
+      </button>
+      <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
+          @if (projectService.error() !== null) {
+            <p>{{ projectService.error() }}</p>
+          }
+      </div>
+    </form>
+  </div>
 </div>
