@@ -1,0 +1,40 @@
+<td class="flex flex-row space-x-1 items-center flex-1 justify-center">
+  @if (!isDisbanding) {
+    <button
+      type="button"
+      (click)="isDisbanding = true"
+      class="bg-warning-10 hover:bg-warning-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Disband
+    </button>
+  } @else {
+    <button
+      type="button"
+      (click)="onConfirmDisband()"
+      class="bg-danger-10 hover:bg-danger-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Confirm
+    </button>
+    <button
+      type="button"
+      (click)="isDisbanding = false"
+      class="bg-success-10 hover:bg-success-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Cancel
+    </button>
+  }
+</td>
+<td class="text-center px-2 hover:text-surface-50 transition duration-200">
+  <a
+  [routerLink]="project._id"
+  routerLinkActive="active"
+  class="underline underline-offset-2"
+  >
+    {{ project.name }}
+  </a>
+</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ project._id }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ project.owner.displayName }}</td>
+<td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ project.owner.email }}</td>
+<td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ project.description ?? '-' }}</td>
+<td class="px-2 text-right rounded-md hover:bg-surface-50/30 ransition duration-200">{{ project.createdAt | date }}</td>
