@@ -103,7 +103,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const cookies = RefreshTokenCoookies.safeParse(req.cookies);
     if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing refreshToken cookie',
+            message: 'Missing refresh token cookie',
             statusCode: 422,
             details: { error: cookies.error }
         }));
@@ -120,7 +120,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
     if (!jwtBodyParse.success)
         return next(new ApiError({
-            message: 'Malformed JWT token',
+            message: 'Malformed refresh token body',
             statusCode: 401,
             details: jwtBody
         }));
@@ -216,7 +216,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const cookies = RefreshTokenCoookies.safeParse(req.cookies);
     if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing refreshToken cookie',
+            message: 'Missing refresh token cookie',
             statusCode: 422,
             details: { error: cookies.error }
         }));
@@ -236,7 +236,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
     if (!jwtBodyParse.success)
         return next(new ApiError({
-            message: 'Malformed JWT token',
+            message: 'Malformed refresh token body',
             statusCode: 401,
             details: jwtBody
         }));

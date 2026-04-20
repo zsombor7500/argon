@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-    NAME_MAX_LENGTH,
-    NAME_MIN_LENGTH,
-    TEXT_NO_SPECIAL
-} from '#/constants/dtos';
+import { TEXT_NO_SPECIAL } from '#/constants/dtos';
 
 
 export const SchemaPrimitiveTypeDto = z.enum(['string', 'int', 'bool']);
@@ -61,7 +57,7 @@ export const SchemaObjectNodeDto: z.ZodType<ISchemaObjectNode> = z.lazy(() =>
         bsonType: SchemaObjectTypeDto,
         required: z.string().array(),
         properties: z.record(
-            z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH).regex(TEXT_NO_SPECIAL),
+            z.string().regex(TEXT_NO_SPECIAL),
             z.union([SchemaPrimitiveNodeDto, SchemaArrayNodeDto, SchemaObjectNodeDto, SchemaUnionNodeDto])
         )
     })

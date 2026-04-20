@@ -54,7 +54,7 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
     const userRoleUpdateParse = UserRoleUpdateDto.safeParse(req.body);
     if (!userRoleUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed project user role update fields',
+            message: 'Query data does not fit requirements',
             statusCode: 422,
             details: userRoleUpdateParse.error.issues
         }));
@@ -67,13 +67,13 @@ export async function updateUserRole(req: Request, res: Response, next: NextFunc
         }));
     if (!project.userObjIds.includes(params.data.userObjId))
         return next(new ApiError({
-            message: 'Modified user with provided ID is not part of the specified project',
-            statusCode: 422,
+            message: 'Modified user is not part of the specified project',
+            statusCode: 404,
             details: { params: params.data }
         }));
     if (project.roleToUserObjIdsMap.get(userRoleUpdateParse.data.newRole) === undefined)
         return next(new ApiError({
-            message: 'Role does not exist in the specified project',
+            message: 'Role does not exist within specified project',
             statusCode: 422,
             details: { params: params.data }
         }));
@@ -126,8 +126,8 @@ export async function removeUser(req: Request, res: Response, next: NextFunction
         }));
     if (params.data.userObjId.equals(jwtBody.userObjId))
         return next(new ApiError({
-            message: 'Owner cannot remove themselves from the project, use disband endpoint instead',
-            statusCode: 422,
+            message: 'Owner cannot remove themselves from projects, use disband instead',
+            statusCode: 403,
             details: { params: params.data }
         }));
 

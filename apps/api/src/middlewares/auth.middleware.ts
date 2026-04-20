@@ -15,7 +15,7 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
     const cookies = AccessTokenCoookies.safeParse(req.cookies);
     if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing accessToken cookie',
+            message: 'Missing access token cookie',
             statusCode: 401,
             details: { error: cookies.error }
         }));
@@ -24,7 +24,7 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
         const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
         if (!jwtBodyParse.success)
             return next(new ApiError({
-                message: 'Malformed JWT token',
+                message: 'Invalid access token',
                 statusCode: 401,
                 details: jwtBody
             }));
@@ -65,8 +65,8 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
         const project = await Project.findOne({ _id: params.data.projectObjId });
         if (!project)
             return next(new ApiError({
-                message: 'Project with provided ID does not exist',
-                statusCode: 422,
+                message: 'Project not found',
+                statusCode: 404,
                 details: { _id: params.data.projectObjId }
             }));
         // Scope check, TODO: Set instead of array
@@ -75,7 +75,7 @@ export function requireScope(allowScopes: Set<ProjectScopeDtoType>) {
         if (!authorizedUserObjId)
             return next(new ApiError({
                 message: 'User is not a member of the project',
-                statusCode: 422,
+                statusCode: 403,
                 details: {
                     userObjId: jwtBody.data.userObjId,
                     projectObjId: params.data.projectObjId

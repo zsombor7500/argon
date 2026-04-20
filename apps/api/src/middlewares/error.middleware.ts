@@ -40,7 +40,7 @@ export function errorHandler(error: Error | ApiError, _req: Request, res: Respon
 
     const response: ApiResponse<any> = {
         success: false,
-        error: error instanceof ApiError ? error.message : 'INTERNAL_ERROR'
+        error: error instanceof ApiError ? error.message : 'Internal error'
     };
     return res.status(statusCode).json(response);
 }

@@ -27,7 +27,7 @@ export async function createTag(req: Request, res: Response, next: NextFunction)
     const tagCreationParse = TagCreationDto.safeParse(req.body);
     if (!tagCreationParse.success)
         return next(new ApiError({
-            message: 'Malformed tag creation fields',
+            message: 'Tag data does not fit requirements',
             statusCode: 422,
             details: tagCreationParse.error.issues
         }));
@@ -69,8 +69,8 @@ export async function getTags(req: Request, res: Response, next: NextFunction) {
         .populate<IProjectTagPopulated>('tags');
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
+            message: 'Project not found',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
 
@@ -94,7 +94,7 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
     const tagUpdateParse = TagUpdateDto.safeParse(req.body);
     if (!tagUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed tag update fields',
+            message: 'Tag data does not fit requirements',
             statusCode: 422,
             details: tagUpdateParse.error.issues
         }));
@@ -112,8 +112,8 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
         }));
     if (!project.tagObjIds.includes(params.data.tagObjId))
         return next(new ApiError({
-            message: 'Tag with provided ID within provided project does not exist',
-            statusCode: 422,
+            message: 'Tag not found within provided project',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
     // Tag update
@@ -124,8 +124,8 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
     );
     if (!updatedTag)
         return next(new ApiError({
-            message: 'Tag with provided ID does not exist',
-            statusCode: 422,
+            message: 'Tag not found',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
 
@@ -155,8 +155,8 @@ export async function deleteTag(req: Request, res: Response, next: NextFunction)
         }));
     if (!updatedProject.tagObjIds.includes(params.data.tagObjId))
         return next(new ApiError({
-            message: 'Tag with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Tag not found within specified project',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
     updatedProject.tagObjIds = updatedProject.tagObjIds

@@ -39,7 +39,7 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
     const inviteCreationParse = InviteCreationDto.safeParse(req.body);
     if (!inviteCreationParse.success)
         return next(new ApiError({
-            message: 'Malformed invite creation fields',
+            message: 'Invite data does not fit requirements',
             statusCode: 422,
             details: inviteCreationParse.error.issues
         }));
@@ -54,16 +54,16 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
     const invitant: IUser | null = await User.findOne({ _id: jwtBody.userObjId });
     if (!invitant)
         return next(new ApiError({
-            message: 'Invitant user with provided ID does not exist',
-            statusCode: 422,
+            message: 'Invitant user not found',
+            statusCode: 404,
             details: { invitantObjId: jwtBody.userObjId }
         }));
     // Invited retrieval
     const invited: IUser | null = await User.findOne({ _id: inviteCreationParse.data.invitedObjId });
     if (!invited)
         return next(new ApiError({
-            message: 'Invited user with provided ID does not exist',
-            statusCode: 422,
+            message: 'Invited user not found',
+            statusCode: 404,
             details: { invitedObjId: inviteCreationParse.data.invitedObjId }
         }));
     if (invited.projectObjIds.includes(params.data.projectObjId))
@@ -77,8 +77,8 @@ export async function createInvite(req: Request, res: Response, next: NextFuncti
         .populate<IProjectOwnerPopulated>('owner');
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
+            message: 'Project not found',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
     // Invite creation
@@ -149,8 +149,8 @@ export async function getInvites(req: Request, res: Response, next: NextFunction
         });
     if (!user)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { userObjId: params.data.userObjId }
         }));
 
@@ -174,7 +174,7 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
     const inviteUpdateParse = InviteUpdateDto.safeParse(req.body);
     if (!inviteUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed invite update fields',
+            message: 'Invite data does not fit requirements',
             statusCode: 422,
             details: inviteUpdateParse.error.issues
         }));
@@ -213,8 +213,8 @@ export async function updateInvite(req: Request, res: Response, next: NextFuncti
     }
     if (!updatedInvite)
         return next(new ApiError({
-            message: 'Invite with provided ID does not exist',
-            statusCode: 422,
+            message: 'Invite not found',
+            statusCode: 404,
             details: { inviteObjId: params.data.inviteObjId }
         }));
 
@@ -239,7 +239,7 @@ export async function acceptRejectInvite(req: Request, res: Response, next: Next
     const inviteDecisionParse = InviteDecisionDto.safeParse(req.body);
     if (!inviteDecisionParse.success)
         return next(new ApiError({
-            message: 'Malformed invite decision fields',
+            message: 'Invite data does not fit requirements',
             statusCode: 422,
             details: inviteDecisionParse.error.issues
         }));
@@ -252,8 +252,8 @@ export async function acceptRejectInvite(req: Request, res: Response, next: Next
     });
     if (!invite)
         return next(new ApiError({
-            message: 'User with provided invite ID has not yet been invited to such project',
-            statusCode: 422,
+            message: 'User with provided invite, has not yet been invited to such project',
+            statusCode: 404,
             details: { invitedObjId: jwtBody.userObjId }
         }));
     // Removing invite + adding (or not) the user to the project, and vice-versa
@@ -319,15 +319,15 @@ export async function cancelInvite(req: Request, res: Response, next: NextFuncti
         }));
     if (!ownerProject.inviteObjIds.includes(params.data.inviteObjId))
         return next(new ApiError({
-            message: 'Invite with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Invite not found within specified project',
+            statusCode: 404,
             details: { inviteObjId: params.data.inviteObjId }
         }));
     const invite: IInvite | null = await Invite.findOne({ _id: params.data.inviteObjId });
     if (!invite)
         return next(new ApiError({
-            message: 'No invite was found with provided ID',
-            statusCode: 422,
+            message: 'Invite not found',
+            statusCode: 404,
             details: { params: params.data }
         }));
     await deleteInvites([params.data.inviteObjId]);

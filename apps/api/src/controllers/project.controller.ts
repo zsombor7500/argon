@@ -23,7 +23,7 @@ export async function createProject(req: Request, res: Response, next: NextFunct
     const projectCreationParse = ProjectCreationDto.safeParse(req.body);
     if (!projectCreationParse.success)
         return next(new ApiError({
-            message: 'Malformed project creation fields',
+            message: 'Project data does not fit requirements',
             statusCode: 422,
             details: projectCreationParse.error.issues
         }));
@@ -32,8 +32,8 @@ export async function createProject(req: Request, res: Response, next: NextFunct
     const owner: IUser | null = await User.findOne({ _id: jwtBody.userObjId });
     if (!owner)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { userObjId: jwtBody.userObjId }
         }));
     // Project creation
@@ -78,8 +78,8 @@ export async function getProjects(_req: Request, res: Response, next: NextFuncti
         });
     if (!user)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { userObjId: jwtBody.userObjId }
         }));
 
@@ -103,7 +103,7 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
     const projectUpdateParse = ProjectUpdateDto.safeParse(req.body);
     if (!projectUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed project update fields',
+            message: 'Project data does not fit requirements',
             statusCode: 422,
             details: projectUpdateParse.error.issues
         }));
@@ -121,7 +121,7 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
     ).populate<IProjectOwnerPopulated>('owner');
     if (!updatedProject)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
+            message: 'Project not found',
             statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));
@@ -170,14 +170,14 @@ export async function disbandProject(req: Request, res: Response, next: NextFunc
     const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
     if (!updatedProject)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
+            message: 'Project not found',
             statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));
     if (!updatedProject.userObjIds.includes(jwtBody.userObjId))
         return next(new ApiError({
             message: 'User is not a member of the specified project',
-            statusCode: 422,
+            statusCode: 403,
             details: {
                 userObjId: jwtBody.userObjId,
                 projectObjId: params.data.projectObjId
@@ -190,7 +190,7 @@ export async function disbandProject(req: Request, res: Response, next: NextFunc
     );
     if (!user)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
+            message: 'User not found',
             statusCode: 422,
             details: { projectObjId: params.data.projectObjId }
         }));

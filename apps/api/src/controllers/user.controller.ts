@@ -26,7 +26,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
     const userCredentialsParse = UserRegistrationDto.safeParse(req.body);
     if (!userCredentialsParse.success)
         return next(new ApiError({
-            message: 'Malformed user registration credentials',
+            message: 'User credentials does not fit requirements',
             statusCode: 422,
             details: userCredentialsParse.error.issues
         }));
@@ -78,8 +78,8 @@ export async function getUserProfile(req: Request, res: Response, next: NextFunc
     const user: IUser | null = await User.findOne({ _id: params.data.userObjId });
     if (!user)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { _id: params.data.userObjId }
         }));
 
@@ -109,7 +109,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     const userUpdateParse = UserUpdateDto.safeParse(req.body);
     if (!userUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed user update fields',
+            message: 'User data does not fit requirements',
             statusCode: 422,
             details: userUpdateParse.error.issues
         }));
@@ -138,8 +138,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
     }
     if (!updatedUser)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { userObjId: params.data.userObjId }
         }));
 
@@ -171,8 +171,8 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
     const deletedUser: IUser | null = await User.findOneAndDelete({ _id: params.data.userObjId });
     if (!deletedUser)
         return next(new ApiError({
-            message: 'User with provided ID does not exist',
-            statusCode: 422,
+            message: 'User not found',
+            statusCode: 404,
             details: { userObjId: params.data.userObjId }
         }));
     // Invite + removal from project members
