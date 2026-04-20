@@ -1,5 +1,10 @@
+import {
+    of,
+    map,
+    switchMap,
+    catchError
+} from 'rxjs';
 import { inject } from '@angular/core';
-import { of, map, catchError } from 'rxjs';
 import { Router, RouterStateSnapshot, ActivatedRouteSnapshot} from '@angular/router';
 
 import { AuthService, ProjectService, UserService } from '#/services';
@@ -8,20 +13,13 @@ import { AuthService, ProjectService, UserService } from '#/services';
 export function noAuthGuard() {
     const router = inject(Router);
     const authService = inject(AuthService);
-    if (authService.isLanding()) {
-        console.log('xd')
+    if (authService.isLanding())
         return authService
             .checkAuthState()
             .pipe(
-                map(res => {
-                    if (res !== null)
-                        return router.parseUrl('/projects');
-                    else
-                        return true;
-                }),
+                map(res => res !== null ? router.parseUrl('/projects') : true),
                 catchError(_ => of(true))
             );
-    }
     return true;
 }
 
@@ -35,7 +33,7 @@ export function authGuard() {
             .pipe(
                 map(res => {
                     if (res !== null) {
-                        userService.getCurrentUserProfile();
+                        userService.getCurrentUserProfile().subscribe();
                         return true;
                     }
                     else
@@ -55,19 +53,18 @@ export function projectAuthGuard(route: ActivatedRouteSnapshot, _: RouterStateSn
         return authService
             .checkAuthState()
             .pipe(
-                map(res => {
+                switchMap(res => {
                     const projectId = route.paramMap.get('id');
                     if (res !== null && projectId !== null) {
-                        userService.getCurrentUserProfile();
-                        return projectService.getProject(projectId)
-                        .pipe(
-                            map(project => project === null ?
-                                router.parseUrl('/login') : true
-                            )
-                        );
+                        userService.getCurrentUserProfile().subscribe();
+                        return (projectService.getProject(projectId)
+                            .pipe(
+                                map(project => project === null ? router.parseUrl('/projects') : true),
+                                catchError(_ => of(router.parseUrl('/projects')))
+                            ));
                     }
                     else
-                        return router.parseUrl('/login');
+                        return of(router.parseUrl('/login'));
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
             );
