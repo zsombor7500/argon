@@ -9,6 +9,6 @@ import { Component, ViewEncapsulation } from '@angular/core';
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class ProfilePage {
+export class ProfilePageComponent {
 
 }

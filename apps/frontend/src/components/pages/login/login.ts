@@ -1,10 +1,6 @@
-import {
-    inject,
-    Component,
-    ViewEncapsulation
-} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
+import { inject, Component, ViewEncapsulation } from '@angular/core';
 
 import { AuthService, UserService } from '#/services';
 import type { UserLoginDtoType } from '#/dto/auth';
@@ -17,7 +13,7 @@ import type { UserLoginDtoType } from '#/dto/auth';
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class LoginPage {
+export class LoginPageComponent {
     authService = inject(AuthService);
     userService = inject(UserService);
     formData: UserLoginDtoType = {

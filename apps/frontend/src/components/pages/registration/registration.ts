@@ -24,7 +24,7 @@ import type { UserRegistrationDtoType } from '#/dto/user';
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class RegistrationPage {
+export class RegistrationPageComponent {
     private router = inject(Router);
     private destroyRef = inject(DestroyRef);
 

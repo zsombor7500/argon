@@ -6,10 +6,10 @@ import {
     UserInviteListComponent
 } from '#/components/pages/projects';
 import {
-    LoginPage,
-    RegistrationPage,
+    LoginPageComponent,
     ProjectPageComponent,
-    ProjectsPageComponent
+    ProjectsPageComponent,
+    RegistrationPageComponent
 } from '#/components/pages';
 import {
     ProjectTagListComponent,
@@ -21,8 +21,8 @@ import { authGuard, noAuthGuard, projectAuthGuard } from '#/guards';
 
 
 export const appRoutes: Route[] = [
-    { path: 'login', component: LoginPage, canActivate: [noAuthGuard] },
-    { path: 'register', component: RegistrationPage, canActivate: [noAuthGuard] },
+    { path: 'login', component: LoginPageComponent, canActivate: [noAuthGuard] },
+    { path: 'register', component: RegistrationPageComponent, canActivate: [noAuthGuard] },
     {
         path: 'projects',
         component: ProjectsPageComponent,
