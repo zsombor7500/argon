@@ -73,7 +73,7 @@ export default [
         ],
         // Override or add rules here
         rules: {
-            '@angular-eslint/component-selector': [],
+            '@angular-eslint/component-selector': 0,
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-vars': [
