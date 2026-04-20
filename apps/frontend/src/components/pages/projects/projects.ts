@@ -5,7 +5,6 @@ import { UserService } from '#/services';
 import { RouterModule } from '@angular/router';
 
 
-
 @Component({
     selector: 'app-projects',
     imports: [CommonModule, RouterModule],
@@ -13,7 +12,6 @@ import { RouterModule } from '@angular/router';
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class ProjectsPage {
+export class ProjectsPageComponent {
     userService = inject(UserService);
-
 }

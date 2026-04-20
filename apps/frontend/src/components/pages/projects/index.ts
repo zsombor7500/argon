@@ -1,3 +1,3 @@
 export { NewProjectComponent } from './new/new-project.js';
-export { ProjectListingComponent } from './listing/project-listing.js';
-export { UserInviteListingComponent } from './user-invites/user-invites.js';
+export { ProjectListComponent } from './listing/project-list.js';
+export { UserInviteListComponent } from './user-invites/user-invites-list.js';

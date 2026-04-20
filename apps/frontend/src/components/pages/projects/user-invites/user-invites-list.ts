@@ -4,12 +4,12 @@ import { Component, ViewEncapsulation } from '@angular/core';
 
 
 @Component({
-    selector: 'app-user-invite-listing',
+    selector: 'app-user-invite-list',
     imports: [CommonModule, FormsModule],
-    templateUrl: './user-invites.html',
+    templateUrl: './user-invites-list.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
-export class UserInviteListingComponent {
+export class UserInviteListComponent {
 
 }
