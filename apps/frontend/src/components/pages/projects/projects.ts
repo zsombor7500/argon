@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { inject, Component, ViewEncapsulation } from '@angular/core';
 
 import { UserService } from '#/services';
-import { RouterModule } from '@angular/router';
 
 
 @Component({

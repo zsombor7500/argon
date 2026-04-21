@@ -53,7 +53,7 @@ export class UserInviteListComponent {
             invitedObjId: this.formData.invitedId,
             description: this.formData.description
         };
-        if (inviteData.description === '')
+        if (inviteData.description === '' || inviteData.description === null)
             inviteData.description = undefined;
         this.inviteService.createInvite(this.formData.projectId, inviteData);
     }

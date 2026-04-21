@@ -61,6 +61,10 @@
 <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.name }}</td>
 <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite._id }}</td>
 <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.project.name }}</td>
-<td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.invitant.displayName }}</td>
+@if (isOutgoing) {
+  <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.invited.displayName }}</td>
+} @else {
+  <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.invitant.displayName }}</td>
+}
 <td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.description ?? '-' }}</td>
 <td class="px-2 text-right rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.createdAt | date }}</td>

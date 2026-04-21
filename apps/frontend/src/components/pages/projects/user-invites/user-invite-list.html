@@ -1,4 +1,5 @@
 <h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Invites</h2>
+
 <div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
   <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">New invite</h3>
   <form #createForm="ngForm" (ngSubmit)="onSubmit(createForm); createForm.resetForm()" class="space-y-4 text-light-0">
@@ -96,8 +97,8 @@
       Create
     </button>
     <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
-        @if (projectService.error() !== null) {
-          <p>{{ projectService.error() }}</p>
+        @if (inviteService.error() !== null) {
+          <p>{{ inviteService.error() }}</p>
         }
     </div>
   </form>
@@ -114,15 +115,15 @@
           <p class="text-l text-light-0">You have no more outgoing invites to manage :)</p>
         </div>
       } @else if (outgoingInvites(); as invites) {
-        <div class="overflow-x-auto inset-shadow-md shadow-surface-10 shadow-xl">
+        <div class="overflow-x-auto">
           <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
             <thead class="justify-start text-primary-0 border-b border-light-0">
               <tr>
                 <th class="border-b">Action</th>
-                <th class="border-b">Name</th>
+                <th class="border-b">Invite name</th>
                 <th class="border-b">ID</th>
                 <th class="border-b">Project name</th>
-                <th class="border-b">Invitant name</th>
+                <th class="border-b">Invited user</th>
                 <th class="border-b">Description</th>
                 <th class="border-b">Creation</th>
               </tr>
@@ -155,15 +156,15 @@
           <p class="text-l text-light-0">You have no incoming invites to display :(</p>
         </div>
       } @else if (incomingInvites(); as invites) {
-        <div class="overflow-x-auto inset-shadow-md shadow-surface-10 shadow-xl">
+        <div class="overflow-x-auto">
           <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
             <thead class="justify-start text-primary-0 border-b border-light-0">
               <tr>
                 <th class="border-b">Action</th>
-                <th class="border-b">Name</th>
+                <th class="border-b">Invite name</th>
                 <th class="border-b">ID</th>
                 <th class="border-b">Project name</th>
-                <th class="border-b">Invitant name</th>
+                <th class="border-b">Invitant user</th>
                 <th class="border-b">Description</th>
                 <th class="border-b">Creation</th>
               </tr>
