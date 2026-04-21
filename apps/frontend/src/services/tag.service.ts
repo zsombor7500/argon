@@ -12,6 +12,7 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { TagDto, TagsDto } from '#/dto/frontend/tag';
+import { SchemaPrimitiveTypeDto } from '#/dto/frontend/schema';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { TagDtoType, TagUpdateDtoType, TagCreationDtoType } from '#/dto/frontend/tag';
@@ -38,6 +39,7 @@ export class TagService {
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
+    readonly tagTypes = SchemaPrimitiveTypeDto.options;
 
     constructor() {
         const logoutEffectRef = effect(() => {

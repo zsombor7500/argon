@@ -105,7 +105,11 @@ export class ProjectService {
                 map(projects => {
                     if (projects === null)
                         return null;
-                    return projects.find(p => p._id === projectId) ?? null;
+                    const project = projects.find(p => p._id === projectId);
+                    if (!project)
+                        return null;
+                    this.selectedProjectSignal.set(project);
+                    return project;
                 })
             )
     }
