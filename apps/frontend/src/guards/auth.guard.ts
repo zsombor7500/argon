@@ -41,6 +41,7 @@ export function authGuard() {
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
             );
+    userService.getCurrentUserProfile().subscribe();
     return authService.isAuthenticated();
 }
 
@@ -68,5 +69,6 @@ export function projectAuthGuard(route: ActivatedRouteSnapshot, _: RouterStateSn
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
             );
+    userService.getCurrentUserProfile().subscribe();
     return authService.isAuthenticated();
 }
