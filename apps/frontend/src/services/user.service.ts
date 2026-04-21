@@ -62,7 +62,7 @@ export class UserService {
         this.resetFeedbackSignals();
     }
 
-    register(userCredentials: UserRegistrationDtoType): Observable<ApiResponseSuccess<any>>  {
+    register(userCredentials: UserRegistrationDtoType): Observable<ApiResponseSuccess<any>> {
         this.isRegistratingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient

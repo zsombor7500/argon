@@ -1,15 +1,21 @@
-import { RouterLink } from '@angular/router';
+import {
+    inject,
+    computed,
+    Component,
+    ViewEncapsulation
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { inject, computed, Component, ViewEncapsulation } from '@angular/core';
 
-import { AuthService, InviteService, ProjectService } from '#/services';
+import { NgForm, FormsModule } from '@angular/forms';
 import { InviteEntryComponent } from './invite-entry/invite-entry.js';
+import { AuthService, InviteService, ProjectService } from '#/services';
+import type { InviteCreationDtoType } from '#/dto/frontend/invite';
 
 
 @Component({
     selector: 'app-user-invite-list',
     standalone: true,
-    imports: [CommonModule, InviteEntryComponent, RouterLink],
+    imports: [CommonModule, InviteEntryComponent, FormsModule],
     templateUrl: './user-invite-list.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
@@ -18,6 +24,12 @@ export class UserInviteListComponent {
     authService = inject(AuthService);
     inviteService = inject(InviteService);
     projectService = inject(ProjectService);
+    formData = {
+        name: '',
+        projectId: '',
+        invitedId: '',
+        description: ''
+    };
 
     readonly outgoingInvites = computed(() => this.inviteService
         .invites()
@@ -33,7 +45,20 @@ export class UserInviteListComponent {
         this.inviteService.getCurrentUserInvites();
     }
 
-    onAcceptRejectEvent(event: { projectId: string, inviteId: string, accept: boolean}) {
+    onSubmit(form: NgForm): void {
+        if (!form.valid)
+            return;
+        const inviteData: InviteCreationDtoType = {
+            name: this.formData.name,
+            invitedObjId: this.formData.invitedId,
+            description: this.formData.description
+        };
+        if (inviteData.description === '')
+            inviteData.description = undefined;
+        this.inviteService.createInvite(this.formData.projectId, inviteData);
+    }
+
+    onAcceptRejectEvent(event: { projectId: string, inviteId: string, accept: boolean}): void {
         this.inviteService.acceptRejectInvite(
             event.projectId,
             event.inviteId,
@@ -41,7 +66,7 @@ export class UserInviteListComponent {
         );
     }
 
-    onCancelEvent(event: { projectId: string, inviteId: string }) {
+    onCancelEvent(event: { projectId: string, inviteId: string }): void {
         this.inviteService.cancelInvite(
             event.projectId,
             event.inviteId
