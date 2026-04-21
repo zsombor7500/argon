@@ -23,12 +23,12 @@ import { RouterLink } from '@angular/router';
 })
 export class ProjectEntryComponent {
     @Input({ required: true }) project!: ProjectDtoType;
-    @Output() delete = new EventEmitter<string>;
+    @Output() deleteEvent = new EventEmitter<string>;
 
     isDisbanding = false;
 
     onConfirmDisband() {
-        this.delete.emit(this.project._id);
+        this.deleteEvent.emit(this.project._id);
         this.isDisbanding = false;
     }
 }

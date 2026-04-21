@@ -43,14 +43,14 @@
               @for (project of projects; track project._id) {
                 <tr app-project-entry
                 [project]="project"
-                (delete)="onDisbandProject($event)"
+                (deleteEvent)="onDisbandProject($event)"
                 class="text-sm"
                 >
                 </tr>
               }
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
       }
     }
 </div>
