@@ -35,7 +35,6 @@ export class ProjectService {
     private authService = inject(AuthService);
 
     private projectsSignal = signal<ProjectDtoType[] | null>(null);
-    private selectedProjectSignal = signal<ProjectDtoType | null>(null);
     private isCreatingSignal = signal<boolean | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
@@ -43,8 +42,9 @@ export class ProjectService {
     private isDisbandingSignal = signal<boolean | null>(null);
     private errorSignal = signal<string | null>(null);
 
-    readonly projects = this.projectsSignal.asReadonly();
+    selectedProjectSignal = signal<ProjectDtoType | null>(null);
     readonly selectedProject = this.selectedProjectSignal.asReadonly();
+    readonly projects = this.projectsSignal.asReadonly();
     readonly isCreating = this.isCreatingSignal.asReadonly();
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
@@ -86,10 +86,11 @@ export class ProjectService {
                 const projectParse = ProjectDto.safeParse(res.data);
                 if (!projectParse.success)
                     this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
-                else
+                else {
                     this.projectsSignal.update(arr => [...(arr ?? []), projectParse.data]);
+                    this.selectedProjectSignal.set(projectParse.data);
+                }
                 this.isCreatingSignal.set(false);
-                this.selectedProjectSignal.set(res.data);
                 this.router.navigate(['/projects', res.data._id])
                     .catch(err => console.log(`Couldn't navigate to /projects/${res.data._id}: ${err}`));
             }),

@@ -86,7 +86,7 @@ export class InviteService {
     }
 
     getCurrentUserInvites(): Observable<ApiResponseSuccess<InviteDtoType[]>> {
-        return this.getInvites(this.authService.tokenData()!.userObjId.toString());
+        return this.getInvites(this.authService.tokenData()!.userObjId);
     }
 
     getInvites(userId: string): Observable<ApiResponseSuccess<InviteDtoType[]>> {

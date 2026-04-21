@@ -7,7 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Router, RouterStateSnapshot, ActivatedRouteSnapshot} from '@angular/router';
 
-import { AuthService, ProjectService, UserService } from '#/services';
+import { AuthService, UserService, ProjectService} from '#/services';
 
 
 export function noAuthGuard() {
@@ -55,20 +55,30 @@ export function projectAuthGuard(route: ActivatedRouteSnapshot, _: RouterStateSn
             .checkAuthState()
             .pipe(
                 switchMap(res => {
+                    if (res === null)
+                        return of(router.parseUrl('/login'));
+                    userService.getCurrentUserProfile().subscribe();
                     const projectId = route.paramMap.get('id');
-                    if (res !== null && projectId !== null) {
-                        userService.getCurrentUserProfile().subscribe();
+                    if (projectId !== null)
                         return (projectService.getProject(projectId)
                             .pipe(
                                 map(project => project === null ? router.parseUrl('/projects') : true),
                                 catchError(_ => of(router.parseUrl('/projects')))
                             ));
-                    }
                     else
-                        return of(router.parseUrl('/login'));
+                        return of(router.parseUrl('/projects'));
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
             );
+    if (!authService.isAuthenticated())
+        return router.parseUrl('/login');
     userService.getCurrentUserProfile().subscribe();
-    return authService.isAuthenticated();
+    const projectId = route.paramMap.get('id');
+    if (projectId === null)
+        return router.parseUrl('/projects');
+    return (projectService.getProject(projectId)
+        .pipe(
+            map(project => project === null ? router.parseUrl('/projects') : true),
+            catchError(_ => of(router.parseUrl('/projects')))
+        ));
 }
