@@ -86,6 +86,7 @@
             "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
             "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
+            "#/constants/frontend": ["apps/frontend/src/constants/frontend.constant.ts"],
 
             "#/exceptions/api": ["apps/api/src/exceptions/api.exception.ts"],
 

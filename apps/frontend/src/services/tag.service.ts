@@ -12,7 +12,6 @@ import { timeout, Observable } from 'rxjs';
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { TagDto, TagsDto } from '#/dto/frontend/tag';
-import { SchemaPrimitiveTypeDto } from '#/dto/frontend/schema';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { TagDtoType, TagUpdateDtoType, TagCreationDtoType } from '#/dto/frontend/tag';
@@ -39,7 +38,7 @@ export class TagService {
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
-    readonly tagTypes = SchemaPrimitiveTypeDto.options;
+    readonly tagTypes = ['string', 'int', 'bool'];
 
     constructor() {
         const logoutEffectRef = effect(() => {
@@ -58,12 +57,12 @@ export class TagService {
         this.errorSignal.set(null);
     }
 
-    createTag(projectId: string, inviteData: TagCreationDtoType): Observable<ApiResponseSuccess<TagDtoType>> {
+    createTag(projectId: string, tagData: TagCreationDtoType): Observable<ApiResponseSuccess<TagDtoType>> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'tags']);
         this.isCreatingSignal.set(true);
         this.errorSignal.set(null);
         const response = this.httpClient
-            .post<ApiResponseSuccess<TagDtoType>>(finalEndpoint, inviteData)
+            .post<ApiResponseSuccess<TagDtoType>>(finalEndpoint, tagData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef)
