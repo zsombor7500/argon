@@ -6,9 +6,10 @@ import type { WritableSignal } from '@angular/core';
 export function handleErrorResponse(
     error: any,
     errorSignal: WritableSignal<string | null> | null,
-    processSignal: WritableSignal<boolean | null>
+    processSignal: WritableSignal<boolean | null> | null
 ): null {
-    processSignal.set(false);
+    if (processSignal !== null)
+        processSignal.set(false);
     console.error(`Failure during request: ${error}`);
     if (errorSignal === null)
         return null;

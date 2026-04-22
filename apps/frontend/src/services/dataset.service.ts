@@ -161,7 +161,7 @@ export class DatasetService {
         return response;
     }
 
-    ingestDataset(projectId: string, datasetId: string, datasetBatch: Record<string, any>[]): Observable<ApiResponseSuccess<any>> {
+    ingestDataset(projectId: string, datasetId: string, datasetBatch: unknown): Observable<ApiResponseSuccess<any>> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'datasets', datasetId, 'upload']);
         this.isIngestingSignal.set(true);
         this.errorSignal.set(null);
@@ -177,7 +177,7 @@ export class DatasetService {
                     this.errorSignal.set('Failed to parse response. Server response format mismatch.');
                 this.isIngestingSignal.set(false);
             }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isIngestingSignal)
+            error: (err) => handleErrorResponse(err, null, this.isIngestingSignal)
         });
         return response;
     }

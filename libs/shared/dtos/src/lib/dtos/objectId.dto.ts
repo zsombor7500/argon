@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { Types } from 'mongoose';
 
+import { OBJECTID_PATTERN } from '#/constants/dtos';
+
 
 export const ObjectIdToString = z.instanceof(Types.ObjectId).transform((id) => id.toString());
 export const ObjectId = z.union([
-    z.string().transform((id) => new Types.ObjectId(id)),
+    z.string().regex(OBJECTID_PATTERN).transform((id) => new Types.ObjectId(id)),
     z.instanceof(Types.ObjectId)
 ]);
 

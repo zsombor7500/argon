@@ -6,11 +6,12 @@ import {
     NAME_MAX_LENGTH,
     EMAIL_MIN_LENGTH,
     EMAIL_MAX_LENGTH,
+    OBJECTID_PATTERN,
     PASSWORD_PATTERN,
     PASSWORD_MIN_LENGTH,
     PASSWORD_MAX_LENGTH,
-    TEXT_WHITESPACE_NO_SPECIAL,
-    DESCRIPTION_MAX_LENGTH
+    DESCRIPTION_MAX_LENGTH,
+    TEXT_WHITESPACE_NO_SPECIAL
 } from '#/constants/dtos';
 
 
@@ -41,4 +42,8 @@ export const PasswordValidators = [
 export const DescriptionValidators = [
     Validators.maxLength(DESCRIPTION_MAX_LENGTH),
     Validators.pattern(TEXT_WHITESPACE_NO_SPECIAL)
+];
+
+export const ObjectIdValidators = [
+    Validators.pattern(OBJECTID_PATTERN)
 ];
