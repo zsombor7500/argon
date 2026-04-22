@@ -1,4 +1,11 @@
 import {
+    of,
+    map,
+    timeout,
+    catchError,
+    Observable
+} from 'rxjs';
+import {
     inject,
     effect,
     signal,
@@ -7,13 +14,12 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
 
 import { AuthService } from '#/services';
 import { getApiEndpoint } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { handleErrorResponse } from '#/utils/frontend';
-import { QueryDto, QueriesDto } from '#/dto/frontend/query';
+import { QueryDto, QueriesDto, QueryResultDto } from '#/dto/frontend/query';
 import type {
     QueryDtoType,
     QueryResultDtoType,
@@ -33,6 +39,7 @@ export class QueryService {
     private authService = inject(AuthService);
 
     private queriesSignal = signal<QueryDtoType[] | null>(null);
+    private queryResultSignal = signal<QueryResultDtoType | null>(null);
     private isCreatingSignal = signal<boolean | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
@@ -66,57 +73,65 @@ export class QueryService {
         this.errorSignal.set(null);
     }
 
-    createQuery(projectId: string, queryData: QueryCreationDtoType): Observable<ApiResponseSuccess<QueryDtoType>> {
+    createQuery(projectId: string, queryData: QueryCreationDtoType): Observable<QueryDtoType | null> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'queries']);
         this.isCreatingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<QueryDtoType>>(finalEndpoint, queryData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse query data. Server response format mismatch.');
-                const queryParse = QueryDto.safeParse(res.data);
-                if (!queryParse.success)
-                    this.errorSignal.set('Failed to parse query data. Query data format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse query data. Server response format mismatch.');
+                        return null;
+                    }
+                    const queryParse = QueryDto.safeParse(res.data);
+                    this.isCreatingSignal.set(false);
+                    if (!queryParse.success) {
+                        this.errorSignal.set('Failed to parse query data. Query data format mismatch.');
+                        return null;
+                    }
                     this.queriesSignal.update(arr => [...(arr ?? []), queryParse.data]);
-                this.isCreatingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
-        });
-        return response;
+                    return queryParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isCreatingSignal)
+                    return of(null);
+                })
+            );
     }
 
-    getQueries(projectId: string): Observable<ApiResponseSuccess<QueryDtoType[]>> {
+    getQueries(projectId: string): Observable<QueryDtoType[]> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'queries']);
         this.isLoadingSignal.set(true);
         this.queriesSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .get<ApiResponseSuccess<QueryDtoType[]>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse queries data. Server response format mismatch.');
-                const queriesParse = QueriesDto.safeParse(res.data);
-                if (!queriesParse.success)
-                    this.errorSignal.set('Failed to parse queries data. Queries data format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse queries data. Server response format mismatch.');
+                        return [];
+                    }
+                    const queriesParse = QueriesDto.safeParse(res.data);
+                    this.isLoadingSignal.set(false);
+                    if (!queriesParse.success) {
+                        this.errorSignal.set('Failed to parse queries data. Queries data format mismatch.');
+                        return [];
+                    }
                     this.queriesSignal.set(queriesParse.data);
-                this.isLoadingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
-        });
-        return response;
+                    return queriesParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal);
+                    return [];
+                })
+            );
     }
 
     updateQuery(projectId: string, queryId: string, queryData: QueryUpdateDtoType): Observable<ApiResponse<QueryDtoType>> {
@@ -145,47 +160,53 @@ export class QueryService {
         return response;
     }
 
-    deleteQuery(projectId: string, queryId: string): Observable<ApiResponse<any>> {
+    deleteQuery(projectId: string, queryId: string): Observable<any> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'queries', queryId]);
         this.isDeletingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .delete<ApiResponse<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.success)
+                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                    else
+                        this.queriesSignal.update(arr => [...(arr ?? []).filter(q => q._id !== queryId)]);
+                    this.isDeletingSignal.set(false);
+                }),
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)))
             );
-        response.subscribe({
-            next: (res => {
-                if (!res.success)
-                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                else
-                    this.queriesSignal.update(arr => [...(arr ?? []).filter(q => q._id !== queryId)]);
-                this.isDeletingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
-        });
-        return response;
     }
 
-    executeQuery(projectId: string, queryId: string, filter: QueryExecutionDtoType): Observable<ApiResponseSuccess<QueryResultDtoType>> {
+    executeQuery(projectId: string, queryId: string, filter: QueryExecutionDtoType): Observable<QueryResultDtoType | null> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'queries', queryId, 'execute']);
         this.isQueryingSignal.set(true);
+        this.queryResultSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<QueryResultDtoType>>(finalEndpoint, filter)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.success) {
+                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                        return null;
+                    }
+                    const resultParse = QueryResultDto.safeParse(res.data);
+                    this.isQueryingSignal.set(false);
+                    if (!resultParse.success) {
+                        this.errorSignal.set('Failed to parse queries data. Queries data format mismatch.');
+                        return null;
+                    }
+                    return resultParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isQueryingSignal);
+                    return of(null);
+                })
             );
-        response.subscribe({
-            next: (res => {
-                if (!res.success)
-                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                this.isQueryingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isQueryingSignal)
-        });
-        return response;
     }
 }
