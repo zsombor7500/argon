@@ -56,7 +56,7 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         .forEach(([path, tagObjIds]) => {
             if (tagObjIds.length !== new Set(tagObjIds.map(id => id.toString())).size)
                 throw new ApiError({
-                    message: 'Duplicate(s) found within tag object IDs',
+                    message: 'Duplicate(s) found within tags',
                     statusCode: 422,
                     details: { message: 'List of tag ObjectIds contained duplicates' }
                 });
@@ -80,7 +80,7 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
                 const tag = project.tags.find((t) => t._id.equals(tagObjId));
                 if (!tag)
                     throw new ApiError({
-                        message: 'Non-existent tag found within tag object IDs',
+                        message: 'Non-existent tag found within tags',
                         statusCode: 422,
                         details: { nonExistentTag: tagObjId.toString() }
                     });
@@ -217,7 +217,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
         .forEach(([path, tagObjIds]) => {
             if (tagObjIds.length !== new Set(tagObjIds.map(id => id.toString())).size)
                 throw new ApiError({
-                    message: 'Duplicate(s) found within tag object IDs',
+                    message: 'Duplicate(s) found within tags',
                     statusCode: 422,
                     details: { message: 'List of tag ObjectIds contained duplicates' }
                 });
@@ -242,7 +242,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
                 const tag = project.tags.find((t) => t._id.equals(tagObjId));
                 if (!tag)
                     throw new ApiError({
-                        message: 'Non-existent tag found within tag object IDs',
+                        message: 'Non-existent tag found within tags',
                         statusCode: 422,
                         details: { nonExistentTag: tagObjId.toString() }
                     });
