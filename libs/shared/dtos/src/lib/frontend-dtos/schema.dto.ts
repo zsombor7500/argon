@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, ZodType } from 'zod';
 
 import { TEXT_NO_SPECIAL } from '#/constants/dtos';
 
@@ -12,6 +12,11 @@ export type SchemaArrayType = z.infer<typeof SchemaArrayTypeDto>;
 export const SchemaObjectTypeDto = z.enum(['object']);
 export type SchemaObjectType = z.infer<typeof SchemaObjectTypeDto>;
 
+export const SchemaTypeValidator = new Map<SchemaPrimitiveType, ZodType>([
+    ['string', z.string()],
+    ['int',    z.int()],
+    ['bool',   z.boolean()],
+]);
 
 export interface ISchemaPrimitiveNode {
     bsonType: SchemaPrimitiveType;

@@ -52,10 +52,10 @@ export const QueryExecutionDto = z.object({
 }).strict();
 export type QueryExecutionDtoType = z.infer<typeof QueryExecutionDto>;
 
-export const QueryResultDto = z.map(
+export const QueryResultDto = z.record(
     z.string(),
     z.record(z.string(), z.any()).array()
-).transform((map) => Object.fromEntries(map));
+)
 export type QueryResultDtoType = z.infer<typeof QueryResultDto>;
 
 export const QueryPathParamsDto = z.object({

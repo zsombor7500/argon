@@ -19,16 +19,17 @@ import {
     DatasetService,
     ProjectService
 } from '#/services';
+import { QueryEntryComponent } from './query-entry/query-entry';
 import { DescriptionValidators, NameValidators } from '#/constants/frontend';
 import type { TagDtoType } from '#/dto/frontend/tag';
 import type { DatasetDtoType } from '#/dto/frontend/dataset';
-import type { QueryCreationDtoType } from '#/dto/frontend/query';
+import type { QueryCreationDtoType, QueryDtoType } from '#/dto/frontend/query';
 
 
 @Component({
   selector: 'app-project-dataset-list',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, QueryEntryComponent],
   templateUrl: 'query-list.html',
   styles: []
 })
@@ -45,13 +46,12 @@ export class ProjectQueryListComponent {
 
     selectedTags = signal<TagDtoType[]>([]);
     selectedDatasets = signal<DatasetDtoType[]>([]);
+    queriesSignal = signal<QueryDtoType[]>([]);
     isLoadingTagsSignal = signal<boolean>(false);
-    isLoadingDatasetsSignal = signal<boolean>(false);
     isRecalculatingMatchesSignal = signal<boolean>(false);
     errorSignal = signal<string | null>(null);
 
     isLoadingTags = this.isLoadingTagsSignal.asReadonly();
-    isLoadingDatasets = this.isLoadingDatasetsSignal.asReadonly();
     isRefreshingMatches = this.isRecalculatingMatchesSignal.asReadonly();
     error = this.errorSignal.asReadonly();
 
@@ -82,14 +82,16 @@ export class ProjectQueryListComponent {
         return this.matchingDatasets.filter(d => !selectedIds.has(d._id));
     });
 
-
     constructor() {
         this.isLoadingTagsSignal.set(true);
-        this.isLoadingDatasetsSignal.set(true);
         toObservable(this.projectService.selectedProjectSignal)
             .pipe(
                 filter(project => project !== null),
                 map(project => {
+                    this.queryService.getQueries(project._id)
+                        .subscribe({
+                            next: (queries => this.queriesSignal.set(queries))
+                        });
                     this.tagService.getTags(project._id)
                         .subscribe({
                             next: (tags => {
@@ -99,10 +101,7 @@ export class ProjectQueryListComponent {
                         });
                     this.datasetService.getDatasets(project._id)
                         .subscribe({
-                            next: (datasets => {
-                                this.datasets = datasets;
-                                this.isLoadingDatasetsSignal.set(false);
-                            })
+                            next: (datasets => this.datasets = datasets )
                         });
                 })
             ).subscribe();
@@ -199,5 +198,12 @@ export class ProjectQueryListComponent {
                 this.createForm.reset();
             })
         });
+    }
+
+    onDeleteEvent(queryId: string) {
+        this.queryService.deleteQuery(
+            this.projectService.selectedProject()?._id ?? '',
+            queryId
+        ).subscribe();
     }
 }

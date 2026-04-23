@@ -106,6 +106,7 @@
           }
         </div>
       </div>
+
       <div class="add-section">
         <label for="itemSelect" class="block text-md font-medium">
           Add dataset:
@@ -140,6 +141,7 @@
         >
           Previous
         </button>
+
         <button
           type="submit"
           class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
@@ -156,3 +158,37 @@
       }
   </div>
 </div>
+
+@if (queryService.isLoading() !== null && queryService.isLoading()) {
+  <div class="flex flex-col space-y-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+    <p>Loading queries...</p>
+  </div>
+} @else {
+  @if (queryService.queries()?.length === 0) {
+    <div class="flex flex-col space-y-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+      <div class="flex flex-col flex-1">
+        <div class="flex flex-col flex-1 text-primary-20">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no active queries to manage</p>
+            <p class="text-light-0">:(</p>
+          </div>
+
+          <div class="flex flex-row gap-x-1 text-l ">
+              <a class="text-l text-light-0">
+                Create
+              </a>
+              one to get started!
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else if (queryService.queries(); as queries) {
+    @for (query of queries; track query._id) {
+      <app-query-entry
+        [query]="query"
+        (deleteEvent)="onDeleteEvent($event)"
+      >
+      </app-query-entry>
+    }
+  }
+}
