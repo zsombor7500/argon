@@ -64,6 +64,18 @@ services:
       MONGO_SELECTION_TIMEOUT_MS: ${MONGO_SELECTION_TIMEOUT_MS}
       CORS_ORIGIN: ${CORS_ORIGIN}
 
+  nginx:
+    container_name: nginx
+    build:
+      context: ./apps/frontend
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    networks:
+      internal:
+        ipv4_address: 172.50.0.15
+    ports:
+      - 80:80
+
 networks:
   internal:
     ipam:
