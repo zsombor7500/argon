@@ -173,27 +173,26 @@ export class ProjectService {
         return response;
     }
 
-    deleteProject(projectId: string): Observable<ApiResponseSuccess<any>> {
+    deleteProject(projectId: string): Observable<any> {
         const finalEndpoint = `${this.endpoint}/${projectId}`;
         this.isDeletingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .delete<ApiResponseSuccess<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.success)
+                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                    else
+                        this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
+                    this.isDeletingSignal.set(false);
+                    this.router.navigate(['/projects'])
+                        .catch(err => console.log(`Couldn't navigate to /projects: ${err}`));
+                }),
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)))
             );
-        response.subscribe({
-            next: (res => {
-                if (!res.success)
-                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                else
-                    this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
-                this.isDeletingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
-        });
-        return response;
     }
 
     disbandProject(projectId: string): Observable<ApiResponseSuccess<any>> {

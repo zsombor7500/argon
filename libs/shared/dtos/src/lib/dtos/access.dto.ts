@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
-import { InviteDto } from '#/dto/invite';
+import { ProjectInviteDto } from '#/dto/invite';
 import { UserProfileDto } from '#/dto/user';
 import { ProjectScopeDto } from '#/dto/scope';
 
@@ -13,7 +13,7 @@ export type RoleToUserObjIdsMapType = z.infer<typeof RoleToUserObjIdsMap>;
 
 export const AccessDto = z.object({
     users:               UserProfileDto.array(),
-    invites:             InviteDto.array(),
+    invites:             ProjectInviteDto.array(),
     roleToScopesMap:     RoleToScopesMap,
     roleToUserObjIdsMap: RoleToUserObjIdsMap,
 });

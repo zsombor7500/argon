@@ -1,3 +1,177 @@
 <h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Access</h2>
-<div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
+
+<div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h2 class="text-xl text-primary-0 font-bold ml-3 mb-5">Users</h2>
+
+  @if (accessService.isLoading() !== null && accessService.isLoading()) {
+    <p>Loading users...</p>
+  } @else {
+    @if (accessService.users()?.length === 0) {
+      <div class="flex flex-col flex-1 text-primary-20">
+        <div class="flex flex-row space-x-1">
+          <p class="text-l mb-1">You have no active users to manage</p>
+          <p class="text-light-0">:(</p>
+        </div>
+        <div class="flex flex-row gap-x-1 text-l">
+          <a
+          class="underline text-l text-light-0 hover:text-primary-0"
+          routerLink="./new"
+          routerLinkActive="active"
+          >
+            Create
+          </a>
+          or
+          <a
+          class="underline text-l text-light-0 hover:text-primary-0"
+          routerLink="./invites"
+          routerLinkActive="active"
+          >
+          join
+          </a>
+          one to get started!
+        </div>
+      </div>
+    } @else if (accessService.users(); as users) {
+      <div class="overflow-x-auto">
+        <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+          <thead class="justify-start text-primary-0 border-b border-light-0">
+            <tr>
+              <th class="border-b">Actions</th>
+              <th class="border-b">Display name</th>
+              <th class="border-b">Role</th>
+              <th class="border-b">ID</th>
+              <th class="border-b">Email</th>
+              <th class="border-b">Description</th>
+              <th class="border-b">Platform join</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user._id) {
+              <tr app-project-user-entry
+                [user]="user"
+                (removeEvent)="onRemoveUserEvent($event)"
+                class="text-sm"
+              >
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+<div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h2 class="text-xl text-primary-0 font-bold ml-3 mb-5">Roles & scopes</h2>
+
+  @if (accessService.isLoading() !== null && accessService.isLoading()) {
+    <p>Loading role scopes...</p>
+  } @else {
+    @if (accessService.roleToScopesMap() === null) {
+      <div class="flex flex-col flex-1 text-primary-20">
+        <div class="flex flex-row space-x-1">
+          <p class="text-l mb-1">You have no active role scopes to display</p>
+          <p class="text-light-0">:(</p>
+        </div>
+      </div>
+    } @else if (accessService.roleToScopesMap(); as roleToScopesMap) {
+      <div class="overflow-x-auto">
+        <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+          <thead class="justify-start text-primary-0 border-b border-light-0">
+            <tr>
+              <th class="border-b">Role name</th>
+              <th class="border-b">Scopes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (roleToScopes of roleToScopesMap | keyvalue; track roleToScopes.key) {
+              <tr>
+                <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">
+                  <div class="mx-4 text-center text-md">{{ roleToScopes.key }}</div>
+                </td>
+                <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">
+                  @for (scope of roleToScopes.value; track i; let i = $index) {
+                    <div class="mx-4 text-center text-md">{{ roleToScopes.value }}</div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">Invites</h3>
+  <div class="flex">
+    @if (accessService.isLoading() !== null && accessService.isLoading()) {
+      <p>Loading invites...</p>
+    } @else {
+      @if (accessService.projectInvites()?.length === 0) {
+        <div class="flex flex-col flex-1 text-primary-20 ml-5">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no more invites to manage</p>
+            <p class="text-light-0">:)</p>
+          </div>
+        </div>
+      } @else if (accessService.projectInvites(); as invites) {
+        <div class="overflow-x-auto">
+          <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+            <thead class="justify-start text-primary-0 border-b border-light-0">
+              <tr>
+                <th class="border-b">Action</th>
+                <th class="border-b">Invite name</th>
+                <th class="border-b">ID</th>
+                <th class="border-b">Invited user</th>
+                <th class="border-b">Invitant user</th>
+                <th class="border-b">Description</th>
+                <th class="border-b">Creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invite of invites; track invite._id) {
+                <tr app-project-invite-entry
+                  [invite]="invite"
+                  (cancelEvent)="onCancelInviteEvent($event)"
+                  class="text-sm"
+                >
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<div class="max-w-screen-xl flex flex-col space-y-2 flex-wrap items-center justify-between mx-auto p-3 px-5">
+  @if (!isDeleting) {
+    <button
+      type="button"
+      (click)="isDeleting = true"
+      class="ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+    >
+      Delete
+    </button>
+  } @else {
+    <div class="ml-auto">
+      <button
+        type="button"
+        (click)="onConfirmDeleteProject()"
+        class="mr-2 ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+      >
+        Confirm
+      </button>
+      <button
+        type="button"
+        (click)="isDeleting = false"
+        class="ml-auto w-25 place-items-end bg-primary-20 hover:bg-primary-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+      >
+        Cancel
+      </button>
+    </div>
+  }
 </div>

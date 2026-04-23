@@ -1,4 +1,11 @@
 import {
+    of,
+    map,
+    timeout,
+    catchError,
+    Observable
+} from 'rxjs';
+import {
     inject,
     effect,
     signal,
@@ -7,12 +14,11 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
 
-import { AuthService } from '#/services';
 import { getApiEndpoint } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { handleErrorResponse } from '#/utils/frontend';
+import { AuthService, ProjectService } from '#/services';
 import { AccessDto, RoleToUserObjIdsMap } from '#/dto/frontend/access';
 import type {
     AccessDtoType,
@@ -20,9 +26,9 @@ import type {
     UserRoleUpdateDtoType,
     RoleToUserObjIdsMapType
 } from '#/dto/frontend/access';
-import type { InviteDtoType } from '#/dto/frontend/invite';
 import type { UserProfileDtoType } from '#/dto/frontend/user';
-import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
+import type { ApiResponseSuccess } from '#/dto/frontend/api';
+import type { ProjectInviteDtoType } from '#/dto/frontend/invite';
 
 
 @Injectable({
@@ -32,10 +38,11 @@ export class AccessService {
     private httpClient = inject(HttpClient);
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
+    private projectService = inject(ProjectService);
 
     private usersSignal = signal<UserProfileDtoType[] | null>(null);
-    private projectInvitesSignal = signal<InviteDtoType[] | null>(null);
-    private roleToScopesMapSignal = signal<RoleToScopesMapType[] | null>(null);
+    private projectInvitesSignal = signal<ProjectInviteDtoType[] | null>(null);
+    private roleToScopesMapSignal = signal<RoleToScopesMapType | null>(null);
     private roleToUserIdsMapSignal = signal<RoleToUserObjIdsMapType | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
@@ -71,7 +78,12 @@ export class AccessService {
         this.errorSignal.set(null);
     }
 
-    getAccesses(projectId: string): Observable<ApiResponseSuccess<AccessDtoType>> {
+    getCurrentProjectAccesses(): Observable<AccessDtoType | null> {
+        return this.getAccesses(this.projectService.selectedProject()?._id ?? '');
+    }
+
+
+    getAccesses(projectId: string): Observable<AccessDtoType | null> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'access']);
         this.isLoadingSignal.set(true);
         this.usersSignal.set(null);
@@ -79,77 +91,94 @@ export class AccessService {
         this.roleToScopesMapSignal.set(null);
         this.roleToUserIdsMapSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .get<ApiResponseSuccess<AccessDtoType>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse access data. Server response format mismatch.');
-                const accessParse = AccessDto.safeParse(res.data);
-                if (!accessParse.success)
-                    this.errorSignal.set('Failed to parse access data. Access data format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isLoadingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse access data. Server response format mismatch.');
+                        return null;
+                    }
+                    const accessParse = AccessDto.safeParse(res.data);
+                    if (!accessParse.success) {
+                        this.errorSignal.set('Failed to parse access data. Access data format mismatch.');
+                        return null;
+                    }
                     this.usersSignal.set(accessParse.data.users);
-                this.isLoadingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
-        });
-        return response;
+                    this.projectInvitesSignal.set(accessParse.data.invites);
+                    this.roleToScopesMapSignal.set(accessParse.data.roleToScopesMap);
+                    this.roleToUserIdsMapSignal.set(accessParse.data.roleToUserObjIdsMap);
+                    return accessParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal);
+                    return of(null);
+                })
+            );
     }
 
-    updateUserRole(projectId: string, userId: string, roleMap: UserRoleUpdateDtoType): Observable<ApiResponse<RoleToUserObjIdsMapType>> {
+    updateUserRole(projectId: string, userId: string, roleMap: UserRoleUpdateDtoType): Observable<RoleToUserObjIdsMapType | null> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'access', userId]);
         this.isUpdatingSignal.set(true);
         this.roleToUserIdsMapSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .patch<ApiResponseSuccess<RoleToUserObjIdsMapType>>(finalEndpoint, roleMap)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse query data. Server response format mismatch.');
-                const roleToUserIdsMapParse = RoleToUserObjIdsMap.safeParse(res.data);
-                if (!roleToUserIdsMapParse.success)
-                    this.errorSignal.set('Failed to parse query data. Query data format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isUpdatingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse query data. Server response format mismatch.');
+                        return null;
+                    }
+                    const roleToUserIdsMapParse = RoleToUserObjIdsMap.safeParse(res.data);
+                    if (!roleToUserIdsMapParse.success) {
+                        this.errorSignal.set('Failed to parse query data. Query data format mismatch.');
+                        return null;
+                    }
                     this.roleToUserIdsMapSignal.set(roleToUserIdsMapParse.data);
-                this.isUpdatingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
-        });
-        return response;
+                    return roleToUserIdsMapParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal);
+                    return of(null);
+                })
+            );
     }
 
-    removeUserFromProject(projectId: string, userId: string): Observable<ApiResponse<RoleToUserObjIdsMapType>> {
+    removeUserFromProject(projectId: string, userId: string): Observable<RoleToUserObjIdsMapType | null> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'access', userId]);
         this.isRemovingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
-            .delete<ApiResponse<RoleToUserObjIdsMapType>>(finalEndpoint)
+        return this.httpClient
+            .delete<ApiResponseSuccess<RoleToUserObjIdsMapType>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.success)
-                    this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                else {
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isRemovingSignal.set(false);
+                    if (!res.success) {
+                        this.errorSignal.set('Failed to parse response. Server response format mismatch.');
+                        return null;
+                    }
+                    const roleToUserIdsMapParse = RoleToUserObjIdsMap.safeParse(res.data);
+                    if (!roleToUserIdsMapParse.success) {
+                        this.errorSignal.set('Failed to parse query data. Query data format mismatch.');
+                        return null;
+                    }
                     this.usersSignal.update(arr => [...(arr ?? []).filter(u => u._id !== userId)]);
-                    this.roleToUserIdsMapSignal.set(res.data);
-                }
-                this.isRemovingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isRemovingSignal)
-        });
-        return response;
+                    this.roleToUserIdsMapSignal.set(roleToUserIdsMapParse.data);
+                    return roleToUserIdsMapParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isRemovingSignal);
+                    return of(null);
+                })
+            );
     }
 }

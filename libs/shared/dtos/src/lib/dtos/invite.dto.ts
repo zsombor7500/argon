@@ -18,6 +18,17 @@ export const InviteDto = z.object({
 });
 export type InviteDtoType = z.infer<typeof InviteDto>;
 
+export const ProjectInviteDto = z.object({
+    _id:         ObjectIdToString,
+    name:        Name,
+    description: Description.optional(),
+    invitant:    UserProfileDto,
+    invited:     UserProfileDto,
+    createdAt:   z.date(),
+    updatedAt:   z.date()
+});
+export type ProjectInviteDtoType = z.infer<typeof ProjectInviteDto>;
+
 export const InvitesDto = InviteDto.array();
 export type InvitesDtoType = z.infer<typeof InvitesDto>;
 
