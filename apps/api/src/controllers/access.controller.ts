@@ -28,7 +28,13 @@ export async function getAccesses(req: Request, res: Response, next: NextFunctio
     // Project retrieval (role to user mapping + role to scope mapping + invites)
     const project = await Project.findOne({ _id: params.data.projectObjId })
         .populate('users')
-        .populate<IProjectUserAndInvitePopulated>('invites');
+        .populate<IProjectUserAndInvitePopulated>({
+            path: 'invites',
+            populate: [
+                { path: 'invited' },
+                { path: 'invitant' }
+            ]
+        });
     if (!project)
         return next(new ApiError({
             details: { projectObjId: params.data.projectObjId }
