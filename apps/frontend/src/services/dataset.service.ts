@@ -15,9 +15,9 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { DatasetDto, DatasetsDto } from '#/dto/frontend/dataset';
+import { AuthService, ToastService } from '#/services';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { DatasetDtoType, DatasetUpdateDtoType, DatasetCreationDtoType } from '#/dto/frontend/dataset';
@@ -30,6 +30,7 @@ export class DatasetService {
     private httpClient = inject(HttpClient);
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
+    private toastService = inject(ToastService);
 
     private datasetsSignal = signal<DatasetDtoType[] | null>(null);
     private isCreatingSignal = signal<boolean | null>(null);
@@ -37,6 +38,7 @@ export class DatasetService {
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
     private isIngestingSignal = signal<boolean | null>(null);
+    private successSignal = signal<string | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly datasets = this.datasetsSignal.asReadonly();
@@ -45,6 +47,7 @@ export class DatasetService {
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
     readonly isIngesting = this.isIngestingSignal.asReadonly();
+    readonly success = this.successSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -53,7 +56,33 @@ export class DatasetService {
             if (!isAuthenticated)
                 this.datasetsSignal.set(null);
         });
-        this.destroyRef.onDestroy(() => logoutEffectRef.destroy());
+        const successEffectRef = effect(() => {
+            const success = this.success();
+            if (success === null)
+                return;
+            this.toastService.addToast({
+                type: 'success',
+                message: success,
+                duration: 3000
+            });
+            this.successSignal.set(null);
+        });
+        const errorEffectRef = effect(() => {
+            const error = this.error();
+            if (error === null)
+                return;
+            this.toastService.addToast({
+                type: 'error',
+                message: error,
+                duration: 3000
+            });
+            this.errorSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => {
+            successEffectRef.destroy();
+            logoutEffectRef.destroy();
+            errorEffectRef.destroy();
+        });
     }
 
     resetFeedbackSignals(): void {
@@ -62,6 +91,7 @@ export class DatasetService {
         this.isUpdatingSignal.set(null);
         this.isDeletingSignal.set(null);
         this.isIngestingSignal.set(null);
+        this.successSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -86,6 +116,7 @@ export class DatasetService {
                         return null;
                     }
                     this.datasetsSignal.update(arr => [...(arr ?? []), datasetParse.data]);
+                    this.successSignal.set('Successful dataset creation');
                     return datasetParse.data;
                 }),
                 catchError(err => {
@@ -131,7 +162,7 @@ export class DatasetService {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'datasets', datasetId]);
         this.isUpdatingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .patch<ApiResponseSuccess<DatasetDtoType>>(finalEndpoint, datasetData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
@@ -148,6 +179,7 @@ export class DatasetService {
                         return null;
                     }
                     this.datasetsSignal.update(arr => [...(arr ?? []).filter(d => d._id !== datasetId), datasetParse.data]);
+                    this.successSignal.set('Successful dataset update');
                     return datasetParse.data;
                 }),
                 catchError(err => {
@@ -155,9 +187,6 @@ export class DatasetService {
                     return of(null);
                 })
             );
-        response.subscribe({
-        });
-        return response;
     }
 
     deleteDataset(projectId: string, datasetId: string): Observable<any> {

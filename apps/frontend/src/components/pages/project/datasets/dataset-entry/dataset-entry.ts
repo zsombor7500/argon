@@ -14,6 +14,7 @@ import { Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import type { WritableSignal } from '@angular/core'
 
 import type { DatasetDtoType } from '#/dto/frontend/dataset';
+import { ToastService } from '#/services';
 
 
 @Component({
@@ -30,15 +31,17 @@ export class DatasetEntryComponent {
     @Output() ingestEvent = new EventEmitter<{
         datasetId: string,
         data: unknown,
-        errorSignal: WritableSignal<string | null>,
         successSignal: WritableSignal<boolean>
     }>;
 
-    private errorSignal = signal<string | null>(null);
-    private successSignal = signal<boolean>(false);
+    private toastService = inject(ToastService);
 
-    readonly error = this.errorSignal.asReadonly();
+    private successSignal = signal<boolean>(false);
+    private errorSignal = signal<string | null>(null);
+
     readonly success = this.successSignal.asReadonly();
+    readonly error = this.errorSignal.asReadonly();
+
     destroyRef = inject(DestroyRef);
     formBuilder = inject(FormBuilder);
     isDeleting = false;
@@ -54,7 +57,21 @@ export class DatasetEntryComponent {
                 return;
             this.ingestForm.reset();
         });
-        this.destroyRef.onDestroy(() => successEffectRef.destroy());
+        const errorEffectRef = effect(() => {
+            const error = this.error();
+            if (error === null)
+                return;
+            this.toastService.addToast({
+                type: 'error',
+                message: error,
+                duration: 3000
+            });
+            this.errorSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => {
+            successEffectRef.destroy();
+            errorEffectRef.destroy();
+        });
     }
 
     onIngest() {
@@ -66,7 +83,6 @@ export class DatasetEntryComponent {
             this.ingestEvent.emit({
                 datasetId: this.dataset._id,
                 data: parsedJson,
-                errorSignal: this.errorSignal,
                 successSignal: this.successSignal
             });
         } catch {

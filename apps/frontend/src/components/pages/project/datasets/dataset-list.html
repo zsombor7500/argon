@@ -167,7 +167,7 @@
                       class="mt-2 w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
                     >
                       @if (attributePathToTag[1].value; as selectedTag) {
-                        <option [ngValue]="selectedTag" disabled selected>{{ attributePathToTag[1].value?.name }} / {{ attributePathToTag[1].value?.type }} ({{ attributePathToTag[1].value?._id }})</option>
+                        <option [ngValue]="selectedTag" disabled selected>{{ attributePathToTag[1].value.name }} / {{ attributePathToTag[1].value.type }} ({{ attributePathToTag[1].value._id }})</option>
                       } @else {
                         <option [ngValue]="null" disabled selected>-- Select an item --</option>
                       }
