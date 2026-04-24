@@ -1,4 +1,10 @@
 import {
+    map,
+    timeout,
+    catchError,
+    Observable
+} from 'rxjs';
+import {
     inject,
     effect,
     signal,
@@ -7,7 +13,6 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
 
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
@@ -83,31 +88,36 @@ export class TagService {
         return response;
     }
 
-    getTags(projectId: string): Observable<ApiResponseSuccess<TagDtoType[]>> {
+    getTags(projectId: string): Observable<TagDtoType[]> {
         const finalEndpoint = getApiEndpoint(['projects', projectId, 'tags']);
         this.isLoadingSignal.set(true);
         this.tagsSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .get<ApiResponseSuccess<TagDtoType[]>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse tags data. Server response format mismatch.');
+                        return [];
+                    }
+                    const tagsParse = TagsDto.safeParse(res.data);
+                    this.isLoadingSignal.set(false);
+                    if (!tagsParse.success) {
+                        this.errorSignal.set('Failed to parse tags data. Tags data format mismatch.');
+                        return [];
+                    } else {
+                        this.tagsSignal.set(tagsParse.data);
+                        return tagsParse.data;
+                    }
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
+                    return [];
+                })
             );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse tags data. Server response format mismatch.');
-                const tagsParse = TagsDto.safeParse(res.data);
-                if (!tagsParse.success)
-                    this.errorSignal.set('Failed to parse tags data. Tags data format mismatch.');
-                else
-                    this.tagsSignal.set(tagsParse.data);
-                this.isLoadingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
-        });
-        return response;
     }
 
     updateTag(projectId: string, tagId: string, tagData: TagUpdateDtoType): Observable<ApiResponse<TagDtoType>> {

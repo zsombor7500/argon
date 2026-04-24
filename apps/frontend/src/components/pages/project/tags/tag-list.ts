@@ -39,9 +39,8 @@ export class ProjectTagListComponent {
         toObservable(this.projectService.selectedProjectSignal)
             .pipe(
                 filter(project => project !== null),
-                map(project => this.tagService.getTags(project._id))
-            )
-            .subscribe();
+                map(project => this.tagService.getTags(project._id).subscribe())
+            ).subscribe();
     }
 
     onCreate(): void {
@@ -55,7 +54,6 @@ export class ProjectTagListComponent {
         };
         if (tagData.description === '' || tagData.description === null)
             tagData.description = undefined;
-        console.log(tagData)
         this.tagService.createTag(this.projectService.selectedProject()?._id ?? '', tagData);
     }
 
