@@ -3,15 +3,18 @@ import {
     inject,
     computed,
     Injectable,
-    DestroyRef
+    DestroyRef,
+    effect
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timeout, Observable, map, catchError, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
+import { ToastService } from '#/services';
 import { TokenBodyDto } from '#/dto/frontend/auth';
 import { frontendConfig } from '#/configs/frontend';
+import { TokenRefreshDto } from '#/dto/frontend/auth';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserLoginDtoType, TokenBodyDtoType, TokenRefreshDtoType } from '#/dto/frontend/auth';
@@ -25,6 +28,7 @@ export class AuthService {
     private router = inject(Router);
     private destroyRef = inject(DestroyRef);
     private httpClient = inject(HttpClient);
+    private toastService = inject(ToastService);
 
     private tokenDataSignal = signal<TokenBodyDtoType | null>(null);
     private isLandingSignal = signal<boolean>(true);
@@ -32,6 +36,7 @@ export class AuthService {
     private isAuthenticatingSignal = signal<boolean | null>(false);
     private isRefreshingSignal = signal<boolean | null>(false);
     private isLoggingOutSignal = signal<boolean | null>(false);
+    private successSignal = signal<string | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly tokenData = this.tokenDataSignal.asReadonly();
@@ -40,14 +45,45 @@ export class AuthService {
     readonly isAuthenticating = this.isAuthenticatingSignal.asReadonly();
     readonly isRefreshing = this.isRefreshingSignal.asReadonly();
     readonly isLoggingOut = this.isLoggingOutSignal.asReadonly();
+    readonly success = this.successSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
     readonly isAuthenticated = computed(() => !!this.tokenDataSignal());
+
+    constructor() {
+        const successEffectRef = effect(() => {
+            const success = this.success();
+            if (success === null)
+                return;
+            this.toastService.addToast({
+                type: 'success',
+                message: success,
+                duration: 3000
+            });
+            this.successSignal.set(null);
+        });
+        const errorEffectRef = effect(() => {
+            const error = this.error();
+            if (error === null)
+                return;
+            this.toastService.addToast({
+                type: 'error',
+                message: error,
+                duration: 3000
+            });
+            this.errorSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => {
+            successEffectRef.destroy();
+            errorEffectRef.destroy();
+        });
+    }
 
     resetFeedbackSignals(): void {
         this.isCheckingSignal.set(null);
         this.isAuthenticatingSignal.set(null);
         this.isRefreshingSignal.set(null);
         this.isLoggingOutSignal.set(null);
+        this.successSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -59,10 +95,10 @@ export class AuthService {
         this.tokenDataSignal.set(null);
     }
 
-    checkAuthState(){
+    checkAuthState(isResourceAccessRoute: boolean): Observable<TokenBodyDtoType | null> {
         this.resetAuthState();
         this.isCheckingSignal.set(true);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<TokenBodyDtoType>>(`${this.endpoint}/status`, {})
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
@@ -71,80 +107,91 @@ export class AuthService {
                     this.landed();
                     this.isCheckingSignal.set(false);
                     const tokenBodyParse = TokenBodyDto.safeParse(res.data);
-                    let result: TokenBodyDtoType | null  = null;
-                    if (!tokenBodyParse.success)
+                    if (!tokenBodyParse.success) {
                         this.router.navigate(['/login'])
                             .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
-                    else {
-                        this.tokenDataSignal.set(tokenBodyParse.data);
-                        result = this.tokenData();
+                        return null;
                     }
-                    return result;
+                    this.tokenDataSignal.set(tokenBodyParse.data);
+                    return tokenBodyParse.data;
                 }),
-                catchError(err => {
+                catchError(_ => {
                     this.landed();
-                    return of(handleErrorResponse(err, null, this.isCheckingSignal));
+                    return this.refreshToken(isResourceAccessRoute);
                 })
             );
-        response.subscribe();
-        return response;
     }
 
-    login(userCredentials: UserLoginDtoType): Observable<ApiResponseSuccess<TokenRefreshDtoType>> {
+    login(userCredentials: UserLoginDtoType): Observable<TokenBodyDtoType | null> {
         this.resetAuthState();
         this.isAuthenticatingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/login`, userCredentials)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isAuthenticatingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
+                        return null;
+                    }
+                    const tokenParse = TokenRefreshDto.safeParse(res.data);
+                    if (!tokenParse.success) {
+                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                        return null;
+                    }
+                    this.tokenDataSignal.set(tokenParse.data.tokenBody);
+                    this.router.navigate(['/projects'])
+                        .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
+                    this.successSignal.set('Successful login')
+                    return tokenParse.data.tokenBody;
+                }),
+                catchError(err => {
+                    if (!(err instanceof HttpErrorResponse)) {
+                        console.error(`Failure during login request: ${err}`);
+                        this.errorSignal.set('Network error');
+                    } else if (err.status === 404) {
+                        this.errorSignal.set('User does not exists with given email');
+                    } else if (err.status === 422) {
+                        this.errorSignal.set('Incorrect user credentials');
+                    } else {
+                        handleErrorResponse(err, this.errorSignal, this.isAuthenticatingSignal);
+                    }
+                    return of(null);
+                })
             );
-        response.subscribe({
-            next: (res) => {
-                this.tokenDataSignal.set(res.data.tokenBody);
-                this.isAuthenticatingSignal.set(false);
-                this.router.navigate(['/projects'])
-                    .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
-            },
-            error: (err) => {
-                if (!(err instanceof HttpErrorResponse)) {
-                    console.error(`Failure during login request: ${err}`);
-                    return;
-                }
-                if (err.status === 404) {
-                    this.errorSignal.set('User does not exists with given email!');
-                    return;
-                }
-                if (err.status === 422) {
-                    this.errorSignal.set('Incorrect user credentials!');
-                    return;
-                }
-                handleErrorResponse(err, this.errorSignal, this.isAuthenticatingSignal);
-            }
-        });
-        return response;
     }
 
-    refreshToken(): Observable<ApiResponse<TokenRefreshDtoType>> {
+    refreshToken(isResourceAccessRoute: boolean): Observable<TokenBodyDtoType | null> {
         this.isRefreshingSignal.set(true);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {})
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isRefreshingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse project data. Server response format mismatch.');
+                        return null;
+                    }
+                    const tokenParse = TokenRefreshDto.safeParse(res.data);
+                    if (!tokenParse.success) {
+                        this.errorSignal.set('Failed to parse project data. Project data format mismatch.');
+                        return null;
+                    }
+                    this.tokenDataSignal.set(tokenParse.data.tokenBody);
+                    return tokenParse.data.tokenBody;
+                }),
+                catchError(err => {
+                    if (isResourceAccessRoute)
+                        this.errorSignal.set('Login expired');
+                    this.logoutClientside();
+                    return of(handleErrorResponse(err, null, this.isRefreshingSignal));
+                })
             );
-        response.subscribe({
-            next: (res) => {
-                this.tokenDataSignal.set(res.data.tokenBody);
-                this.isRefreshingSignal.set(false);
-            },
-            error: (err) => {
-                this.logoutClientside();
-                handleErrorResponse(err, this.errorSignal, this.isRefreshingSignal);
-            }
-        });
-        return response;
     }
 
     logoutClientside(): void {
@@ -153,24 +200,24 @@ export class AuthService {
             .catch(err => console.log(`Couldn't navigate to /login: ${err}`));
     }
 
-    logout(): Observable<ApiResponseSuccess<any>> {
+    logout(): Observable<any> {
         this.isLoggingOutSignal.set(true);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<any>>(`${this.endpoint}/logout`, {})
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(_ => {
+                    this.logoutClientside();
+                    this.successSignal.set('Successful logout')
+                    this.isLoggingOutSignal.set(false);
+                    return;
+                }),
+                catchError(err => {
+                    this.logoutClientside();
+                    this.successSignal.set('Successful logout')
+                    return of(handleErrorResponse(err, null, this.isLoggingOutSignal));
+                })
             );
-        response.subscribe({
-            next: (_) => {
-                this.logoutClientside();
-                this.isLoggingOutSignal.set(false);
-            },
-            error: (err) => {
-                this.logoutClientside();
-                handleErrorResponse(err, this.errorSignal, this.isLoggingOutSignal);
-            }
-        });
-        return response;
     }
 }

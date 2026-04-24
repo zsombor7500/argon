@@ -13,13 +13,14 @@ import { AuthService, UserService, ProjectService} from '#/services';
 export function noAuthGuard() {
     const router = inject(Router);
     const authService = inject(AuthService);
-    if (authService.isLanding())
+    if (authService.isLanding()) {
         return authService
-            .checkAuthState()
+            .checkAuthState(false)
             .pipe(
                 map(res => res !== null ? router.parseUrl('/projects') : true),
                 catchError(_ => of(true))
             );
+    }
     return true;
 }
 
@@ -29,7 +30,7 @@ export function authGuard() {
     const userService = inject(UserService);
     if (authService.isLanding())
         return authService
-            .checkAuthState()
+            .checkAuthState(true)
             .pipe(
                 map(res => {
                     if (res !== null) {
@@ -40,7 +41,7 @@ export function authGuard() {
                         return router.parseUrl('/login');
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
-            );
+            )
     userService.getCurrentUserProfile().subscribe();
     return authService.isAuthenticated();
 }
@@ -50,13 +51,15 @@ export function projectAuthGuard(route: ActivatedRouteSnapshot, _: RouterStateSn
     const authService = inject(AuthService);
     const userService = inject(UserService);
     const projectService = inject(ProjectService);
-    if (authService.isLanding())
+    if (authService.isLanding()) {
         return authService
-            .checkAuthState()
+            .checkAuthState(true)
             .pipe(
                 switchMap(res => {
+                    console.log('asdasdasd')
                     if (res === null)
-                        return of(router.parseUrl('/login'));
+                        return of(router.parseUrl('/login'))
+                    console.log('asdasdasd')
                     userService.getCurrentUserProfile().subscribe();
                     const projectId = route.paramMap.get('id');
                     if (projectId !== null)
@@ -70,6 +73,7 @@ export function projectAuthGuard(route: ActivatedRouteSnapshot, _: RouterStateSn
                 }),
                 catchError(_ => of(router.parseUrl('/login')))
             );
+    }
     if (!authService.isAuthenticated())
         return router.parseUrl('/login');
     userService.getCurrentUserProfile().subscribe();

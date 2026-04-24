@@ -12,11 +12,10 @@ import type { HttpRequest, HttpHandlerFn, HttpInterceptorFn } from '@angular/com
 
 import { AuthService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
-import type { ApiResponseSuccess } from '#/dto/frontend/api';
-import type { TokenRefreshDtoType } from '#/dto/frontend/auth';
+import type { TokenBodyDtoType } from '#/dto/frontend/auth';
 
 
-const tokenDtoSubject = new BehaviorSubject<TokenRefreshDtoType | null>(null);
+const tokenDtoSubject = new BehaviorSubject<TokenBodyDtoType | null>(null);
 
 export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
     const isSkipped = frontendConfig.interceptorSkipEndpoints
@@ -35,14 +34,14 @@ export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
                         take(1),
                         switchMap(_ => next(req))
                     );
-                return authService.refreshToken().pipe(
+                return authService.refreshToken(true).pipe(
                     switchMap(res => {
-                        res = res as ApiResponseSuccess<TokenRefreshDtoType>;
-                        tokenDtoSubject.next(res.data);
+                        if (res === null)
+                            return next(req);
+                        tokenDtoSubject.next(res);
                         return next(req);
                     }),
                     catchError((err2: unknown) => {
-                        authService.logoutClientside();
                         tokenDtoSubject.next(null);
                         return throwError(() => err2);
                     })

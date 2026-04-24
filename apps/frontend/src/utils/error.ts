@@ -10,14 +10,13 @@ export function handleErrorResponse(
 ): null {
     if (processSignal !== null)
         processSignal.set(false);
-    console.error(`Failure during request: ${error}`);
     if (errorSignal === null)
         return null;
     const message = getErrorMessage(error);
     if (message !== undefined)
         errorSignal.set(message);
     else
-        errorSignal.set('Action failed.');
+        errorSignal.set('Action failed');
     return null;
 }
 

@@ -9,6 +9,7 @@ const interceptorSkipEndpoints: Endpoint[] = [
     { method: 'POST', prefix: `/api/${apiVersion}/auth/login`},
     { method: 'POST', prefix: `/api/${apiVersion}/auth/refresh`},
     { method: 'POST', prefix: `/api/${apiVersion}/auth/logout`},
+    { method: 'POST', prefix: `/api/${apiVersion}/auth/status`},
     { method: 'POST', prefix: `/api/${apiVersion}/users`}
 ];
 

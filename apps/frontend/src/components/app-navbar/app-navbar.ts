@@ -16,6 +16,6 @@ export class AppNavbar {
     authService = inject(AuthService)
 
     onLogout() {
-        this.authService.logout();
+        this.authService.logout().subscribe();
     }
 }
