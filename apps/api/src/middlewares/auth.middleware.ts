@@ -30,14 +30,14 @@ export function authJwt(req: Request, res: Response, next: NextFunction) {
             }));
         if (jwtBodyParse.data.exp < Date.now())
             return next(new ApiError({
-                message: 'Forbidden',
-                statusCode: 403
+                message: 'Invalid access token',
+                statusCode: 401
             }));
         res.locals[RES_LOCALS_JWT_KEY] = jwtBodyParse.data;
     } catch (err) {
         return next(new ApiError({
             message: 'Forbidden',
-            statusCode: 403,
+            statusCode: 401,
             details: err
         }));
     }

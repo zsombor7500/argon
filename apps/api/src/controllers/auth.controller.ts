@@ -104,7 +104,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     if (!cookies.success)
         return next(new ApiError({
             message: 'Missing refresh token cookie',
-            statusCode: 422,
+            statusCode: 401,
             details: { error: cookies.error }
         }));
     let jwtBody: string | JwtPayload;
