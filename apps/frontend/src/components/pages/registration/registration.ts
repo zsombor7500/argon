@@ -1,43 +1,42 @@
 import {
+    FormGroup,
+    Validators,
+    FormControl,
+    ReactiveFormsModule
+} from '@angular/forms';
+import {
     inject,
     effect,
     Component,
     DestroyRef,
     ViewEncapsulation
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { NgForm, FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
-import {
-    NAME_MIN_LENGTH,
-    PASSWORD_PATTERN,
-    PASSWORD_MIN_LENGTH
-} from '#/constants/dtos';
 import { UserService } from '#/services';
+import { EmailValidators, PasswordValidators, UsernameValidators } from '#/constants/frontend';
 import type { UserRegistrationDtoType } from '#/dto/user';
 
 
 @Component({
     selector: 'app-register',
-    imports: [FormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink],
     templateUrl: './registration.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
 })
 export class RegistrationPageComponent {
-    private router = inject(Router);
     private destroyRef = inject(DestroyRef);
 
-    readonly passwordPattern = PASSWORD_PATTERN;
-    readonly passwordMinLength = PASSWORD_MIN_LENGTH;
-    readonly usernameMinLength = NAME_MIN_LENGTH;
-
     userService = inject(UserService);
-    formData: UserRegistrationDtoType = {
-        username: '',
-        email: '',
-        password: ''
-    };
+
+    registrationForm = new FormGroup({
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        username: new FormControl('', [Validators.required, ...UsernameValidators]),
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        email: new FormControl('', [Validators.required, ...EmailValidators]),
+        password: new FormControl('', [...PasswordValidators]),
+    });
 
     constructor() {
         const registrationEffectRef = effect(() => {
@@ -45,16 +44,22 @@ export class RegistrationPageComponent {
             const error = this.userService.error();
             if (error === null && isRegistrating === false) {
                 this.userService.resetFeedbackSignals();
-                this.router.navigate(['/login'])
-                    .catch(err => console.log(`Couldn't route to /login: ${err}`));
             }
         });
         this.destroyRef.onDestroy(() => registrationEffectRef.destroy());
     }
 
-    onSubmit(form: NgForm): void {
-        if (!form.valid)
+    onSubmit(): void {
+        if (this.registrationForm.invalid)
             return;
-        this.userService.register(this.formData);
+        const userCredentials: UserRegistrationDtoType = {
+            username: (this.registrationForm.value.username !== undefined || this.registrationForm.value.username !== null) ?
+                this.registrationForm.value.username ?? '' : '',
+            email: (this.registrationForm.value.email !== undefined || this.registrationForm.value.email !== null) ?
+                this.registrationForm.value.email ?? '' : '',
+            password: (this.registrationForm.value.password !== undefined || this.registrationForm.value.password !== null) ?
+                this.registrationForm.value.password ?? '' : '',
+        }
+        this.userService.register(userCredentials).subscribe();
     }
 }

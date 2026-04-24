@@ -1,14 +1,20 @@
 import {
-    signal,
+    of,
+    map,
+    timeout,
+    catchError,
+    Observable
+} from 'rxjs';
+import {
     inject,
+    signal,
+    effect,
     computed,
     Injectable,
-    DestroyRef,
-    effect
+    DestroyRef
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable, map, catchError, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { ToastService } from '#/services';
@@ -16,7 +22,7 @@ import { TokenBodyDto } from '#/dto/frontend/auth';
 import { frontendConfig } from '#/configs/frontend';
 import { TokenRefreshDto } from '#/dto/frontend/auth';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
-import type { ApiResponse, ApiResponseSuccess } from '#/dto/frontend/api';
+import type { ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserLoginDtoType, TokenBodyDtoType, TokenRefreshDtoType } from '#/dto/frontend/auth';
 
 

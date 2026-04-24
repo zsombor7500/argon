@@ -1,4 +1,11 @@
 import {
+    map,
+    timeout,
+    Observable,
+    catchError,
+    of
+} from 'rxjs';
+import {
     inject,
     effect,
     signal,
@@ -7,14 +14,14 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timeout, Observable } from 'rxjs';
 
-import { AuthService } from '#/services';
+import { AuthService, ToastService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { UserProfileDto } from '#/dto/frontend/user';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserUpdateDtoType, UserProfileDtoType, UserRegistrationDtoType } from '#/dto/frontend/user';
+import { Router } from '@angular/router';
 
 
 @Injectable({
@@ -22,15 +29,18 @@ import type { UserUpdateDtoType, UserProfileDtoType, UserRegistrationDtoType } f
 })
 export class UserService {
     private endpoint = getApiEndpoint(['users']);
+    private router = inject(Router);
     private httpClient = inject(HttpClient);
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
+    private toastService = inject(ToastService);
 
     private userProfileSignal = signal<UserProfileDtoType | null>(null);
     private isRegistratingSignal = signal<boolean | null>(null);
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isDeletingSignal = signal<boolean | null>(null);
+    private successSignal = signal<string | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly userProfile = this.userProfileSignal.asReadonly();
@@ -38,6 +48,7 @@ export class UserService {
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isDeleting = this.isDeletingSignal.asReadonly();
+    readonly success = this.successSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -46,7 +57,33 @@ export class UserService {
             if (!isAuthenticated)
                 this.userProfileSignal.set(null);
         });
-        this.destroyRef.onDestroy(() => authEffectRef.destroy());
+        const successEffectRef = effect(() => {
+            const success = this.success();
+            if (success === null)
+                return;
+            this.toastService.addToast({
+                type: 'success',
+                message: success,
+                duration: 3000
+            });
+            this.successSignal.set(null);
+        });
+        const errorEffectRef = effect(() => {
+            const error = this.error();
+            if (error === null)
+                return;
+            this.toastService.addToast({
+                type: 'error',
+                message: error,
+                duration: 3000
+            });
+            this.errorSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => {
+            successEffectRef.destroy();
+            errorEffectRef.destroy();
+            authEffectRef.destroy()
+        });
     }
 
     resetFeedbackSignals(): void {
@@ -54,6 +91,7 @@ export class UserService {
         this.isLoadingSignal.set(null);
         this.isUpdatingSignal.set(null);
         this.isDeletingSignal.set(null);
+        this.successSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -62,110 +100,117 @@ export class UserService {
         this.resetFeedbackSignals();
     }
 
-    register(userCredentials: UserRegistrationDtoType): Observable<ApiResponseSuccess<any>> {
+    register(userCredentials: UserRegistrationDtoType): Observable<any> {
         this.isRegistratingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .post<ApiResponseSuccess<any>>(this.endpoint, userCredentials)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
+                takeUntilDestroyed(this.destroyRef),
+                map(_ => {
+                    this.isRegistratingSignal.set(false)
+                    this.successSignal.set('Successful registration');
+                    this.router.navigate(['/login'])
+                        .catch(err => console.log(`Couldn't route to /login: ${err}`));
+                }),
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isRegistratingSignal)))
             );
-        response.subscribe({
-            next: (_) => this.isRegistratingSignal.set(false),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isRegistratingSignal)
-        });
-        return response;
     }
 
-    getCurrentUserProfile(): Observable<ApiResponseSuccess<UserProfileDtoType>> {
+    getCurrentUserProfile(): Observable<UserProfileDtoType | null> {
         return this.getUserProfile(this.authService.tokenData()!.userObjId.toString());
     }
 
-    getUserProfile(userId: string): Observable<ApiResponseSuccess<UserProfileDtoType>> {
+    getUserProfile(userId: string): Observable<UserProfileDtoType | null> {
         const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isLoadingSignal.set(true);
         this.userProfileSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .get<ApiResponseSuccess<UserProfileDtoType>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse user profile data. Server response format mismatch.');
-                const userProfileParse = UserProfileDto.safeParse(res.data);
-                if (!userProfileParse.success)
-                    this.errorSignal.set('Failed to parse user profile data. User profile format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isLoadingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse user profile data. Server response format mismatch.');
+                        return null;
+                    }
+                    const userProfileParse = UserProfileDto.safeParse(res.data);
+                    if (!userProfileParse.success) {
+                        this.errorSignal.set('Failed to parse user profile data. User profile format mismatch.');
+                        return null;
+                    }
                     this.userProfileSignal.set(userProfileParse.data);
-                this.isLoadingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
-        });
-        return response;
+                    return userProfileParse.data;
+                }),
+                catchError((err) => {
+                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal);
+                    return of(null);
+                })
+            );
     }
 
-    updateCurrentUserProfile(userData: UserUpdateDtoType): Observable<ApiResponseSuccess<UserProfileDtoType>> {
+    updateCurrentUserProfile(userData: UserUpdateDtoType): Observable<UserProfileDtoType | null> {
         return this.updateUserProfile(this.authService.tokenData()!.userObjId.toString(), userData);
     }
 
-    updateUserProfile(userId: string, userData: UserUpdateDtoType): Observable<ApiResponseSuccess<UserProfileDtoType>> {
+    updateUserProfile(userId: string, userData: UserUpdateDtoType): Observable<UserProfileDtoType | null> {
         const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isUpdatingSignal.set(true);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .patch<ApiResponseSuccess<UserProfileDtoType>>(finalEndpoint, userData)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.data)
-                    this.errorSignal.set('Failed to parse user profile data. Server response format mismatch.');
-                const userProfileParse = UserProfileDto.safeParse(res.data);
-                if (!userProfileParse.success)
-                    this.errorSignal.set('Failed to parse user profile data. User profile format mismatch.');
-                else
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isUpdatingSignal.set(false);
+                    if (!res.data) {
+                        this.errorSignal.set('Failed to parse user profile data. Server response format mismatch.');
+                        return null;
+                    }
+                    const userProfileParse = UserProfileDto.safeParse(res.data);
+                    if (!userProfileParse.success) {
+                        this.errorSignal.set('Failed to parse user profile data. User profile format mismatch.');
+                        return null;
+                    }
                     this.userProfileSignal.set(userProfileParse.data);
-                this.isUpdatingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)
-        });
-        return response;
+                    return userProfileParse.data;
+                }),
+                catchError(err => {
+                    handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal);
+                    return of(null);
+                })
+            );
     }
 
-    deleteCurrentUser(): Observable<ApiResponseSuccess<any>> {
+    deleteCurrentUser(): Observable<any> {
        return this.deleteUserProfile(this.authService.tokenData()!.userObjId.toString());
     }
 
-    deleteUserProfile(userId: string): Observable<ApiResponseSuccess<any>> {
+    deleteUserProfile(userId: string): Observable<any> {
         const finalEndpoint = `${this.endpoint}/${userId}`;
         this.isDeletingSignal.set(true);
         this.userProfileSignal.set(null);
         this.errorSignal.set(null);
-        const response = this.httpClient
+        return this.httpClient
             .delete<ApiResponseSuccess<any>>(finalEndpoint)
             .pipe(
                 timeout(frontendConfig.defaultTimeout),
-                takeUntilDestroyed(this.destroyRef)
-            );
-        response.subscribe({
-            next: (res => {
-                if (!res.success)
-                    this.errorSignal.set('Failed to delete user profile. Server response format mismatch.');
-                else {
+                takeUntilDestroyed(this.destroyRef),
+                map(res => {
+                    this.isDeletingSignal.set(false);
+                    if (!res.success) {
+                        this.errorSignal.set('Failed to delete user profile. Server response format mismatch.');
+                        return;
+                    }
                     this.userProfileSignal.set(null);
                     this.authService.logoutClientside();
-                }
-                this.isDeletingSignal.set(false);
-            }),
-            error: (err) => handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)
-        });
-        return response;
+                }),
+                catchError((err) => of(handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)))
+            );
     }
 }

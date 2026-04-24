@@ -17,10 +17,10 @@ export class ProfilePageComponent {
     isDeleting = false;
 
     constructor() {
-        this.userService.getCurrentUserProfile();
+        this.userService.getCurrentUserProfile().subscribe();
     }
 
     onConfirmDeleteUser() {
-        this.userService.deleteCurrentUser();
+        this.userService.deleteCurrentUser().subscribe();
     }
 }
