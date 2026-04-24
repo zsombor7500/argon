@@ -27,7 +27,7 @@
               <small>Username must be at most 30 characters.</small>
             }
             @if (registrationForm.get('username')?.errors?.['pattern']) {
-              <small>Username must contain a lowercase (a-z) and uppercase (A-Z) character, a number (0-9).</small>
+              <small>Username must only contain lowercase (a-z), uppercase (A-Z) letters, and numbers (0-9).</small>
             }
           </div>
         }

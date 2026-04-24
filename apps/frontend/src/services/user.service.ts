@@ -1,9 +1,9 @@
 import {
+    of,
     map,
     timeout,
-    Observable,
     catchError,
-    of
+    Observable
 } from 'rxjs';
 import {
     inject,
@@ -15,9 +15,9 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { AuthService, ToastService } from '#/services';
 import { frontendConfig } from '#/configs/frontend';
 import { UserProfileDto } from '#/dto/frontend/user';
+import { AuthService, ToastService } from '#/services';
 import { getApiEndpoint, handleErrorResponse } from '#/utils/frontend';
 import type { ApiResponseSuccess } from '#/dto/frontend/api';
 import type { UserUpdateDtoType, UserProfileDtoType, UserRegistrationDtoType } from '#/dto/frontend/user';
@@ -82,7 +82,7 @@ export class UserService {
         this.destroyRef.onDestroy(() => {
             successEffectRef.destroy();
             errorEffectRef.destroy();
-            authEffectRef.destroy()
+            authEffectRef.destroy();
         });
     }
 
@@ -95,7 +95,7 @@ export class UserService {
         this.errorSignal.set(null);
     }
 
-    resetCurrentUserProfile() {
+    resetCurrentUserProfile(): void {
         this.userProfileSignal.set(null);
         this.resetFeedbackSignals();
     }
@@ -146,10 +146,7 @@ export class UserService {
                     this.userProfileSignal.set(userProfileParse.data);
                     return userProfileParse.data;
                 }),
-                catchError((err) => {
-                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal);
-                    return of(null);
-                })
+                catchError((err) => of(handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)))
             );
     }
 
@@ -178,12 +175,10 @@ export class UserService {
                         return null;
                     }
                     this.userProfileSignal.set(userProfileParse.data);
+                    this.successSignal.set('Successful profile update');
                     return userProfileParse.data;
                 }),
-                catchError(err => {
-                    handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal);
-                    return of(null);
-                })
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)))
             );
     }
 
@@ -207,6 +202,7 @@ export class UserService {
                         this.errorSignal.set('Failed to delete user profile. Server response format mismatch.');
                         return;
                     }
+                    this.successSignal.set('Successful account deletion');
                     this.userProfileSignal.set(null);
                     this.authService.logoutClientside();
                 }),

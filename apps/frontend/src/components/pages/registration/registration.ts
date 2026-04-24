@@ -50,15 +50,18 @@ export class RegistrationPageComponent {
     }
 
     onSubmit(): void {
+        if (this.registrationForm.value.username === undefined || this.registrationForm.value.username === null)
+            return;
+        if (this.registrationForm.value.email === undefined || this.registrationForm.value.email === null)
+            return;
+        if (this.registrationForm.value.password === undefined || this.registrationForm.value.password === null)
+            return;
         if (this.registrationForm.invalid)
             return;
         const userCredentials: UserRegistrationDtoType = {
-            username: (this.registrationForm.value.username !== undefined || this.registrationForm.value.username !== null) ?
-                this.registrationForm.value.username ?? '' : '',
-            email: (this.registrationForm.value.email !== undefined || this.registrationForm.value.email !== null) ?
-                this.registrationForm.value.email ?? '' : '',
-            password: (this.registrationForm.value.password !== undefined || this.registrationForm.value.password !== null) ?
-                this.registrationForm.value.password ?? '' : '',
+            username: this.registrationForm.value.username,
+            email: this.registrationForm.value.email,
+            password: this.registrationForm.value.password
         }
         this.userService.register(userCredentials).subscribe();
     }

@@ -32,4 +32,5 @@ export const Password = z.string()
     .max(PASSWORD_MAX_LENGTH)
     .regex(PASSWORD_PATTERN);
 export const Description = z.string()
-    .max(DESCRIPTION_MAX_LENGTH);
+    .max(DESCRIPTION_MAX_LENGTH)
+    .regex(TEXT_WHITESPACE_NO_SPECIAL);

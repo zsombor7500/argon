@@ -19,10 +19,10 @@ export class ProjectListComponent {
     projectService = inject(ProjectService);
 
     constructor() {
-        this.projectService.getProjects();
+        this.projectService.getProjects().subscribe();
     }
 
     onDisbandProject(projectId: string) {
-        this.projectService.disbandProject(projectId);
+        this.projectService.disbandProject(projectId).subscribe();
     }
 }

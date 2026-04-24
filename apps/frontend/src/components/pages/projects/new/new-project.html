@@ -1,7 +1,7 @@
 <h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">New project</h2>
 <div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
   <div>
-    <form #createForm="ngForm" (ngSubmit)="onSubmit(createForm)" class="space-y-4 text-light-0">
+    <form [formGroup]="creationForm" (ngSubmit)="onSubmit()" class="space-y-4 text-light-0">
       <div>
         <label for="name" class="block text-md font-medium mb-1">Name*</label>
         <input
@@ -9,20 +9,22 @@
           id="name"
           name="name"
           class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-          [(ngModel)]="formData.name"
-          minlength="4"
-          maxlength="30"
-          required
-          #name="ngModel"
+          formControlName="name"
           placeholder="My project"
         />
-        @if (name.invalid && (name.dirty || name.touched)) {
+        @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
           <div class="text-danger-10 text-sm mt-1">
-            @if (name.hasError('required')) {
+            @if (creationForm.get('name')?.hasError('required')) {
               <small>Name is required.</small>
             }
-            @if (name.hasError('minlength')) {
+            @if (creationForm.get('name')?.hasError('minlength')) {
               <small>Minimum name length is 4.</small>
+            }
+            @if (creationForm.get('name')?.errors?.['maxlength']) {
+              <small>Name must be at most 30 characters. </small>
+            }
+            @if (creationForm.get('name')?.errors?.['pattern']) {
+              <small>Name must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
             }
           </div>
         }
@@ -35,25 +37,28 @@
           id="description"
           name="description"
           class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-          [(ngModel)]="formData.description"
-          maxlength="100"
-          #name="ngModel"
+          formControlName="description"
           placeholder="This project is about...."
         />
+        @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (creationForm.get('description')?.errors?.['maxlength']) {
+              <small>Description must be at most 100 characters. </small>
+            }
+            @if (creationForm.get('description')?.errors?.['pattern']) {
+              <small>Description must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+            }
+          </div>
+        }
       </div>
 
       <button
         type="submit"
         class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        [disabled]="!createForm.valid"
+        [disabled]="creationForm.invalid"
       >
         Create
       </button>
-      <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
-          @if (projectService.error() !== null) {
-            <p>{{ projectService.error() }}</p>
-          }
-      </div>
     </form>
   </div>
 </div>
