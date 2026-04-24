@@ -41,7 +41,6 @@
           name="description"
           class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
           formControlName="description"
-          maxlength="100"
           placeholder="This dataset is about...."
         />
         @if (createForm.invalid && (createForm.dirty || createForm.touched)) {
@@ -106,6 +105,22 @@
                       formControlName="attributePath"
                       placeholder="someFieldName"
                     />
+                    @if (item.invalid && (item.dirty || item.touched)) {
+                      <div class="text-danger-10 text-sm mt-1">
+                        @if (item.get('attributePath')?.errors?.['required']) {
+                          <small>Name is required.</small>
+                        }
+                        @if (item.get('attributePath')?.errors?.['minlength']) {
+                          <small>Minimum name length is 4.</small>
+                        }
+                        @if (item.get('attributePath')?.errors?.['maxlength']) {
+                          <small>Minimum name length is 30.</small>
+                        }
+                        @if (item.get('attributePath')?.errors?.['pattern']) {
+                          <small>Name can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+                        }
+                      </div>
+                    }
                   </td>
 
                   <td>

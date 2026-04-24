@@ -200,10 +200,12 @@ export class DatasetService {
                 takeUntilDestroyed(this.destroyRef),
                 map(res => {
                     this.isDeletingSignal.set(false);
-                    if (!res.success)
+                    if (!res.success) {
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                    else
-                        this.datasetsSignal.update(arr => [...(arr ?? []).filter(d => d._id !== datasetId)]);
+                        return;
+                    }
+                    this.datasetsSignal.update(arr => [...(arr ?? []).filter(d => d._id !== datasetId)]);
+                    this.successSignal.set('Successful dataset deletion');
                 }),
                 catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isDeletingSignal)))
             );
@@ -220,9 +222,13 @@ export class DatasetService {
                 takeUntilDestroyed(this.destroyRef),
                 map(res => {
                     this.isIngestingSignal.set(false);
-                    if (!res.success)
+                    if (!res.success) {
                         this.errorSignal.set('Failed to parse response. Server response format mismatch.');
-                })
+                        return;
+                    }
+                    this.successSignal.set('Successful data ingestion');
+                }),
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isIngestingSignal)))
             );
     }
 }

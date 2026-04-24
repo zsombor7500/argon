@@ -23,7 +23,6 @@ import type { WritableSignal } from '@angular/core';
 import type { ValidationErrors } from '@angular/forms';
 
 import { TEXT_NO_SPECIAL } from '#/constants/dtos';
-import { handleErrorResponse } from '#/utils/frontend';
 import { DatasetEntryComponent } from './dataset-entry/dataset-entry';
 import { NameValidators, DescriptionValidators } from '#/constants/frontend';
 import { TagService, DatasetService, ProjectService } from '#/services';
@@ -225,7 +224,6 @@ export class ProjectDatasetListComponent {
     onIngestEvent(event: {
         datasetId: string,
         data: unknown,
-        errorSignal: WritableSignal<string | null>,
         successSignal: WritableSignal<boolean>
     }): void {
         this.datasetService.ingestDataset(
@@ -233,8 +231,7 @@ export class ProjectDatasetListComponent {
             event.datasetId,
             event.data
         ).subscribe({
-            next: (_ => event.successSignal.set(true)),
-            error: (err => handleErrorResponse(err, event.errorSignal, null))
+            next: (_ => event.successSignal.set(true))
         });
     }
 

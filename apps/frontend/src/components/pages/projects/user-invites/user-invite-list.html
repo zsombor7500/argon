@@ -25,7 +25,7 @@
             <small>Name must be at most 30 characters. </small>
           }
           @if (creationForm.get('name')?.errors?.['pattern']) {
-            <small>Name must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+            <small>Name can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
           }
         </div>
       }
@@ -91,7 +91,7 @@
             <small>Description must be at most 100 characters. </small>
           }
           @if (creationForm.get('description')?.errors?.['pattern']) {
-            <small>Description must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+            <small>Description can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
           }
         </div>
       }
