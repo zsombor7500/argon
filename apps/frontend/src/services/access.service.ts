@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getApiEndpoint } from '#/utils/frontend';
 import { frontendConfig } from '#/configs/frontend';
 import { handleErrorResponse } from '#/utils/frontend';
-import { AuthService, ProjectService } from '#/services';
+import { AuthService, ProjectService, ToastService } from '#/services';
 import { AccessDto, RoleToUserObjIdsMap } from '#/dto/frontend/access';
 import type {
     AccessDtoType,
@@ -39,6 +39,7 @@ export class AccessService {
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
     private projectService = inject(ProjectService);
+    private toastService = inject(ToastService);
 
     private usersSignal = signal<UserProfileDtoType[] | null>(null);
     private projectInvitesSignal = signal<ProjectInviteDtoType[] | null>(null);
@@ -47,6 +48,7 @@ export class AccessService {
     private isLoadingSignal = signal<boolean | null>(null);
     private isUpdatingSignal = signal<boolean | null>(null);
     private isRemovingSignal = signal<boolean | null>(null);
+    private successSignal = signal<string | null>(null);
     private errorSignal = signal<string | null>(null);
 
     readonly users = this.usersSignal.asReadonly();
@@ -56,6 +58,7 @@ export class AccessService {
     readonly isLoading = this.isLoadingSignal.asReadonly();
     readonly isUpdating = this.isUpdatingSignal.asReadonly();
     readonly isRemoving = this.isRemovingSignal.asReadonly();
+    readonly success = this.successSignal.asReadonly();
     readonly error = this.errorSignal.asReadonly();
 
     constructor() {
@@ -68,13 +71,40 @@ export class AccessService {
                 this.roleToUserIdsMapSignal.set(null);
             }
         });
-        this.destroyRef.onDestroy(() => logoutEffectRef.destroy());
+        const successEffectRef = effect(() => {
+            const success = this.success();
+            if (success === null)
+                return;
+            this.toastService.addToast({
+                type: 'success',
+                message: success,
+                duration: 3000
+            });
+            this.successSignal.set(null);
+        });
+        const errorEffectRef = effect(() => {
+            const error = this.error();
+            if (error === null)
+                return;
+            this.toastService.addToast({
+                type: 'error',
+                message: error,
+                duration: 3000
+            });
+            this.errorSignal.set(null);
+        });
+        this.destroyRef.onDestroy(() => {
+            successEffectRef.destroy();
+            logoutEffectRef.destroy();
+            errorEffectRef.destroy();
+        });
     }
 
     resetFeedbackSignals(): void {
         this.isLoadingSignal.set(null);
         this.isUpdatingSignal.set(null);
         this.isRemovingSignal.set(null);
+        this.successSignal.set(null);
         this.errorSignal.set(null);
     }
 
@@ -90,6 +120,7 @@ export class AccessService {
         this.projectInvitesSignal.set(null);
         this.roleToScopesMapSignal.set(null);
         this.roleToUserIdsMapSignal.set(null);
+        console.log('asdasd');
         this.errorSignal.set(null);
         return this.httpClient
             .get<ApiResponseSuccess<AccessDtoType>>(finalEndpoint)
@@ -97,6 +128,7 @@ export class AccessService {
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef),
                 map(res => {
+                    console.log('asdasd2');
                     this.isLoadingSignal.set(false);
                     if (!res.data) {
                         this.errorSignal.set('Failed to parse access data. Server response format mismatch.');
@@ -114,9 +146,9 @@ export class AccessService {
                     return accessParse.data;
                 }),
                 catchError(err => {
-                    handleErrorResponse(err, this.errorSignal, this.isLoadingSignal);
-                    return of(null);
-                })
+                    console.log('asdasd3');
+
+                    return of(handleErrorResponse(err, this.errorSignal, this.isLoadingSignal))})
             );
     }
 
@@ -142,12 +174,10 @@ export class AccessService {
                         return null;
                     }
                     this.roleToUserIdsMapSignal.set(roleToUserIdsMapParse.data);
+                    this.successSignal.set('Successful user role update');
                     return roleToUserIdsMapParse.data;
                 }),
-                catchError(err => {
-                    handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal);
-                    return of(null);
-                })
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)))
             );
     }
 
@@ -173,12 +203,10 @@ export class AccessService {
                     }
                     this.usersSignal.update(arr => [...(arr ?? []).filter(u => u._id !== userId)]);
                     this.roleToUserIdsMapSignal.set(roleToUserIdsMapParse.data);
+                    this.successSignal.set('Successful user removal');
                     return roleToUserIdsMapParse.data;
                 }),
-                catchError(err => {
-                    handleErrorResponse(err, this.errorSignal, this.isRemovingSignal);
-                    return of(null);
-                })
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isRemovingSignal)))
             );
     }
 }

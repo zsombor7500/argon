@@ -29,14 +29,20 @@ export class ProjectAccessListComponent {
         this.accessService.removeUserFromProject(
             this.projectService.selectedProject()?._id ?? '',
             userId
-        )
+        ).subscribe();
     }
 
     onCancelInviteEvent(inviteId: string): void {
         this.inviteService.cancelInvite(
             this.projectService.selectedProject()?._id ?? '',
             inviteId
-        ).subscribe();
+        ).subscribe({
+            next: (_ =>
+                this.accessService.getAccesses(
+                    this.projectService.selectedProject()?._id ?? ''
+                ).subscribe()
+            )
+        });
     }
 
     onConfirmDeleteProject(): void {

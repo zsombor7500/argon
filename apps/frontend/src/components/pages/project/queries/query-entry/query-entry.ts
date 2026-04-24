@@ -152,7 +152,6 @@ export class QueryEntryComponent implements OnInit {
                 next: (res => {
                     this.isQueryingSignal.set(false);
                     this.queryResultSignal.set(res);
-                    console.log('Result: ', res)
                 }),
                 error: (err => handleErrorResponse(err, this.errorSignal, this.isQueryingSignal))
             });
