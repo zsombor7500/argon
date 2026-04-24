@@ -36,7 +36,7 @@ export class ProjectAccessListComponent {
         this.inviteService.cancelInvite(
             this.projectService.selectedProject()?._id ?? '',
             inviteId
-        );
+        ).subscribe();
     }
 
     onConfirmDeleteProject(): void {

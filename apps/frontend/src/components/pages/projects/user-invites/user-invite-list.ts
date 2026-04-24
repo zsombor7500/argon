@@ -1,4 +1,10 @@
 import {
+    FormGroup,
+    Validators,
+    FormControl,
+    ReactiveFormsModule
+} from '@angular/forms';
+import {
     inject,
     computed,
     Component,
@@ -6,16 +12,16 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { NgForm, FormsModule } from '@angular/forms';
 import { InviteEntryComponent } from './invite-entry/invite-entry.js';
 import { AuthService, InviteService, ProjectService } from '#/services';
+import { NameValidators, DescriptionValidators, ObjectIdValidators } from '#/constants/frontend';
 import type { InviteCreationDtoType } from '#/dto/frontend/invite';
 
 
 @Component({
     selector: 'app-user-invite-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, InviteEntryComponent],
+    imports: [CommonModule, ReactiveFormsModule, InviteEntryComponent],
     templateUrl: './user-invite-list.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
@@ -24,12 +30,16 @@ export class UserInviteListComponent {
     authService = inject(AuthService);
     inviteService = inject(InviteService);
     projectService = inject(ProjectService);
-    formData = {
-        name: '',
-        projectId: '',
-        invitedId: '',
-        description: ''
-    };
+
+    creationForm = new FormGroup({
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        name: new FormControl('', [Validators.required, ...NameValidators]),
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        projectId: new FormControl('', [Validators.required, ...ObjectIdValidators]),
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        invitedId: new FormControl('', [Validators.required, ...ObjectIdValidators]),
+        description: new FormControl('', [...DescriptionValidators]),
+    });
 
     readonly outgoingInvites = computed(() => this.inviteService.invites()
         ?.filter(i => i.invitant._id === this.authService.tokenData()?.userObjId)
@@ -40,20 +50,27 @@ export class UserInviteListComponent {
     );
 
     constructor() {
-        this.inviteService.getCurrentUserInvites();
+        this.inviteService.getCurrentUserInvites().subscribe();
     }
 
-    onSubmit(form: NgForm): void {
-        if (!form.valid)
+    onSubmit(): void {
+        if (this.creationForm.value.name === undefined || this.creationForm.value.name === null)
+            return;
+        if (this.creationForm.value.projectId === undefined || this.creationForm.value.projectId === null)
+            return;
+        if (this.creationForm.value.invitedId === undefined || this.creationForm.value.invitedId === null)
+            return;
+        if (this.creationForm.invalid)
             return;
         const inviteData: InviteCreationDtoType = {
-            name: this.formData.name,
-            invitedObjId: this.formData.invitedId,
-            description: this.formData.description
+            name: this.creationForm.value.name,
+            invitedObjId: this.creationForm.value.invitedId,
+            description: (this.creationForm.value.description !== null && this.creationForm.value.description !== '') ?
+                this.creationForm.value.description : undefined,
         };
-        if (inviteData.description === '' || inviteData.description === null)
-            inviteData.description = undefined;
-        this.inviteService.createInvite(this.formData.projectId, inviteData);
+        this.inviteService.createInvite(this.creationForm.value.projectId, inviteData).subscribe({
+            next: (_ => this.creationForm.reset())
+        });
     }
 
     onAcceptRejectEvent(event: { projectId: string, inviteId: string, accept: boolean}): void {
@@ -61,13 +78,13 @@ export class UserInviteListComponent {
             event.projectId,
             event.inviteId,
             event.accept
-        );
+        ).subscribe();
     }
 
     onCancelEvent(event: { projectId: string, inviteId: string }): void {
         this.inviteService.cancelInvite(
             event.projectId,
             event.inviteId
-        );
+        ).subscribe();
     }
 }

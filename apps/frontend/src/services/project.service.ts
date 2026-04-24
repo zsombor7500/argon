@@ -199,7 +199,7 @@ export class ProjectService {
                     this.successSignal.set('Successful project update');
                     return projectParse.data;
                 }),
-                catchError((err) => of(handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)))
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isUpdatingSignal)))
             );
     }
 
@@ -245,7 +245,7 @@ export class ProjectService {
                     this.projectsSignal.update(arr => [...(arr ?? []).filter(p => p._id !== projectId)]);
                     this.successSignal.set('Successful project disband');
                 }),
-                catchError((err) => of(handleErrorResponse(err, this.errorSignal, this.isDisbandingSignal)))
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isDisbandingSignal)))
             );
     }
 }

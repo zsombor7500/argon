@@ -2,7 +2,7 @@
 
 <div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
   <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">New invite</h3>
-  <form #createForm="ngForm" (ngSubmit)="onSubmit(createForm); createForm.resetForm()" class="space-y-4 text-light-0">
+  <form [formGroup]="creationForm" (ngSubmit)="onSubmit();" class="space-y-4 text-light-0">
     <div>
       <label for="name" class="block text-md font-medium mb-1">Name*</label>
       <input
@@ -10,20 +10,22 @@
         id="name"
         name="name"
         class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-        [(ngModel)]="formData.name"
-        minlength="4"
-        maxlength="30"
-        required
-        #name="ngModel"
+        formControlName="name"
         placeholder="My invite"
       />
-      @if (name.invalid && (name.dirty || name.touched)) {
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
         <div class="text-danger-10 text-sm mt-1">
-          @if (name.hasError('required')) {
+          @if (creationForm.get('name')?.hasError('required')) {
             <small>Name is required.</small>
           }
-          @if (name.hasError('minlength')) {
+          @if (creationForm.get('name')?.hasError('minlength')) {
             <small>Minimum name length is 4.</small>
+          }
+          @if (creationForm.get('name')?.errors?.['maxlength']) {
+            <small>Name must be at most 30 characters. </small>
+          }
+          @if (creationForm.get('name')?.errors?.['pattern']) {
+            <small>Name must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
           }
         </div>
       }
@@ -36,17 +38,16 @@
         id="projectId"
         name="projectId"
         class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-        [(ngModel)]="formData.projectId"
-        minlength="4"
-        maxlength="30"
-        required
-        #projectId="ngModel"
+        formControlName="projectId"
         placeholder="abcdef1234"
       />
-      @if (projectId.invalid && (projectId.dirty || projectId.touched)) {
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
         <div class="text-danger-10 text-sm mt-1">
-          @if (projectId.hasError('required')) {
-            <small>Project's ID is required.</small>
+          @if (creationForm.get('projectId')?.hasError('required')) {
+            <small>Project ID is required.</small>
+          }
+          @if (creationForm.get('projectId')?.errors?.['pattern']) {
+            <small>Project ID must be a 24 character long hexadecimal string.</small>
           }
         </div>
       }
@@ -59,17 +60,16 @@
         id="invitedId"
         name="invitedId"
         class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-        [(ngModel)]="formData.invitedId"
-        minlength="4"
-        maxlength="30"
-        required
-        #invitedId="ngModel"
+        formControlName="invitedId"
         placeholder="bbbbbbddddd"
       />
-      @if (invitedId.invalid && (invitedId.dirty || invitedId.touched)) {
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
         <div class="text-danger-10 text-sm mt-1">
-          @if (invitedId.hasError('required')) {
+          @if (creationForm.get('invitedId')?.hasError('required')) {
             <small>Invited user's ID is required.</small>
+          }
+          @if (creationForm.get('invitedId')?.errors?.['pattern']) {
+            <small>Invited user's ID must be a 24 character long hexadecimal string.</small>
           }
         </div>
       }
@@ -82,25 +82,28 @@
         id="description"
         name="description"
         class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
-        [(ngModel)]="formData.description"
-        maxlength="100"
-        #name="ngModel"
+        formControlName="description"
         placeholder="This invite is about...."
       />
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (creationForm.get('description')?.errors?.['maxlength']) {
+            <small>Description must be at most 100 characters. </small>
+          }
+          @if (creationForm.get('description')?.errors?.['pattern']) {
+            <small>Description must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+          }
+        </div>
+      }
     </div>
 
     <button
       type="submit"
       class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-      [disabled]="!createForm.valid"
+      [disabled]="creationForm.invalid"
     >
       Create
     </button>
-    <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
-        @if (inviteService.error() !== null) {
-          <p>{{ inviteService.error() }}</p>
-        }
-    </div>
   </form>
 </div>
 
@@ -148,6 +151,7 @@
     }
   </div>
 </div>
+
 <div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
   <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">Incoming</h3>
   <div class="flex">
