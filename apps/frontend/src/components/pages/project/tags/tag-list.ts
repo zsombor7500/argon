@@ -54,7 +54,10 @@ export class ProjectTagListComponent {
         };
         if (tagData.description === '' || tagData.description === null)
             tagData.description = undefined;
-        this.tagService.createTag(this.projectService.selectedProject()?._id ?? '', tagData);
+        this.tagService.createTag(
+            this.projectService.selectedProject()?._id ?? '',
+            tagData
+        ).subscribe();
     }
 
     typeValidator(control: AbstractControl): ValidationErrors | null {
@@ -72,6 +75,6 @@ export class ProjectTagListComponent {
         this.tagService.deleteTag(
             this.projectService.selectedProject()?._id ?? '',
             tagId
-        );
+        ).subscribe();
     }
 }
