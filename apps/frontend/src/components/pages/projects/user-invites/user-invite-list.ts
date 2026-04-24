@@ -15,7 +15,7 @@ import type { InviteCreationDtoType } from '#/dto/frontend/invite';
 @Component({
     selector: 'app-user-invite-list',
     standalone: true,
-    imports: [CommonModule, InviteEntryComponent, FormsModule],
+    imports: [CommonModule, FormsModule, InviteEntryComponent],
     templateUrl: './user-invite-list.html',
     styles: [],
     encapsulation: ViewEncapsulation.None
@@ -31,13 +31,11 @@ export class UserInviteListComponent {
         description: ''
     };
 
-    readonly outgoingInvites = computed(() => this.inviteService
-        .invites()
+    readonly outgoingInvites = computed(() => this.inviteService.invites()
         ?.filter(i => i.invitant._id === this.authService.tokenData()?.userObjId)
     );
 
-    readonly incomingInvites = computed(() => this.inviteService
-        .invites()
+    readonly incomingInvites = computed(() => this.inviteService.invites()
         ?.filter(i => i.invited._id === this.authService.tokenData()?.userObjId)
     );
 

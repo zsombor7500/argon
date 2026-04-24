@@ -9,9 +9,9 @@ import { Router, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
 
 import {
+    NAME_MIN_LENGTH,
     PASSWORD_PATTERN,
-    PASSWORD_MIN_LENGTH,
-    USERNAME_MIN_LENGTH
+    PASSWORD_MIN_LENGTH
 } from '#/constants/dtos';
 import { UserService } from '#/services';
 import type { UserRegistrationDtoType } from '#/dto/user';
@@ -30,7 +30,7 @@ export class RegistrationPageComponent {
 
     readonly passwordPattern = PASSWORD_PATTERN;
     readonly passwordMinLength = PASSWORD_MIN_LENGTH;
-    readonly usernameMinLength = USERNAME_MIN_LENGTH;
+    readonly usernameMinLength = NAME_MIN_LENGTH;
 
     userService = inject(UserService);
     formData: UserRegistrationDtoType = {

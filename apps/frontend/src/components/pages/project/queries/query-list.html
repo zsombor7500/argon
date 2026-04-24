@@ -59,6 +59,7 @@
       <div class="mb-5 pt-4">
         <div class="mb-5 text-light-0">
           <h3 class="block text-md font-medium mb-2">Selected Tags*</h3>
+
           @if (selectedTags().length === 0) {
             <p class="test-xs ml-5 text-primary-20">No tags selected.</p>
           }
@@ -66,7 +67,10 @@
             <div class="inline-flex mr-1 items-center bg-primary-20 text-surface-10 px-3 py-1 rounded-full text-sm">
               {{ tag.name }} ({{ tag.type }})
               <button type="button" (click)="removeTagFromSelected(tag)"
-                class="ml-2 text-danger-20 hover:text-danger-0 focus:outline-none transition-colors">×</button>
+                class="ml-2 text-danger-20 hover:text-danger-0 focus:outline-none transition-colors"
+              >
+                ×
+              </button>
             </div>
           }
         </div>

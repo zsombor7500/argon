@@ -111,8 +111,11 @@
       <p>Loading invites...</p>
     } @else {
       @if (outgoingInvites()?.length === 0) {
-        <div class="flex flex-col flex-1">
-          <p class="text-l text-light-0">You have no more outgoing invites to manage :)</p>
+        <div class="flex flex-col flex-1 text-primary-20 ml-5">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no more outgoing invites to manage</p>
+            <p class="text-light-0">:)</p>
+          </div>
         </div>
       } @else if (outgoingInvites(); as invites) {
         <div class="overflow-x-auto">
@@ -152,8 +155,11 @@
       <p>Loading invites...</p>
     } @else {
       @if (incomingInvites()?.length === 0) {
-        <div class="flex flex-col flex-1">
-          <p class="text-l text-light-0">You have no incoming invites to display :(</p>
+        <div class="flex flex-col flex-1 text-primary-20 ml-5">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no incoming invites to manage</p>
+            <p class="text-light-0">:(</p>
+          </div>
         </div>
       } @else if (incomingInvites(); as invites) {
         <div class="overflow-x-auto">

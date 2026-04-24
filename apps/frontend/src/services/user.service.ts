@@ -73,7 +73,7 @@ export class UserService {
             );
         response.subscribe({
             next: (_) => this.isRegistratingSignal.set(false),
-            error: (err) =>  handleErrorResponse(err, this.errorSignal, this.isRegistratingSignal)
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isRegistratingSignal)
         });
         return response;
     }
@@ -104,7 +104,7 @@ export class UserService {
                     this.userProfileSignal.set(userProfileParse.data);
                 this.isLoadingSignal.set(false);
             }),
-            error: (err) =>  handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
+            error: (err) => handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)
         });
         return response;
     }
