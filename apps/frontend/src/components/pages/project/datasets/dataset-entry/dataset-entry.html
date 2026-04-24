@@ -1,5 +1,5 @@
 <div class="flex flex-col mb-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
-  <h2 class="text-xl text-primary-0 font-bold ml-3 mb-5"> {{ dataset.name }}</h2>
+  <h2 class="text-xl text-primary-0 font-bold ml-3 mb-5">{{ dataset.name }}</h2>
   <div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-20 text-light-0 mb-4">
     <div class="ml-3">
       <h3 class="text-xl font-bold text-light-0 mb-5">Details</h3>
@@ -24,25 +24,25 @@
       <div class="max-w-screen-xl flex flex-col space-y-2 flex-wrap items-center justify-between mx-auto p-3 px-5">
         @if (!isDeleting) {
           <button
-          type="button"
-          (click)="isDeleting = true"
-          class="ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+            type="button"
+            (click)="isDeleting = true"
+            class="ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
           >
             Delete
           </button>
         } @else {
           <div class="ml-auto">
             <button
-            type="button"
-            (click)="onConfirmDelete()"
-            class="mr-2 ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+              type="button"
+              (click)="onConfirmDelete()"
+              class="mr-2 ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
             >
               Confirm
             </button>
             <button
-            type="button"
-            (click)="isDeleting = false"
-            class="ml-auto w-25 place-items-end bg-primary-20 hover:bg-primary-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+              type="button"
+              (click)="isDeleting = false"
+              class="ml-auto w-25 place-items-end bg-primary-20 hover:bg-primary-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
             >
               Cancel
             </button>
@@ -113,8 +113,8 @@
         ></textarea>
 
         <button
-        type="submit"
-        class="ml-auto w-25 place-items-end bg-info-10 hover:bg-info-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+          type="submit"
+          class="ml-auto mt-5 w-25 place-items-end bg-info-10 hover:bg-info-0 text-light-0 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
         Ingest
       </button>
