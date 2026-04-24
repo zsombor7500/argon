@@ -1,6 +1,7 @@
 export { TagService } from './tag.service.js';
 export { AuthService } from './auth.service.js';
 export { UserService } from './user.service.js';
+export { ToastService } from './toast.service.js';
 export { QueryService } from './query.service.js';
 export { InviteService } from './invite.service.js';
 export { AccessService } from './access.service.js';

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { AppNavbar } from '#/components';
+import { AppNavbar, ToastComponent } from '#/components';
 
 
 @Component({
-    imports: [AppNavbar, RouterModule],
+    imports: [AppNavbar, ToastComponent, RouterModule],
     selector: 'app-root',
     templateUrl: './app.html',
     styles: []
