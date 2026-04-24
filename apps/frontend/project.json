@@ -10,7 +10,7 @@
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
             "options": {
-                "outputPath": "dist/apps/frontend",
+                "outputPath": "apps/frontend/dist",
                 "browser": "apps/frontend/src/main.ts",
                 "tsConfig": "apps/frontend/tsconfig.app.json",
                 "assets": [
