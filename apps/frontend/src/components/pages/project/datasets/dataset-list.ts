@@ -98,6 +98,7 @@ export class ProjectDatasetListComponent {
                                 this.isLoadingTagsSignal.set(false);
                             })
                         });
+                    this.datasetService.getDatasets(project._id).subscribe();
                 })
             ).subscribe();
         this.createForm.valueChanges.subscribe(() => this.checkAttributePathUniqueness());
