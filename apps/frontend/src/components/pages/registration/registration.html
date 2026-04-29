@@ -81,7 +81,7 @@
               <small>Password is required.</small>
             }
             @if (registrationForm.get('password')?.errors?.['minlength']) {
-              <small>Password must be at least 4 characters. </small>
+              <small>Password must be at least 8 characters. </small>
             }
             @if (registrationForm.get('password')?.errors?.['maxlength']) {
               <small>Password must be at most 30 characters.</small>

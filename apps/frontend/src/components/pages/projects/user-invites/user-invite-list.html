@@ -88,7 +88,7 @@
       @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
         <div class="text-danger-10 text-sm mt-1">
           @if (creationForm.get('description')?.errors?.['maxlength']) {
-            <small>Description must be at most 100 characters. </small>
+            <small>Description must be at most 100 characters.</small>
           }
           @if (creationForm.get('description')?.errors?.['pattern']) {
             <small>Description can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>

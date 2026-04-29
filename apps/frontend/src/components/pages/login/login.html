@@ -23,6 +23,12 @@
             @if (loginForm.get('email')?.errors?.['email']) {
               <small>Please enter a valid email address.</small>
             }
+            @if (loginForm.get('email')?.errors?.['minlength']) {
+              <small>Email must be at least 4 characters.</small>
+            }
+            @if (loginForm.get('email')?.errors?.['maxlength']) {
+              <small>Email must be at most 30 characters.</small>
+            }
           </div>
         }
       </div>

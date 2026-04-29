@@ -35,7 +35,8 @@ export class RegistrationPageComponent {
         username: new FormControl('', [Validators.required, ...UsernameValidators]),
         // eslint-disable-next-line @typescript-eslint/unbound-method
         email: new FormControl('', [Validators.required, ...EmailValidators]),
-        password: new FormControl('', [...PasswordValidators]),
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        password: new FormControl('', [Validators.required, ...PasswordValidators]),
     });
 
     constructor() {
