@@ -20,12 +20,6 @@
             @if (loginForm.get('email')?.errors?.['required']) {
               <small>Email is required.</small>
             }
-            @if (loginForm.get('email')?.errors?.['minlength']) {
-              <small>Email must be at least 4 characters.</small>
-            }
-            @if (loginForm.get('email')?.errors?.['maxlength']) {
-              <small>Email must be at most 30 characters.</small>
-            }
             @if (loginForm.get('email')?.errors?.['email']) {
               <small>Please enter a valid email address.</small>
             }
@@ -48,15 +42,6 @@
           <div class="text-danger-10 text-sm mt-1">
             @if (loginForm.get('password')?.errors?.['required']) {
               <small>Password is required.</small>
-            }
-            @if (loginForm.get('password')?.errors?.['minlength']) {
-              <small>Password must be at least 4 characters. </small>
-            }
-            @if (loginForm.get('password')?.errors?.['maxlength']) {
-              <small>Password must be at most 30 characters. </small>
-            }
-            @if (loginForm.get('password')?.errors?.['pattern']) {
-              <small>Password must contain a lowercase (a-z) and uppercase (A-Z) character, a number (0-9), and a special character (@.#$!%*?&).</small>
             }
           </div>
         }
