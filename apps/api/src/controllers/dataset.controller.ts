@@ -102,12 +102,11 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
     datasetCreationParse.data.jsonSchema.required = Object.keys(
         datasetCreationParse.data.jsonSchema.properties
     )
-    const collectionSchema = new mongoose.Schema({}, { collection: collectionName });
-    const collection = userContentDbConnection.model(collectionName, collectionSchema);
-    await collection.createCollection({
-        validationAction: 'error',
-        validator: { $jsonSchema: datasetCreationParse.data.jsonSchema }
-    });
+    await userContentDbConnection.db?.createCollection(collectionName, {
+        validator: { $jsonSchema: datasetCreationParse.data.jsonSchema },
+        validationLevel: 'strict',
+        validationAction: 'error'
+    })
     // Dataset creation
     // All errors are passed to the error handling middleware, as for errors, there are only code 500 responses
     const newDataset: IDataset = await Dataset.create({
