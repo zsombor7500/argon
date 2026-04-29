@@ -120,7 +120,6 @@ export class AccessService {
         this.projectInvitesSignal.set(null);
         this.roleToScopesMapSignal.set(null);
         this.roleToUserIdsMapSignal.set(null);
-        console.log('asdasd');
         this.errorSignal.set(null);
         return this.httpClient
             .get<ApiResponseSuccess<AccessDtoType>>(finalEndpoint)
@@ -128,7 +127,6 @@ export class AccessService {
                 timeout(frontendConfig.defaultTimeout),
                 takeUntilDestroyed(this.destroyRef),
                 map(res => {
-                    console.log('asdasd2');
                     this.isLoadingSignal.set(false);
                     if (!res.data) {
                         this.errorSignal.set('Failed to parse access data. Server response format mismatch.');

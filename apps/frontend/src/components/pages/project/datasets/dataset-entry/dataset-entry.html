@@ -97,7 +97,7 @@
       <h3 class="w-full text-xl font-bold text-light-0 mb-5">Ingestion</h3>
 
       <label for="name" class="block text-md font-medium mb-1">JSON Data*</label>
-      <p class="w-full text-xs text-danger-0 mb-5">NOTE: Must be an array of objects, all fields required, as listed in the schema. Extra unspecified fields are allowed.</p>
+      <p class="w-full text-xs text-danger-0 mb-5">NOTE: Must be an array of objects, all fields required, as listed in the schema. Extra unspecified fields are allowed, but will not be shown as a query result.</p>
 
       <form [formGroup]="ingestForm" (ngSubmit)="onIngest()">
         <textarea
