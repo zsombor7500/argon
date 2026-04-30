@@ -1,0 +1,64 @@
+<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">New project</h2>
+<div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
+  <div>
+    <form [formGroup]="creationForm" (ngSubmit)="onSubmit()" class="space-y-4 text-light-0">
+      <div>
+        <label for="name" class="block text-md font-medium mb-1">Name*</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          formControlName="name"
+          placeholder="My project"
+        />
+        @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (creationForm.get('name')?.hasError('required')) {
+              <small>Name is required.</small>
+            }
+            @if (creationForm.get('name')?.hasError('minlength')) {
+              <small>Minimum name length is 4.</small>
+            }
+            @if (creationForm.get('name')?.errors?.['maxlength']) {
+              <small>Name must be at most 30 characters. </small>
+            }
+            @if (creationForm.get('name')?.errors?.['pattern']) {
+              <small>Name must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="block text-md font-medium mb-1">Description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          formControlName="description"
+          placeholder="This project is about...."
+        />
+        @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (creationForm.get('description')?.errors?.['maxlength']) {
+              <small>Description must be at most 100 characters. </small>
+            }
+            @if (creationForm.get('description')?.errors?.['pattern']) {
+              <small>Description must only contain lowercase (a-z), uppercase (A-Z) letters, numbers (0-9), and whitespace characters.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        [disabled]="creationForm.invalid"
+      >
+        Create
+      </button>
+    </form>
+  </div>
+</div>

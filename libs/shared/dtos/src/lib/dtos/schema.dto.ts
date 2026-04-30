@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+import { TEXT_NO_SPECIAL } from '#/constants/dtos';
 
-export const SchemaPrimitiveTypeDto = z.enum(['string', 'int', 'long', 'double', 'bool']);
+
+export const SchemaPrimitiveTypeDto = z.enum(['string', 'int', 'bool']);
 export type SchemaPrimitiveType = z.infer<typeof SchemaPrimitiveTypeDto>;
 
 export const SchemaArrayTypeDto = z.enum(['array']);
@@ -55,7 +57,7 @@ export const SchemaObjectNodeDto: z.ZodType<ISchemaObjectNode> = z.lazy(() =>
         bsonType: SchemaObjectTypeDto,
         required: z.string().array(),
         properties: z.record(
-            z.string(),
+            z.string().regex(TEXT_NO_SPECIAL),
             z.union([SchemaPrimitiveNodeDto, SchemaArrayNodeDto, SchemaObjectNodeDto, SchemaUnionNodeDto])
         )
     })

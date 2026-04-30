@@ -1,6 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
 
 import {
+    Tag,
+    Query,
+    Dataset,
+    Project
+} from '#/db/models';
+import {
     TagDto,
     TagsDto,
     TagUpdateDto,
@@ -9,10 +15,14 @@ import {
 } from '#/dto/tag';
 import { ApiError } from '#/exceptions/api';
 import { ProjectPathParamsDto } from '#/dto/project';
-import { Tag, Project, Query, Dataset } from '#/db/models';
+import type {
+    ITag,
+    IProject,
+    IProjectTagPopulated,
+    IProjectUnpopulatedDatasetPopulated
+} from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { TagDtoType, TagsDtoType } from '#/dto/tag';
-import type { IProject, IProjectTagPopulated, ITag } from '#/db/interfaces';
 
 
 export async function createTag(req: Request, res: Response, next: NextFunction) {
@@ -27,7 +37,7 @@ export async function createTag(req: Request, res: Response, next: NextFunction)
     const tagCreationParse = TagCreationDto.safeParse(req.body);
     if (!tagCreationParse.success)
         return next(new ApiError({
-            message: 'Malformed tag creation fields',
+            message: 'Tag data does not fit requirements',
             statusCode: 422,
             details: tagCreationParse.error.issues
         }));
@@ -40,9 +50,7 @@ export async function createTag(req: Request, res: Response, next: NextFunction)
         }));
     // Tag creation
     // All errors are passed to the error handling middleware, as for errors, there are only code 500 responses
-    const newTag: ITag = await Tag.create({
-        ...tagCreationParse.data
-    });
+    const newTag: ITag = await Tag.create(tagCreationParse.data);
     updatedProject.tagObjIds.push(newTag._id);
     await updatedProject.save()
 
@@ -69,8 +77,8 @@ export async function getTags(req: Request, res: Response, next: NextFunction) {
         .populate<IProjectTagPopulated>('tags');
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
+            message: 'Project not found',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
 
@@ -94,7 +102,7 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
     const tagUpdateParse = TagUpdateDto.safeParse(req.body);
     if (!tagUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed tag update fields',
+            message: 'Tag data does not fit requirements',
             statusCode: 422,
             details: tagUpdateParse.error.issues
         }));
@@ -112,8 +120,8 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
         }));
     if (!project.tagObjIds.includes(params.data.tagObjId))
         return next(new ApiError({
-            message: 'Tag with provided ID within provided project does not exist',
-            statusCode: 422,
+            message: 'Tag not found within provided project',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
     // Tag update
@@ -124,8 +132,8 @@ export async function updateTag(req: Request, res: Response, next: NextFunction)
     );
     if (!updatedTag)
         return next(new ApiError({
-            message: 'Tag with provided ID does not exist',
-            statusCode: 422,
+            message: 'Tag not found',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
 
@@ -148,17 +156,29 @@ export async function deleteTag(req: Request, res: Response, next: NextFunction)
         }));
 
     // Reference removals
-    const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    const updatedProject = await Project.findOne({ _id: params.data.projectObjId })
+        .populate<IProjectUnpopulatedDatasetPopulated>('datasets');
     if (!updatedProject)
         return next(new ApiError({
             details: { projectObjId: params.data.projectObjId }
         }));
     if (!updatedProject.tagObjIds.includes(params.data.tagObjId))
         return next(new ApiError({
-            message: 'Tag with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Tag not found within specified project',
+            statusCode: 404,
             details: { tagObjId: params.data.tagObjId }
         }));
+    const datasetDependency = updatedProject.datasets
+        .find(d => Array.from(d.attributePathToTagObjIdsMap.values())
+            .flatMap(tagIds => tagIds)
+            .find(tagId => tagId.equals(params.data.tagObjId)) !== undefined
+        );
+    if (datasetDependency !== undefined)
+        return next(new ApiError({
+            message: `Can't delete tag with dataset dependency. Dataset ID: ${datasetDependency._id.toString()}`,
+            statusCode: 422,
+            details: { dependentDataset: datasetDependency._id }
+        }))
     updatedProject.tagObjIds = updatedProject.tagObjIds
         .filter((tagObjId) => !tagObjId.equals(params.data.tagObjId));
     await updatedProject.save();

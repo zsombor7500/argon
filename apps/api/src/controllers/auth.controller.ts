@@ -11,7 +11,7 @@ import {
 import { User } from '#/db/models';
 import { ApiError } from '#/exceptions/api';
 import { apiConfig } from '#/configs/api';
-import { getSha512Hash } from '#/utils/api';
+import { getJwtBody, getSha512Hash } from '#/utils/api';
 import { verifyBcryptHash } from '#/utils/api';
 import type { IUser } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
@@ -35,15 +35,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (!user)
         return next(new ApiError({
             message: 'User with provided email does not exist',
-            statusCode: 422,
+            statusCode: 404,
             details: { email: userLogin.data.email }
         }));
     // Password validation
     if (!await verifyBcryptHash(userLogin.data.password, user.passwordHash))
         return next(new ApiError({
-            message: 'User with provided email does not exist',
-            statusCode: 422,
-            details: { email: userLogin.data.email }
+            message: 'Incorrect user credentials',
+            statusCode: 422
         }));
     // Expired refresh token removal
     user.refreshTokenHashes = new Map(
@@ -80,17 +79,21 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const response: ApiResponseSuccess<TokenRefreshDtoType> = {
         success: true,
         data: TokenRefreshDto.parse({
-            accessToken: accessToken,
-            tokenType: 'Bearer',
             tokenBody: accessTokenBody
         })
     };
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        maxAge: apiConfig.accessJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}`
+    }).cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        maxAge: apiConfig.refreshJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
 }
@@ -100,8 +103,8 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const cookies = RefreshTokenCoookies.safeParse(req.cookies);
     if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing refreshToken cookie',
-            statusCode: 422,
+            message: 'Missing refresh token cookie',
+            statusCode: 401,
             details: { error: cookies.error }
         }));
     let jwtBody: string | JwtPayload;
@@ -117,7 +120,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
     if (!jwtBodyParse.success)
         return next(new ApiError({
-            message: 'Malformed JWT token',
+            message: 'Malformed refresh token body',
             statusCode: 401,
             details: jwtBody
         }));
@@ -181,7 +184,7 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
         exp: timestamp + apiConfig.accessJwtExpiry * 1000,
         userObjId: user._id
     };
-    const accessToken = jwt.sign(newAccessTokenBody, apiConfig.accessJwtSecret);
+    const newAccessToken = jwt.sign(newAccessTokenBody, apiConfig.accessJwtSecret);
     user.refreshTokenHashes.set(newRefreshTokenHash, newRefreshTokenBody.exp);
     await user.save();
 
@@ -189,17 +192,21 @@ export async function refreshTokens(req: Request, res: Response, next: NextFunct
     const response: ApiResponseSuccess<TokenRefreshDtoType> = {
         success: true,
         data: TokenRefreshDto.parse({
-            accessToken: accessToken,
-            tokenType: 'Bearer',
             tokenBody: newAccessTokenBody
         })
     };
-    res.cookie('refreshToken', newRefreshToken, {
+    res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        maxAge: apiConfig.accessJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}`
+    }).cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        maxAge: apiConfig.refreshJwtExpiry * 1000,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
 }
@@ -209,7 +216,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const cookies = RefreshTokenCoookies.safeParse(req.cookies);
     if (!cookies.success)
         return next(new ApiError({
-            message: 'Missing refreshToken cookie',
+            message: 'Missing refresh token cookie',
             statusCode: 422,
             details: { error: cookies.error }
         }));
@@ -229,7 +236,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const jwtBodyParse = TokenBodyDto.safeParse(jwtBody);
     if (!jwtBodyParse.success)
         return next(new ApiError({
-            message: 'Malformed JWT token',
+            message: 'Malformed refresh token body',
             statusCode: 401,
             details: jwtBody
         }));
@@ -284,12 +291,38 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
         success: true,
         data: {}
     };
-    res.clearCookie('refreshToken', {
+    res.clearCookie('accessToken', {
         httpOnly: true,
         secure: apiConfig.isSecure,
         sameSite: true,
-        maxAge: apiConfig.refreshJwtExpiry,
-        path: `/api/${apiConfig.version}/auth/refresh`
+        path: `/api/${apiConfig.version}`
+    }).clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: apiConfig.isSecure,
+        sameSite: true,
+        path: `/api/${apiConfig.version}/auth`
     }).status(200)
       .json(response);
+}
+
+export async function status(_req: Request, res: Response, next: NextFunction) {
+    const jwtBody = getJwtBody(res);
+    const user: IUser | null = await User.findOne({
+        _id: jwtBody.userObjId
+    });
+    if (!user)
+        return next(new ApiError({
+            message: 'Forbidden',
+            statusCode: 403,
+            details: {
+                message: 'User tried using an expired refresh token',
+                jwtBody: jwtBody
+            }
+        }));
+    const response: ApiResponseSuccess<TokenBodyDtoType> = {
+        success: true,
+        data: TokenBodyDto.parse(jwtBody)
+    };
+    return res.status(200)
+        .json(response);
 }

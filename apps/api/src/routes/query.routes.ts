@@ -23,4 +23,4 @@ queryRouter.get('/', requireScope(QUERY_READ_SCOPES), getQueries);
 queryRouter.post('/', requireScope(QUERY_CREATE_SCOPES), createQuery);
 queryRouter.patch('/:queryObjId', requireScope(QUERY_UPDATE_SCOPES), updateQuery);
 queryRouter.delete('/:queryObjId', requireScope(QUERY_DELETE_SCOPES), deleteQuery);
-queryRouter.get('/:queryObjId/execute', requireScope(QUERY_EXECUTE_SCOPES), executeQuery);
+queryRouter.post('/:queryObjId/execute', requireScope(QUERY_EXECUTE_SCOPES), executeQuery);

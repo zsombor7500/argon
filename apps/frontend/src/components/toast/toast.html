@@ -1,0 +1,23 @@
+<div class="fixed md:top-18 top-20 right-4 z-50 flex flex-col gap-3 pointer-events-none">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      animate.enter="enter"
+      animate.leave="leave"
+      class="pointer-events-auto flex max-w-sm w-full items-center justify-between rounded-lg shadow-lg text-light-0 p-4 transition-colors duration-200"
+      [ngClass]="{
+        'bg-info-10': toast.type === 'info',
+        'bg-success-10': toast.type === 'success',
+        'bg-warning-10': toast.type === 'warning',
+        'bg-danger-10': toast.type === 'error'
+      }"
+    >
+      <span>{{ toast.message }}</span>
+      <button
+        (click)="removeToast(toast.id)"
+        class="ml-3 opacity-70 hover:opacity-100 transition-opacity duration-150 hover:cursor-pointer"
+      >
+        ✕
+      </button>
+    </div>
+  }
+</div>

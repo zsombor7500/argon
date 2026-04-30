@@ -1,0 +1,59 @@
+<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Active projects</h2>
+<div class="rounded-lg flex p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+    @if (projectService.isLoading() !== null && projectService.isLoading()) {
+      <p>Loading projects...</p>
+    } @else {
+      @if (projectService.projects()?.length === 0) {
+        <div class="flex flex-col flex-1 text-primary-20">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no active projects to display</p>
+            <p class="text-light-0">:(</p>
+          </div>
+          <div class="flex flex-row gap-x-1 text-l">
+            <a
+            class="underline text-l text-light-0 hover:text-primary-0"
+            routerLink="./new"
+            routerLinkActive="active"
+            >
+              Create
+            </a>
+            or
+            <a
+            class="underline text-l text-light-0 hover:text-primary-0"
+            routerLink="./invites"
+            routerLinkActive="active"
+            >
+            join
+            </a>
+            one to get started!
+          </div>
+        </div>
+      } @else if (projectService.projects(); as projects) {
+        <div class="overflow-x-auto">
+          <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+            <thead class="justify-start text-primary-0 border-b border-light-0">
+              <tr>
+                <th class="border-b">Actions</th>
+                <th class="border-b">Project name</th>
+                <th class="border-b">ID</th>
+                <th class="border-b">Owner name</th>
+                <th class="border-b">Owner email</th>
+                <th class="border-b">Description</th>
+                <th class="border-b">Creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (project of projects; track project._id) {
+                <tr app-project-entry
+                [project]="project"
+                (deleteEvent)="onDisbandProject($event)"
+                class="text-sm"
+                >
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+</div>

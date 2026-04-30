@@ -1,0 +1,51 @@
+import type { Route } from '@angular/router';
+
+import {
+    NewProjectComponent,
+    ProjectListComponent,
+    UserInviteListComponent
+} from '#/components/pages/projects';
+import {
+    LoginPageComponent,
+    ProfilePageComponent,
+    ProjectPageComponent,
+    ProjectsPageComponent,
+    RegistrationPageComponent
+} from '#/components/pages';
+import {
+    ProjectTagListComponent,
+    ProjectQueryListComponent,
+    ProjectAccessListComponent,
+    ProjectDatasetListComponent
+} from '#/components/pages/project';
+import { authGuard, noAuthGuard, projectAuthGuard } from '#/guards';
+
+
+export const appRoutes: Route[] = [
+    { path: 'login', component: LoginPageComponent, canActivate: [noAuthGuard] },
+    { path: 'register', component: RegistrationPageComponent, canActivate: [noAuthGuard] },
+    { path: 'profile', component: ProfilePageComponent, canActivate: [authGuard] },
+    {
+        path: 'projects',
+        component: ProjectsPageComponent,
+        canActivate: [authGuard],
+        children: [
+            { path: '', component: ProjectListComponent },
+            { path: 'new', component: NewProjectComponent },
+            { path: 'invites', component: UserInviteListComponent }
+        ]
+    },
+    {
+        path: 'projects/:id',
+        component: ProjectPageComponent,
+        canActivate: [projectAuthGuard],
+        children: [
+            { path: 'queries', component: ProjectQueryListComponent },
+            { path: 'datasets', component: ProjectDatasetListComponent },
+            { path: 'tags', component: ProjectTagListComponent },
+            { path: 'access', component: ProjectAccessListComponent },
+            { path: '**', redirectTo: 'queries' }
+        ]
+    },
+    { path: '**', redirectTo: 'login' }
+];

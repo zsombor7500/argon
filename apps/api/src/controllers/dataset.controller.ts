@@ -17,14 +17,14 @@ import { userContentDbConnection } from '#/db/connections';
 import { uniqueString, isAllowedSchema } from '#/utils/api';
 import type {
     IDataset,
-    IProject,
     IDatasetPopulated,
     IProjectTagPopulated,
     IProjectDatasetPopulated
 } from '#/db/interfaces';
+import type { AttributePath } from '#/types/db';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { DatasetDtoType, DatasetsDtoType } from '#/dto/dataset';
-import type { AttributePath } from '#/types/db';
+import type { IProjectUnpopulatedQueryPopulated } from '#/db/interfaces';
 
 
 export async function createDataset(req: Request, res: Response, next: NextFunction) {
@@ -39,7 +39,7 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
     const datasetCreationParse = DatasetCreationDto.safeParse(req.body);
     if (!datasetCreationParse.success || !isAllowedSchema(datasetCreationParse.data.jsonSchema))
         return next(new ApiError({
-            message: 'Malformed dataset creation fields',
+            message: 'Dataset data does not fit requirements',
             statusCode: 422,
             details: !datasetCreationParse.success ?
                 datasetCreationParse.error.issues : datasetCreationParse.data.jsonSchema
@@ -56,14 +56,14 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         .forEach(([path, tagObjIds]) => {
             if (tagObjIds.length !== new Set(tagObjIds.map(id => id.toString())).size)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Duplicate(s) found within tags',
                     statusCode: 422,
                     details: { message: 'List of tag ObjectIds contained duplicates' }
                 });
             const attribute = datasetCreationParse.data.jsonSchema.properties[path];
             if (!attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Non-existent attribute path found within schema',
                     statusCode: 422,
                     details: {
                         jsonSchema: datasetCreationParse.data.jsonSchema,
@@ -72,7 +72,7 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
                 });
             if ('oneOf' in attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset creation fields',
+                    message: 'Union type attributes are not allowed',
                     statusCode: 422,
                     details: { message: 'oneOf handling has not yet been implemented' }
                 });
@@ -80,13 +80,13 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
                 const tag = project.tags.find((t) => t._id.equals(tagObjId));
                 if (!tag)
                     throw new ApiError({
-                        message: 'Malformed dataset creation fields',
+                        message: 'Non-existent tag found within tags',
                         statusCode: 422,
                         details: { nonExistentTag: tagObjId.toString() }
                     });
                 if (tag.type !== attribute.bsonType)
                     throw new ApiError({
-                        message: 'Malformed dataset creation fields',
+                        message: 'Mismatching type found within attribute path to tag mapping',
                         statusCode: 422,
                         details: {
                             tagType: tag.type,
@@ -97,14 +97,16 @@ export async function createDataset(req: Request, res: Response, next: NextFunct
         });
     // Dataset collection creation
     const collectionName = uniqueString();
-    datasetCreationParse.data.jsonSchema.required = ['field1xd'];
-    const collectionSchema = new mongoose.Schema({}, { collection: collectionName });
-    const collection = userContentDbConnection.model(collectionName, collectionSchema);
-    await collection.createCollection({
+    // TODO: !!! Remove constraint, all fields are required by default
+    //  All specified attributes must exist during ingestion.
+    datasetCreationParse.data.jsonSchema.required = Object.keys(
+        datasetCreationParse.data.jsonSchema.properties
+    )
+    await userContentDbConnection.db?.createCollection(collectionName, {
+        validator: { $jsonSchema: datasetCreationParse.data.jsonSchema },
         validationLevel: 'strict',
-        validationAction: 'error',
-        validator: { $jsonSchema: datasetCreationParse.data.jsonSchema }
-    });
+        validationAction: 'error'
+    })
     // Dataset creation
     // All errors are passed to the error handling middleware, as for errors, there are only code 500 responses
     const newDataset: IDataset = await Dataset.create({
@@ -145,8 +147,8 @@ export async function getDatasets(req: Request, res: Response, next: NextFunctio
         });
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
+            message: 'Project not found',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
 
@@ -178,7 +180,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
     const datasetUpdateParse = DatasetUpdateDto.safeParse(req.body);
     if (!datasetUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed dataset update fields',
+            message: 'Dataset data does not fit requirements',
             statusCode: 422,
             details: datasetUpdateParse.error.issues
         }));
@@ -200,8 +202,8 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
         .find(d => d._id.equals(params.data.datasetObjId))
     if (!dataset)
         return next(new ApiError({
-            message: 'Dataset with provided ID within provided project does not exist',
-            statusCode: 422,
+            message: 'Dataset not found within provided project',
+            statusCode: 404,
             details: { datasetObjId: params.data.datasetObjId }
         }));
     // Prep of optional attribute path to tag ObjectId mapping
@@ -214,7 +216,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
         .forEach(([path, tagObjIds]) => {
             if (tagObjIds.length !== new Set(tagObjIds.map(id => id.toString())).size)
                 throw new ApiError({
-                    message: 'Malformed dataset update fields',
+                    message: 'Duplicate(s) found within tags',
                     statusCode: 422,
                     details: { message: 'List of tag ObjectIds contained duplicates' }
                 });
@@ -222,7 +224,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
             const attribute = jsonSchema.properties[path];
             if (!attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset update fields',
+                    message: 'Non-existent attribute path found within schema',
                     statusCode: 422,
                     details: {
                         jsonSchema: jsonSchema,
@@ -231,7 +233,7 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
                 });
             if ('oneOf' in attribute)
                 throw new ApiError({
-                    message: 'Malformed dataset update fields',
+                    message: 'Union type attributes are not allowed',
                     statusCode: 422,
                     details: { message: 'oneOf handling has not yet been implemented' }
                 });
@@ -239,13 +241,13 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
                 const tag = project.tags.find((t) => t._id.equals(tagObjId));
                 if (!tag)
                     throw new ApiError({
-                        message: 'Malformed dataset update fields',
+                        message: 'Non-existent tag found within tags',
                         statusCode: 422,
                         details: { nonExistentTag: tagObjId.toString() }
                     });
                 if (tag.type !== attribute.bsonType)
                     throw new ApiError({
-                        message: 'Malformed dataset update fields',
+                        message: 'Mismatching type found within attribute path to tag mapping',
                         statusCode: 422,
                         details: {
                             tagType: tag.type,
@@ -262,8 +264,8 @@ export async function updateDataset(req: Request, res: Response, next: NextFunct
     ).populate<IDatasetPopulated>('attributePathToTagObjIdsMap.$*');
     if (!updatedDataset)
         return next(new ApiError({
-            message: 'Dataset with provided ID does not exist',
-            statusCode: 422,
+            message: 'Dataset not found',
+            statusCode: 404,
             details: { datasetObjId: params.data.datasetObjId }
         }));
 
@@ -290,7 +292,7 @@ export async function ingestData(req: Request, res: Response, next: NextFunction
     const datasetBatchParse = DatasetBatchUploadDto.safeParse(req.body);
     if (!datasetBatchParse.success)
         return next(new ApiError({
-            message: 'Malformed dataset batch fields',
+            message: 'Dataset batch does not fit requirements',
             statusCode: 422,
             details: datasetBatchParse.error.issues
         }));
@@ -306,8 +308,8 @@ export async function ingestData(req: Request, res: Response, next: NextFunction
         .find(d => d._id.equals(params.data.datasetObjId));
     if (!dataset)
         return next(new ApiError({
-            message: 'Dataset with provided ID within provided project does not exist',
-            statusCode: 422,
+            message: 'Dataset not found within provided project',
+            statusCode: 404,
             details: { datasetObjId: params.data.datasetObjId }
         }));
     // Model retrieval/instantiation + insertion
@@ -320,7 +322,7 @@ export async function ingestData(req: Request, res: Response, next: NextFunction
         await model.insertMany(datasetBatchParse.data.data);
     } catch (err) {
         return next(new ApiError({
-            message: 'Malformed dataset batch',
+            message: 'Dataset batch failed insertion, check schema',
             statusCode: 422,
             details: err
         }));
@@ -345,19 +347,28 @@ export async function deleteDataset(req: Request, res: Response, next: NextFunct
         }));
 
     // Dataset deletion + removal of references
-    const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    const updatedProject = await Project.findOne({ _id: params.data.projectObjId })
+        .populate<IProjectUnpopulatedQueryPopulated>('queries');
     if (!updatedProject)
         return next(new ApiError({
             details: { projectObjId: params.data.projectObjId }
         }));
     if (!updatedProject.datasetObjIds.includes(params.data.datasetObjId))
         return next(new ApiError({
-            message: 'Dataset with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Dataset not found within specified project',
+            statusCode: 404,
             details: { datasetObjId: params.data.datasetObjId }
         }));
+    const queryDependency = updatedProject.queries
+        .find(q => q.datasetObjIds.includes(params.data.datasetObjId))
+    if (queryDependency !== undefined)
+        return next(new ApiError({
+            message: `Can't delete dataset with query dependency. Query ID: ${queryDependency._id.toString()}`,
+            statusCode: 422,
+            details: { dependentQuery: queryDependency._id }
+        }))
     updatedProject.datasetObjIds = updatedProject.datasetObjIds
-        .filter((datasetObjId) => !datasetObjId.equals(params.data.datasetObjId));
+        .filter(datasetObjId => !datasetObjId.equals(params.data.datasetObjId));
     await updatedProject.save();
     const dataset = await Dataset.findOneAndDelete({ _id: params.data.datasetObjId });
     if (!dataset)

@@ -6,7 +6,7 @@ import {
     accessRouter,
     inviteRouter,
     datasetRouter,
-} from './index.js';
+} from '#/routes/api';
 import {
     PROJECT_UPDATE_SCOPES,
     PROJECT_DELETE_SCOPES

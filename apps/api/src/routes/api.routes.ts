@@ -2,7 +2,7 @@ import morgan from 'morgan';
 import express from 'express';
 
 import { winstonHttpLogStream } from '#/utils/api';
-import { authRouter, userRouter, projectRouter } from '#/routes';
+import { authRouter, userRouter, projectRouter } from '#/routes/api';
 
 
 export const apiRouter = express.Router();

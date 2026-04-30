@@ -1,0 +1,35 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import type { WritableSignal } from '@angular/core';
+
+import type { ApiResponseFailure } from '#/dto/frontend/api';
+
+
+export function handleErrorResponse(
+    error: any,
+    errorSignal: WritableSignal<string | null> | null,
+    processSignal: WritableSignal<boolean | null> | null
+): null {
+    if (processSignal !== null)
+        processSignal.set(false);
+    if (errorSignal === null)
+        return null;
+    const message = getErrorMessage(error);
+    if (message === 'Missing access token cookie')
+        return null;
+    if (message !== undefined)
+        errorSignal.set(message);
+    else
+        errorSignal.set('Action failed');
+    return null;
+}
+
+export function getErrorMessage(err: unknown): string | undefined {
+    if (!(err instanceof HttpErrorResponse))
+        return undefined;
+    if (typeof err.error !== 'object')
+        return undefined;
+    const message = (err.error as ApiResponseFailure).error;
+    if (typeof message !== 'string')
+        return undefined;
+    return message;
+}

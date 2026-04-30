@@ -1,0 +1,124 @@
+<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Tags</h2>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">New tag</h3>
+
+  <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="space-y-4 text-light-0">
+    <div>
+      <label for="name" class="block text-md font-medium mb-1">Name*</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="name"
+        placeholder="My tag"
+      />
+      @if (createForm.invalid && (createForm.dirty || createForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (createForm.get('name')?.errors?.['required']) {
+            <small>Name is required.</small>
+          }
+          @if (createForm.get('name')?.errors?.['minlength']) {
+            <small>Minimum name length is 4.</small>
+          }
+          @if (createForm.get('name')?.errors?.['maxlength']) {
+            <small>Minimum name length is 30.</small>
+          }
+          @if (createForm.get('name')?.errors?.['pattern']) {
+            <small>Name can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      <label for="type" class="block text-md font-medium mb-1">Data type*</label>
+      <select formControlName="type" class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20">
+        @for (type of tagService.tagTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label for="description" class="block text-md font-medium mb-1">Description</label>
+      <input
+        type="text"
+        id="description"
+        name="description"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="description"
+        placeholder="This tag is about...."
+      />
+      @if (createForm.invalid && (createForm.dirty || createForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (createForm.get('description')?.errors?.['maxlength']) {
+            <small>Maximum description length is 100.</small>
+          }
+          @if (createForm.get('description')?.errors?.['pattern']) {
+            <small>Description can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+      [disabled]="createForm.invalid"
+    >
+      Create
+    </button>
+  </form>
+</div>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+  <div class="flex">
+    @if (tagService.isLoading() !== null && tagService.isLoading()) {
+      <p>Loading tags...</p>
+    } @else {
+      @if (tagService.tags()?.length === 0) {
+        <div class="flex flex-col flex-1">
+          <div class="flex flex-col flex-1 text-primary-20">
+            <div class="flex flex-row space-x-1">
+              <p class="text-l mb-1">You have no active tags to manage</p>
+              <p class="text-light-0">:(</p>
+            </div>
+
+            <div class="flex flex-row gap-x-1 text-l ">
+                <a class="text-l text-light-0">
+                  Create
+                </a>
+                one to get started!
+            </div>
+          </div>
+        </div>
+      } @else if (tagService.tags(); as tags) {
+        <div class="overflow-x-auto inset-shadow-md shadow-surface-10 shadow-xl">
+          <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+            <thead class="justify-start text-primary-0 border-b border-light-0">
+              <tr>
+                <th class="border-b">Action</th>
+                <th class="border-b">Name</th>
+                <th class="border-b">ID</th>
+                <th class="border-b">Data type</th>
+                <th class="border-b">Description</th>
+                <th class="border-b">Creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tag of tags; track tag._id) {
+                <tr app-tag-entry
+                [tag]="tag"
+                (deleteEvent)="onDeleteEvent($event)"
+                class="text-sm"
+                >
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>

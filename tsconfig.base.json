@@ -14,7 +14,7 @@
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
         "paths": {
-            "#/routes": ["apps/api/src/routes/index.ts"],
+            // API
             "#/middlewares": ["apps/api/src/middlewares/index.ts"],
 
             "#/controllers/tag": ["apps/api/src/controllers/tag.controller.ts"],
@@ -26,10 +26,23 @@
             "#/controllers/dataset": ["apps/api/src/controllers/dataset.controller.ts"],
             "#/controllers/project": ["apps/api/src/controllers/project.controller.ts"],
 
+            // DB
             "#/db/models": ["libs/db/src/lib/models/index.ts"],
             "#/db/schemas": ["libs/db/src/lib/schemas/index.ts"],
             "#/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
             "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
+
+            // Frontend
+            "#/guards": ["apps/frontend/src/guards/index.ts"],
+            "#/services": ["apps/frontend/src/services/index.ts"],
+            "#/interceptors": ["apps/frontend/src/interceptors/index.ts"],
+            "#/components": ["apps/frontend/src/components/index.ts"],
+            "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
+            "#/components/pages/project": ["apps/frontend/src/components/pages/project/index.ts"],
+            "#/components/pages/projects": ["apps/frontend/src/components/pages/projects/index.ts"],
+
+            // Shared
+            "#/dto/general": ["libs/shared/dtos/src/lib/general.dto.ts"],
 
             "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
             "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
@@ -44,19 +57,41 @@
             "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
             "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
 
+            "#/dto/frontend/api": ["libs/shared/dtos/src/lib/frontend-dtos/api.dto.ts"],
+            "#/dto/frontend/oid": ["libs/shared/dtos/src/lib/frontend-dtos/objectId.dto.ts"],
+            "#/dto/frontend/tag": ["libs/shared/dtos/src/lib/frontend-dtos/tag.dto.ts"],
+            "#/dto/frontend/user": ["libs/shared/dtos/src/lib/frontend-dtos/user.dto.ts"],
+            "#/dto/frontend/auth": ["libs/shared/dtos/src/lib/frontend-dtos/auth.dto.ts"],
+            "#/dto/frontend/scope": ["libs/shared/dtos/src/lib/frontend-dtos/scope.dto.ts"],
+            "#/dto/frontend/query": ["libs/shared/dtos/src/lib/frontend-dtos/query.dto.ts"],
+            "#/dto/frontend/invite": ["libs/shared/dtos/src/lib/frontend-dtos/invite.dto.ts"],
+            "#/dto/frontend/access": ["libs/shared/dtos/src/lib/frontend-dtos/access.dto.ts"],
+            "#/dto/frontend/project": ["libs/shared/dtos/src/lib/frontend-dtos/project.dto.ts"],
+            "#/dto/frontend/dataset": ["libs/shared/dtos/src/lib/frontend-dtos/dataset.dto.ts"],
+            "#/dto/frontend/general": ["libs/shared/dtos/src/lib/frontend-dtos/general.dto.ts"],
+            "#/dto/frontend/schema": ["libs/shared/dtos/src/lib/frontend-dtos/schema.dto.ts"],
+
+
+            // General
             "#/types/db": ["libs/db/src/lib/types/index.ts"],
 
             "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
             "#/utils/api": ["apps/api/src/utils/index.ts"],
+            "#/utils/frontend": ["apps/frontend/src/utils/index.ts"],
 
             "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
             "#/configs/api": ["apps/api/src/configs/api.config.ts"],
+            "#/configs/frontend": ["apps/frontend/src/configs/index.ts"],
 
             "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
             "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
             "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
+            "#/constants/frontend": ["apps/frontend/src/constants/frontend.constant.ts"],
 
             "#/exceptions/api": ["apps/api/src/exceptions/api.exception.ts"],
+
+            "#/routes/api": ["apps/api/src/routes/index.ts"],
+            "#/routes/frontend": ["apps/frontend/src/routes/index.ts"],
         },
 
         /* Modules */

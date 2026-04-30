@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import { ObjectId } from '#/dto/oid';
-import { SchemaPrimitiveTypeDto } from './schema.dto.js';
+import { Name, Description } from '#/dto/general';
+import { SchemaPrimitiveTypeDto } from '#/dto/frontend/schema';
 
 
 export const TagTypeDto = SchemaPrimitiveTypeDto;
@@ -11,8 +12,8 @@ export type ConstraintsType = z.infer<typeof Constraints>;
 
 export const TagDto = z.object({
     _id:         ObjectId,
-    name:        z.string(),
-    description: z.string().optional(),
+    name:        Name,
+    description: Description.optional(),
     type:        TagTypeDto,
     createdAt:   z.date(),
     updatedAt:   z.date()
@@ -23,15 +24,15 @@ export const TagsDto = TagDto.array();
 export type TagsDtoType = z.infer<typeof TagsDto>;
 
 export const TagCreationDto = z.object({
-    name:        z.string(),
-    description: z.string().optional(),
+    name:        Name,
+    description: Description.optional(),
     type:        TagTypeDto
 }).strict();
 export type TagCreationDtoType = z.infer<typeof TagCreationDto>;
 
 export const TagUpdateDto = z.object({
-    name:        z.string().optional(),
-    description: z.string().optional(),
+    name:        Name.optional(),
+    description: Description.optional(),
 }).strict();
 export type TagUpdateDtoType = z.infer<typeof TagUpdateDto>;
 

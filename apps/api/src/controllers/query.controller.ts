@@ -4,28 +4,28 @@ import type { Request, Response, NextFunction } from 'express';
 import {
     QueryDto,
     QueriesDto,
+    QueryResultDto,
     QueryUpdateDto,
     QueryCreationDto,
-    QueryPathParamsDto,
-    QueryResultDto,
-    QueryExecutionDto
+    QueryExecutionDto,
+    QueryPathParamsDto
 } from '#/dto/query';
 import { ApiError } from '#/exceptions/api';
 import { Query, Project } from '#/db/models';
 import { ProjectPathParamsDto } from '#/dto/project';
+import { userContentDbConnection } from '#/db/connections';
 import { nestedMapToRecord, getFilterValidator } from '#/utils/api';
 import type {
     IQuery,
     IProject,
     IQueryPopulated,
+    IProjectTagPopulated,
     IProjectQueryPopulated,
-    IProjectDatasetPopulated,
-    IProjectTagPopulated
+    IProjectDatasetPopulated
 } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { AttributePath, ObjectIdStr } from '#/types/db';
 import type { QueriesDtoType, QueryDtoType, QueryResultDtoType } from '#/dto/query';
-import { userContentDbConnection } from '#/db/connections';
 
 
 export async function createQuery(req: Request, res: Response, next: NextFunction) {
@@ -40,13 +40,13 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
     const queryCreationParse = QueryCreationDto.safeParse(req.body);
     if (!queryCreationParse.success)
         return next(new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Query data does not fit requirements',
             statusCode: 422,
             details: queryCreationParse.error.issues
         }));
     if (queryCreationParse.data.tagObjIds.length === 0)
         return next(new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'List of tags to query by, must not be empty',
             statusCode: 422,
             details: { message: 'Query definition contained no tags to query by' }
         }));
@@ -66,8 +66,8 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
     const choosenDatasets = new Set(queryCreationParse.data.datasetObjIds.map(id => id.toString()));
     if (!choosenTags.isSubsetOf(availableTags) || !choosenDatasets.isSubsetOf(availableDatasets))
         throw new ApiError({
-            message: 'Malformed query creation fields',
-            statusCode: 422,
+            message: 'Non-existent tag(s) and/or dataset(s) found',
+            statusCode: 404,
             details: {
                 nonExistentTags: Array.from(choosenTags.difference(availableTags)),
                 nonExistentDatasets: Array.from(choosenDatasets.difference(availableDatasets))
@@ -75,7 +75,7 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
         });
     if (choosenTags.size !== queryCreationParse.data.tagObjIds.length || choosenDatasets.size !== queryCreationParse.data.datasetObjIds.length)
         throw new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Duplicate(s) found within tag(s) and/or dataset(s)',
             statusCode: 422,
             details: { message: 'Duplicates found within choosen tags and/or datasets definition' }
         });
@@ -86,7 +86,7 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
     const choosenDatasetsMismatch = choosenDatasets.symmetricDifference(choosenDatasetsFromMapping);
     if (choosenDatasetsMismatch.size !== 0)
         throw new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Datasets from list and tag to field mappings are not identical',
             statusCode: 422,
             details: { choosenDatasetsMismatch: Array.from(choosenDatasetsMismatch) }
         });
@@ -105,7 +105,7 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
                 .forEach(([tagObjId, attributePath]) => {
                     if (usedAttributePaths.has(attributePath))
                         throw new ApiError({
-                        message: 'Malformed query creation fields',
+                        message: 'Attribute path reuse within tag to attribute mapping',
                         statusCode: 422,
                         details: { reusedAttributePath: attributePath }
                     });
@@ -115,13 +115,13 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
                     const assignedTags = dataset.attributePathToTagObjIdsMap.get(attributePath);
                     if (!assignedTags)
                         throw new ApiError({
-                            message: 'Malformed query creation fields',
+                            message: 'Non-existent attribute path within dataset',
                             statusCode: 422,
                             details: { nonExistentAttributePath: attributePath }
                         });
                     if (!assignedTags.map(tag => tag._id.toString()).includes(tagObjId))
                         throw new ApiError({
-                            message: 'Malformed query creation fields',
+                            message: 'Dataset attribute path is missing assigned tag',
                             statusCode: 422,
                             details: {
                                 datasetObjId: datasetObjId,
@@ -133,7 +133,7 @@ export async function createQuery(req: Request, res: Response, next: NextFunctio
             const missingTags = usedTags.symmetricDifference(choosenTags);
             if (missingTags.size !== 0)
                 throw new ApiError({
-                    message: 'Malformed query creation fields',
+                    message: 'Some tags are missing assignment on dataset',
                     statusCode: 422,
                     details: {
                         datasetObjId: datasetObjId,
@@ -173,10 +173,6 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
     // Project retrieval
     const project = await Project.findOne({ _id: params.data.projectObjId })
         .populate<IProjectTagPopulated>('tags')
-        .populate<IProjectDatasetPopulated>({
-            path: 'datasets',
-            populate: 'attributePathToTagObjIdsMap.$*'
-        })
         .populate<IProjectQueryPopulated>({
             path: 'queries',
             populate: [
@@ -186,25 +182,15 @@ export async function getQueries(req: Request, res: Response, next: NextFunction
         });
     if (!project)
         return next(new ApiError({
-            message: 'Project with provided ID does not exist',
-            statusCode: 422,
+            message: 'Project not found',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
 
     // Response
     const response: ApiResponseSuccess<QueriesDtoType> = {
         success: true,
-        data: QueriesDto.parse({
-            queries: project.queries,
-            availableDatasets: project.datasets
-                .map<unknown>((dataset) => {
-                    return {
-                        ...dataset.toObject(),
-                        attributePathToTagsMap: dataset.attributePathToTagObjIdsMap
-                    }
-                }),
-            availableTags: project.tags
-        })
+        data: QueriesDto.parse(project.queries)
     };
     return res.status(200).json(response);
 }
@@ -221,7 +207,7 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
     const queryExecutionParse = QueryExecutionDto.safeParse(req.body);
     if (!queryExecutionParse.success)
         return next(new ApiError({
-            message: 'Malformed query execution fields',
+            message: 'Query data does not fit requirements',
             statusCode: 422,
             details: queryExecutionParse.error.issues
         }));
@@ -234,8 +220,8 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
         }));
     if (!project.queryObjIds.map(id => id.toString()).includes(params.data.queryObjId.toString()))
         return next(new ApiError({
-            message: 'Query with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Query not found within specified project',
+            statusCode: 404,
             details: { projectObjId: params.data.projectObjId }
         }));
     const query = await Query.findOne({ _id: params.data.queryObjId })
@@ -251,13 +237,19 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
     const validator = getFilterValidator(query.tags);
     if (!validator.safeParse(queryExecutionParse.data.filter).success)
         return next(new ApiError({
-            message: 'Malformed query execution fields',
+            message: 'Incorrect query execution filter definition',
             statusCode: 422,
             details: { invalidFilter: queryExecutionParse.data.filter }
         }));
     // Filter + querying datasets
     const results = new Map<string, any[]>();
     for (const [datasetObjId, tagToAttributePathMap] of query.datasetToTagToAttributePathMap) {
+        const dataset = query.datasets
+            .find(d => d._id.equals(datasetObjId));
+        if (!dataset)
+            return next(new ApiError({
+                details: { missingDatasetObjIdPassedCheck: datasetObjId }
+            }));
         // Filter creation for given dataset's collection
         const datasetFilter = new Map<string, any>();
         for (const [tagObjId, attributePath] of tagToAttributePathMap) {
@@ -275,12 +267,6 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
             datasetFilter.set(attributePath, attributeValueToMatch);
         }
         // Model retrieval/instantiation + dataset collection query
-        const dataset = query.datasets
-            .find(d => d._id.equals(datasetObjId));
-        if (!dataset)
-            return next(new ApiError({
-                details: { missingDatasetObjIdPassedCheck: datasetObjId }
-            }));
         let model = userContentDbConnection.models[dataset.collectionRef];
         if (!model) {
             const anySchema = new mongoose.Schema({}, { strict: false });
@@ -312,7 +298,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
     const queryUpdateParse = QueryUpdateDto.safeParse(req.body);
     if (!queryUpdateParse.success)
         return next(new ApiError({
-            message: 'Malformed dataset update fields',
+            message: 'Query data does not fit requirements',
             statusCode: 422,
             details: queryUpdateParse.error.issues
         }));
@@ -334,15 +320,15 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
     const query = project.queries.find(q => q._id.equals(params.data.queryObjId));
     if (!query)
         return next(new ApiError({
-            message: 'Query with provided ID does not exist',
-            statusCode: 422,
+            message: 'Query not found',
+            statusCode: 404,
             details: { queryObjId: params.data.queryObjId }
         }));
     // Preparing optionals
     const tagObjIds = queryUpdateParse.data.tagObjIds ?? query.tagObjIds;
     if (tagObjIds.length === 0)
         return next(new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'List of tags to query by, must not be empty',
             statusCode: 422,
             details: { message: 'Query definition contained no tags to query by' }
         }));
@@ -356,7 +342,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
     const choosenDatasets = new Set(datasetObjIds.map(id => id.toString()));
     if (!choosenTags.isSubsetOf(availableTags) || !choosenDatasets.isSubsetOf(availableDatasets))
         throw new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Non-existent tag(s) and/or dataset(s) found',
             statusCode: 422,
             details: {
                 nonExistentTags: Array.from(choosenTags.difference(availableTags)),
@@ -365,7 +351,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
         });
     if (choosenTags.size !== tagObjIds.length || choosenDatasets.size !== datasetObjIds.length)
         throw new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Duplicate(s) found within tag(s) and/or dataset(s)',
             statusCode: 422,
             details: { message: 'Duplicates found within choosen tags and/or datasets definition' }
         });
@@ -376,7 +362,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
     const choosenDatasetsMismatch = choosenDatasets.symmetricDifference(choosenDatasetsFromMapping);
     if (choosenDatasetsMismatch.size !== 0)
         throw new ApiError({
-            message: 'Malformed query creation fields',
+            message: 'Datasets from list and tag to field mappings are not identical',
             statusCode: 422,
             details: { choosenDatasetsMismatch: Array.from(choosenDatasetsMismatch) }
         });
@@ -395,7 +381,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
                 .forEach(([tagObjId, attributePath]) => {
                     if (usedAttributePaths.has(attributePath))
                         throw new ApiError({
-                        message: 'Malformed query creation fields',
+                        message: 'Attribute path reuse within tag to attribute mapping',
                         statusCode: 422,
                         details: { reusedAttributePath: attributePath }
                     });
@@ -405,13 +391,13 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
                     const assignedTags = dataset.attributePathToTagObjIdsMap.get(attributePath);
                     if (!assignedTags)
                         throw new ApiError({
-                            message: 'Malformed query creation fields',
+                            message: 'Non-existent attribute path within dataset',
                             statusCode: 422,
                             details: { nonExistentAttributePath: attributePath }
                         });
                     if (!assignedTags.map(tag => tag._id.toString()).includes(tagObjId))
                         throw new ApiError({
-                            message: 'Malformed query creation fields',
+                            message: 'Dataset attribute path is missing assigned tag',
                             statusCode: 422,
                             details: {
                                 datasetObjId: datasetObjId,
@@ -423,7 +409,7 @@ export async function updateQuery(req: Request, res: Response, next: NextFunctio
             const missingTags = usedTags.symmetricDifference(choosenTags);
             if (missingTags.size !== 0)
                 throw new ApiError({
-                    message: 'Malformed query creation fields',
+                    message: 'Some tags are missing assignment on dataset',
                     statusCode: 422,
                     details: {
                         datasetObjId: datasetObjId,
@@ -472,8 +458,8 @@ export async function deleteQuery(req: Request, res: Response, next: NextFunctio
         }));
     if (!updatedProject.queryObjIds.includes(params.data.queryObjId))
         return next(new ApiError({
-            message: 'Query with provided ID does not exist within specified project',
-            statusCode: 422,
+            message: 'Query not found within specified project',
+            statusCode: 404,
             details: { queryObjId: params.data.queryObjId }
         }));
     updatedProject.queryObjIds = updatedProject.queryObjIds

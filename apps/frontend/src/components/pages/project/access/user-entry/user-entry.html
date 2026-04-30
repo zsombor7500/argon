@@ -1,0 +1,32 @@
+<td class="flex flex-row space-x-1 items-center flex-1 justify-center">
+  @if (!isRemoving) {
+    <button
+      type="button"
+      (click)="isRemoving = true"
+      class="bg-warning-10 hover:bg-warning-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Remove
+    </button>
+  } @else {
+    <button
+      type="button"
+      (click)="onConfirmRemoveUser()"
+      class="bg-danger-10 hover:bg-danger-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Confirm
+    </button>
+    <button
+      type="button"
+      (click)="isRemoving = false"
+      class="bg-success-10 hover:bg-success-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+    >
+      Cancel
+    </button>
+  }
+</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ user.displayName }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ role() }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ user._id }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ user.email }}</td>
+<td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ user.description ?? '-' }}</td>
+<td class="px-2 text-right rounded-md hover:bg-surface-50/30 ransition duration-200">{{ user.createdAt | date }}</td>

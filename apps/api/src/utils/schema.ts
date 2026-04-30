@@ -10,8 +10,6 @@ import type { ITag } from '#/db/interfaces';
 export const schemaPrimitiveTypeToValidator = new Map<SchemaPrimitiveType, ZodType>([
     ['string', z.string()],
     ['int',    z.int()],
-    ['long',   z.int64()],
-    ['double', z.float64()],
     ['bool',   z.boolean()],
 ]);
 
