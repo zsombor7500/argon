@@ -9,7 +9,9 @@ export type {
     IProjectOwnerPopulated,
     IProjectQueryPopulated,
     IProjectDatasetPopulated,
-    IProjectUserAndInvitePopulated
+    IProjectUserAndInvitePopulated,
+    IProjectUnpopulatedQueryPopulated,
+    IProjectUnpopulatedDatasetPopulated
 } from './project.js';
 export type { ITag } from './tag.js';
 export type { IQuery, IQueryPopulated } from './query.js';

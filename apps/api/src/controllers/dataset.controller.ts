@@ -17,14 +17,14 @@ import { userContentDbConnection } from '#/db/connections';
 import { uniqueString, isAllowedSchema } from '#/utils/api';
 import type {
     IDataset,
-    IProject,
     IDatasetPopulated,
     IProjectTagPopulated,
     IProjectDatasetPopulated
 } from '#/db/interfaces';
+import type { AttributePath } from '#/types/db';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { DatasetDtoType, DatasetsDtoType } from '#/dto/dataset';
-import type { AttributePath } from '#/types/db';
+import type { IProjectUnpopulatedQueryPopulated } from '#/db/interfaces';
 
 
 export async function createDataset(req: Request, res: Response, next: NextFunction) {
@@ -347,7 +347,8 @@ export async function deleteDataset(req: Request, res: Response, next: NextFunct
         }));
 
     // Dataset deletion + removal of references
-    const updatedProject: IProject | null = await Project.findOne({ _id: params.data.projectObjId });
+    const updatedProject = await Project.findOne({ _id: params.data.projectObjId })
+        .populate<IProjectUnpopulatedQueryPopulated>('queries');
     if (!updatedProject)
         return next(new ApiError({
             details: { projectObjId: params.data.projectObjId }
@@ -358,8 +359,16 @@ export async function deleteDataset(req: Request, res: Response, next: NextFunct
             statusCode: 404,
             details: { datasetObjId: params.data.datasetObjId }
         }));
+    const queryDependency = updatedProject.queries
+        .find(q => q.datasetObjIds.includes(params.data.datasetObjId))
+    if (queryDependency !== undefined)
+        return next(new ApiError({
+            message: `Can't delete dataset with query dependency. Query ID: ${queryDependency._id.toString()}`,
+            statusCode: 422,
+            details: { dependentQuery: queryDependency._id }
+        }))
     updatedProject.datasetObjIds = updatedProject.datasetObjIds
-        .filter((datasetObjId) => !datasetObjId.equals(params.data.datasetObjId));
+        .filter(datasetObjId => !datasetObjId.equals(params.data.datasetObjId));
     await updatedProject.save();
     const dataset = await Dataset.findOneAndDelete({ _id: params.data.datasetObjId });
     if (!dataset)

@@ -3,6 +3,7 @@ import { Types, Document } from 'mongoose';
 import type {
     ITag,
     IUser,
+    IQuery,
     IInvite,
     IQueryPopulated,
     IDatasetPopulated
@@ -31,6 +32,10 @@ export interface IProjectOwnerPopulated extends IProject {
 
 export interface IProjectTagPopulated extends IProject {
     tags: ITag[];
+}
+
+export interface IProjectUnpopulatedQueryPopulated extends IProject {
+    queries: IQuery[];
 }
 
 export interface IProjectQueryPopulated extends IProject {
