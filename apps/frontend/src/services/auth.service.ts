@@ -192,6 +192,7 @@ export class AuthService {
                     return tokenParse.data.tokenBody;
                 }),
                 catchError(_ => {
+                    this.isRefreshingSignal.set(false);
                     if (requiresAuth)
                         this.errorSignal.set('Login expired');
                     this.logoutClientside();

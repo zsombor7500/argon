@@ -143,10 +143,7 @@ export class AccessService {
                     this.roleToUserIdsMapSignal.set(accessParse.data.roleToUserObjIdsMap);
                     return accessParse.data;
                 }),
-                catchError(err => {
-                    console.log('asdasd3');
-
-                    return of(handleErrorResponse(err, this.errorSignal, this.isLoadingSignal))})
+                catchError(err => of(handleErrorResponse(err, this.errorSignal, this.isLoadingSignal)))
             );
     }
 
