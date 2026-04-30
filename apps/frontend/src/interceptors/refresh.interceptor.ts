@@ -26,7 +26,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
     return next(req)
         .pipe(
             catchError((err: unknown) => {
-                if (!(err instanceof HttpErrorResponse) || (err instanceof HttpErrorResponse && err.status !== 401))
+                if (!(err instanceof HttpErrorResponse) || err.status !== 401)
                     return throwError(() => err);
                 if (authService.isRefreshing())
                     return tokenDtoSubject.pipe(
@@ -45,7 +45,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>,
                         tokenDtoSubject.next(null);
                         return throwError(() => err2);
                     })
-                )
+                );
             })
         );
 };

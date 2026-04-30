@@ -101,7 +101,7 @@ export class AuthService {
         this.tokenDataSignal.set(null);
     }
 
-    checkAuthState(isResourceAccessRoute: boolean): Observable<TokenBodyDtoType | null> {
+    checkAuthState(requiresAuth: boolean): Observable<TokenBodyDtoType | null> {
         this.resetAuthState();
         this.isCheckingSignal.set(true);
         return this.httpClient
@@ -123,7 +123,7 @@ export class AuthService {
                 }),
                 catchError(_ => {
                     this.landed();
-                    return this.refreshToken(isResourceAccessRoute);
+                    return this.refreshToken(requiresAuth);
                 })
             );
     }
@@ -170,7 +170,7 @@ export class AuthService {
             );
     }
 
-    refreshToken(isResourceAccessRoute: boolean): Observable<TokenBodyDtoType | null> {
+    refreshToken(requiresAuth: boolean): Observable<TokenBodyDtoType | null> {
         this.isRefreshingSignal.set(true);
         return this.httpClient
             .post<ApiResponseSuccess<TokenRefreshDtoType>>(`${this.endpoint}/refresh`, {})
@@ -191,11 +191,11 @@ export class AuthService {
                     this.tokenDataSignal.set(tokenParse.data.tokenBody);
                     return tokenParse.data.tokenBody;
                 }),
-                catchError(err => {
-                    if (isResourceAccessRoute)
+                catchError(_ => {
+                    if (requiresAuth)
                         this.errorSignal.set('Login expired');
                     this.logoutClientside();
-                    return of(handleErrorResponse(err, null, this.isRefreshingSignal));
+                    return of(null);
                 })
             );
     }

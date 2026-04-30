@@ -1,6 +1,7 @@
-import type { ApiResponseFailure } from '#/dto/frontend/api';
 import { HttpErrorResponse } from '@angular/common/http';
 import type { WritableSignal } from '@angular/core';
+
+import type { ApiResponseFailure } from '#/dto/frontend/api';
 
 
 export function handleErrorResponse(

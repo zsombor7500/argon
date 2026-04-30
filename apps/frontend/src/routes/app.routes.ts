@@ -47,5 +47,5 @@ export const appRoutes: Route[] = [
             { path: '**', redirectTo: 'queries' }
         ]
     },
-    { path: '**', redirectTo: 'projects' }
+    { path: '**', redirectTo: 'login' }
 ];
