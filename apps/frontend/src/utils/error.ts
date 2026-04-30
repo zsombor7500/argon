@@ -14,6 +14,8 @@ export function handleErrorResponse(
     if (errorSignal === null)
         return null;
     const message = getErrorMessage(error);
+    if (message === 'Missing access token cookie')
+        return null;
     if (message !== undefined)
         errorSignal.set(message);
     else
