@@ -48,7 +48,7 @@ export const apiConfig = {
     accessJwtSecret: apiEnv.API_ACCESS_JWT_SECRET,
     refreshJwtExpiry: apiEnv.API_REFRESH_JWT_EXPIRY,
     refreshJwtSecret: apiEnv.API_REFRESH_JWT_SECRET,
-    corsOrigin: ['http://127.0.0.1', 'http://localhost'],
+    corsOrigin: apiEnv.isProduction ? apiEnv.CORS_ORIGIN : ['http://127.0.0.1', 'http://localhost', 'http://127.0.0.1:4200', 'http://localhost:4200'],
     corsMethods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     corsAllowedHeaders: ['Content-Type', 'Authorization'],
     corsCredentials: true,
