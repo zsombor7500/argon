@@ -4,28 +4,28 @@ import type { Request, Response, NextFunction } from 'express';
 import {
     QueryDto,
     QueriesDto,
+    QueryResultDto,
     QueryUpdateDto,
     QueryCreationDto,
-    QueryPathParamsDto,
-    QueryResultDto,
-    QueryExecutionDto
+    QueryExecutionDto,
+    QueryPathParamsDto
 } from '#/dto/query';
 import { ApiError } from '#/exceptions/api';
 import { Query, Project } from '#/db/models';
 import { ProjectPathParamsDto } from '#/dto/project';
+import { userContentDbConnection } from '#/db/connections';
 import { nestedMapToRecord, getFilterValidator } from '#/utils/api';
 import type {
     IQuery,
     IProject,
     IQueryPopulated,
+    IProjectTagPopulated,
     IProjectQueryPopulated,
-    IProjectDatasetPopulated,
-    IProjectTagPopulated
+    IProjectDatasetPopulated
 } from '#/db/interfaces';
 import type { ApiResponseSuccess } from '#/dto/api';
 import type { AttributePath, ObjectIdStr } from '#/types/db';
 import type { QueriesDtoType, QueryDtoType, QueryResultDtoType } from '#/dto/query';
-import { userContentDbConnection } from '#/db/connections';
 
 
 export async function createQuery(req: Request, res: Response, next: NextFunction) {
@@ -244,6 +244,12 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
     // Filter + querying datasets
     const results = new Map<string, any[]>();
     for (const [datasetObjId, tagToAttributePathMap] of query.datasetToTagToAttributePathMap) {
+        const dataset = query.datasets
+            .find(d => d._id.equals(datasetObjId));
+        if (!dataset)
+            return next(new ApiError({
+                details: { missingDatasetObjIdPassedCheck: datasetObjId }
+            }));
         // Filter creation for given dataset's collection
         const datasetFilter = new Map<string, any>();
         for (const [tagObjId, attributePath] of tagToAttributePathMap) {
@@ -261,12 +267,6 @@ export async function executeQuery(req: Request, res: Response, next: NextFuncti
             datasetFilter.set(attributePath, attributeValueToMatch);
         }
         // Model retrieval/instantiation + dataset collection query
-        const dataset = query.datasets
-            .find(d => d._id.equals(datasetObjId));
-        if (!dataset)
-            return next(new ApiError({
-                details: { missingDatasetObjIdPassedCheck: datasetObjId }
-            }));
         let model = userContentDbConnection.models[dataset.collectionRef];
         if (!model) {
             const anySchema = new mongoose.Schema({}, { strict: false });
