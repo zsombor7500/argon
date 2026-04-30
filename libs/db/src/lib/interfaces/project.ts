@@ -5,6 +5,7 @@ import type {
     IUser,
     IQuery,
     IInvite,
+    IDataset,
     IQueryPopulated,
     IDatasetPopulated
 } from '#/db/interfaces';
@@ -40,6 +41,10 @@ export interface IProjectUnpopulatedQueryPopulated extends IProject {
 
 export interface IProjectQueryPopulated extends IProject {
     queries: IQueryPopulated[];
+}
+
+export interface IProjectUnpopulatedDatasetPopulated extends IProject {
+    datasets: IDataset[];
 }
 
 export interface IProjectDatasetPopulated extends IProject {
