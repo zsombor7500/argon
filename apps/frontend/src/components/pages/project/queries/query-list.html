@@ -1,0 +1,198 @@
+<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Queries</h2>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">New query</h3>
+
+  <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="space-y-4 text-light-0">
+    @if (stepOne) {
+      <div>
+        <label for="name" class="block text-md font-medium mb-1">Name*</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          formControlName="name"
+          placeholder="My query"
+        />
+        @if (createForm.invalid && (createForm.dirty || createForm.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (createForm.get('name')?.errors?.['required']) {
+              <small>Name is required.</small>
+            }
+            @if (createForm.get('name')?.errors?.['minlength']) {
+              <small>Minimum name length is 4.</small>
+            }
+            @if (createForm.get('name')?.errors?.['maxlength']) {
+              <small>Minimum name length is 30.</small>
+            }
+            @if (createForm.get('name')?.errors?.['pattern']) {
+              <small>Name can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <label for="description" class="block text-md font-medium mb-1">Description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          formControlName="description"
+          maxlength="100"
+          placeholder="This query is about...."
+        />
+        @if (createForm.invalid && (createForm.dirty || createForm.touched)) {
+          <div class="text-danger-10 text-sm mt-1">
+            @if (createForm.get('description')?.errors?.['maxlength']) {
+              <small>Maximum description length is 100.</small>
+            }
+            @if (createForm.get('description')?.errors?.['pattern']) {
+              <small>Description can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-5 pt-4">
+        <div class="mb-5 text-light-0">
+          <h3 class="block text-md font-medium mb-2">Selected Tags*</h3>
+
+          @if (selectedTags().length === 0) {
+            <p class="test-xs ml-5 text-primary-20">No tags selected.</p>
+          }
+          @for (tag of selectedTags(); track tag._id) {
+            <div class="inline-flex mr-1 items-center bg-primary-20 text-surface-10 px-3 py-1 rounded-full text-sm">
+              {{ tag.name }} ({{ tag.type }})
+              <button type="button" (click)="removeTagFromSelected(tag)"
+                class="ml-2 text-danger-20 hover:text-danger-0 focus:outline-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          }
+        </div>
+
+        <div>
+          <label for="itemSelect" class="block text-md font-medium">
+            Add tag:
+          </label>
+          <select
+            id="itemSelect"
+            [formControl]="tagSelectControl"
+            class="mt-2 w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          >
+            <option [ngValue]="null" disabled selected>-- Select an item --</option>
+            @for (tag of availableTags(); track tag._id) {
+              <option [ngValue]="tag">{{ tag.name }} / {{ tag.type }} ({{ tag._id }})</option>
+            }
+          </select>
+        </div>
+      </div>
+    } @else {
+      <div>
+        <div class="mb-5 text-light-0">
+          <h3 class="block text-md font-medium mb-2">Selected Datasets*</h3>
+          @if (selectedDatasets().length === 0) {
+          <p class="test-sm ml-5 text-primary-20">No datasets selected.</p>
+          }
+          @for (dataset of selectedDatasets(); track dataset._id) {
+            <div class="inline-flex mr-1 items-center bg-primary-20 text-surface-10 px-3 py-1 rounded-full text-sm">
+              {{ dataset.name }}
+              <button type="button" (click)="removeDatasetFromSelected(dataset)"
+                class="ml-2 text-danger-20 hover:text-danger-0 focus:outline-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="add-section">
+        <label for="itemSelect" class="block text-md font-medium">
+          Add dataset:
+        </label>
+        <select
+          id="itemSelect"
+          [formControl]="datasetSelectControl"
+          class="mt-2 w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        >
+          <option [ngValue]="null" disabled selected>-- Select an item --</option>
+          @for (dataset of availableDatasets(); track dataset._id) {
+            <option [ngValue]="dataset">{{ dataset.name }} ({{ dataset._id }})</option>
+          }
+        </select>
+      </div>
+    }
+    <div class="flex flex-row space-x-1 mt-5">
+      @if (stepOne) {
+        <button
+          type="button"
+          class="w-full bg-info-10 hover:bg-info-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          (click)="stepOne = false; recalculateMatchingDatasets()"
+          [disabled]="createForm.invalid || selectedTags().length === 0"
+        >
+          Next
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="w-full bg-info-10 hover:bg-info-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          (click)="stepOne = true"
+        >
+          Previous
+        </button>
+
+        <button
+          type="submit"
+          class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          [disabled]="createForm.invalid || selectedDatasets().length === 0"
+        >
+          Create
+        </button>
+      }
+    </div>
+  </form>
+  <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
+      @if (queryService.error() !== null) {
+        <p>{{ queryService.error() }}</p>
+      }
+  </div>
+</div>
+
+@if (queryService.isLoading() !== null && queryService.isLoading()) {
+  <div class="flex flex-col space-y-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+    <p>Loading queries...</p>
+  </div>
+} @else {
+  @if (queryService.queries()?.length === 0) {
+    <div class="flex flex-col space-y-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+      <div class="flex flex-col flex-1">
+        <div class="flex flex-col flex-1 text-primary-20">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no active queries to manage</p>
+            <p class="text-light-0">:(</p>
+          </div>
+
+          <div class="flex flex-row gap-x-1 text-l ">
+              <a class="text-l text-light-0">
+                Create
+              </a>
+              one to get started!
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else if (queryService.queries(); as queries) {
+    @for (query of queries; track query._id) {
+      <app-query-entry
+        [query]="query"
+        (deleteEvent)="onDeleteEvent($event)"
+      >
+      </app-query-entry>
+    }
+  }
+}

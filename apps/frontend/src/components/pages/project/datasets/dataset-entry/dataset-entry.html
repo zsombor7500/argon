@@ -1,0 +1,130 @@
+<div class="flex flex-col mb-5 rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0">
+  <h2 class="text-xl text-primary-0 font-bold ml-3 mb-5">{{ dataset.name }}</h2>
+  <div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-20 text-light-0 mb-4">
+    <div class="ml-3">
+      <h3 class="text-xl font-bold text-light-0 mb-5">Details</h3>
+
+      <div class="flex md:flex-row flex-col space-x-15">
+        <div class="text-primary-0 flex-1">
+          <h3 class="text-l">Name</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ dataset.name }}</p>
+          <h3 class="text-l">ID</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ dataset._id }}</p>
+          <h3 class="text-l">Created at</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ dataset.createdAt | date:'yyyy.MM.dd HH:mm:ss' }}</p>
+        </div>
+
+        <div class="md:pl-5 text-primary-0 md:border-l-1 md:border-light-0 flex-2">
+          <h3 class="text-l">Description</h3>
+          <p class="text-sm text-light-0/50 mb-3">{{ dataset.description ?? '-' }}</p>
+        </div>
+      </div>
+
+
+      <div class="max-w-screen-xl flex flex-col space-y-2 flex-wrap items-center justify-between mx-auto p-3 px-5">
+        @if (!isDeleting) {
+          <button
+            type="button"
+            (click)="isDeleting = true"
+            class="ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+          >
+            Delete
+          </button>
+        } @else {
+          <div class="ml-auto">
+            <button
+              type="button"
+              (click)="onConfirmDelete()"
+              class="mr-2 ml-auto w-25 place-items-end bg-danger-10 hover:bg-danger-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+            >
+              Confirm
+            </button>
+            <button
+              type="button"
+              (click)="isDeleting = false"
+              class="ml-auto w-25 place-items-end bg-primary-20 hover:bg-primary-0 text-surface-10 hover:text-surface-10 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-20 text-light-0 mb-5">
+    <div class="ml-3 space-y-2">
+      <h3 class="w-full text-xl font-bold text-light-0 mb-5">Schema</h3>
+      <table class="table-auto border-separate border-spacing-2 text-nowrap">
+        <thead class="justify-start text-primary-0 border-b border-light-0">
+          <tr>
+            <th class="border-b">Field name</th>
+            <th class="border-b">Data type</th>
+            <th class="border-b">Tags</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (property of dataset.jsonSchema.properties | keyvalue; track property.key) {
+            @if ('bsonType' in property.value) {
+              <tr>
+                <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">
+                  <div class="mx-4 text-center text-md">{{ property.key }}</div>
+                </td>
+
+                <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">
+                  <div class="mx-4 text-center text-md">{{ property.value.bsonType }}</div>
+                </td>
+
+                <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">
+                  @if (dataset.attributePathToTagsMap[property.key]?.length !== 0) {
+                    @for (tag of dataset.attributePathToTagsMap[property.key]; track tag._id) {
+                      <div class="mx-4 text-center text-md">{{ tag.name }} ({{ tag.type }})</div>
+                    }
+                  } @else {
+                      <div class="mx-4 text-center text-md">-</div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rounded-lg flex flex-col p-4 shadow-xs/10 shadow-surface-0 bg-surface-20 text-light-0">
+    <div class="ml-3 space-y-2">
+      <h3 class="w-full text-xl font-bold text-light-0 mb-5">Ingestion</h3>
+
+      <label for="name" class="block text-md font-medium mb-1">JSON Data*</label>
+      <p class="w-full text-xs text-danger-0 mb-5">NOTE: Must be an array of objects, all fields required, as listed in the schema. Extra unspecified fields are allowed, but will not be shown as a query result.</p>
+
+      <form [formGroup]="ingestForm" (ngSubmit)="onIngest()">
+        <textarea
+          type="textbox"
+          id="name"
+          name="name"
+          class="max-h-50 min-h-30 w-full mb-3 px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+          formControlName="data"
+          placeholder="[
+    { &quot;field1&quot;: 123, &quot;field2&quot;: &quot;asd&quot; },
+    { &quot;field1&quot;: 55555, &quot;field2&quot;: &quot;hello&quot; }
+]"
+        ></textarea>
+
+        <button
+          type="submit"
+          class="ml-auto mt-5 w-25 place-items-end bg-info-10 hover:bg-info-0 text-light-0 font-bold py-1 px-4 rounded-md transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+        Ingest
+      </button>
+      <div class="text-danger-10 text-sm font-bold mt-1 flex justify-center">
+          @if (error() !== null) {
+            <p>{{ error() }}</p>
+          }
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+

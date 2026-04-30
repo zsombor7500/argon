@@ -1,0 +1,136 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "esnext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["esnext"],
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            // API
+            "#/middlewares": ["apps/api/src/middlewares/index.ts"],
+
+            "#/controllers/tag": ["apps/api/src/controllers/tag.controller.ts"],
+            "#/controllers/auth": ["apps/api/src/controllers/auth.controller.ts"],
+            "#/controllers/user": ["apps/api/src/controllers/user.controller.ts"],
+            "#/controllers/query": ["apps/api/src/controllers/query.controller.ts"],
+            "#/controllers/access": ["apps/api/src/controllers/access.controller.ts"],
+            "#/controllers/invite": ["apps/api/src/controllers/invite.controller.ts"],
+            "#/controllers/dataset": ["apps/api/src/controllers/dataset.controller.ts"],
+            "#/controllers/project": ["apps/api/src/controllers/project.controller.ts"],
+
+            // DB
+            "#/db/models": ["libs/db/src/lib/models/index.ts"],
+            "#/db/schemas": ["libs/db/src/lib/schemas/index.ts"],
+            "#/db/interfaces": ["libs/db/src/lib/interfaces/index.ts"],
+            "#/db/connections": ["libs/db/src/lib/connections/index.ts"],
+
+            // Frontend
+            "#/guards": ["apps/frontend/src/guards/index.ts"],
+            "#/services": ["apps/frontend/src/services/index.ts"],
+            "#/interceptors": ["apps/frontend/src/interceptors/index.ts"],
+            "#/components": ["apps/frontend/src/components/index.ts"],
+            "#/components/pages": ["apps/frontend/src/components/pages/index.ts"],
+            "#/components/pages/project": ["apps/frontend/src/components/pages/project/index.ts"],
+            "#/components/pages/projects": ["apps/frontend/src/components/pages/projects/index.ts"],
+
+            // Shared
+            "#/dto/general": ["libs/shared/dtos/src/lib/general.dto.ts"],
+
+            "#/dto/api": ["libs/shared/dtos/src/lib/dtos/api.dto.ts"],
+            "#/dto/oid": ["libs/shared/dtos/src/lib/dtos/objectId.dto.ts"],
+            "#/dto/tag": ["libs/shared/dtos/src/lib/dtos/tag.dto.ts"],
+            "#/dto/user": ["libs/shared/dtos/src/lib/dtos/user.dto.ts"],
+            "#/dto/auth": ["libs/shared/dtos/src/lib/dtos/auth.dto.ts"],
+            "#/dto/scope": ["libs/shared/dtos/src/lib/dtos/scope.dto.ts"],
+            "#/dto/query": ["libs/shared/dtos/src/lib/dtos/query.dto.ts"],
+            "#/dto/invite": ["libs/shared/dtos/src/lib/dtos/invite.dto.ts"],
+            "#/dto/access": ["libs/shared/dtos/src/lib/dtos/access.dto.ts"],
+            "#/dto/project": ["libs/shared/dtos/src/lib/dtos/project.dto.ts"],
+            "#/dto/dataset": ["libs/shared/dtos/src/lib/dtos/dataset.dto.ts"],
+            "#/dto/schema": ["libs/shared/dtos/src/lib/dtos/schema.dto.ts"],
+
+            "#/dto/frontend/api": ["libs/shared/dtos/src/lib/frontend-dtos/api.dto.ts"],
+            "#/dto/frontend/oid": ["libs/shared/dtos/src/lib/frontend-dtos/objectId.dto.ts"],
+            "#/dto/frontend/tag": ["libs/shared/dtos/src/lib/frontend-dtos/tag.dto.ts"],
+            "#/dto/frontend/user": ["libs/shared/dtos/src/lib/frontend-dtos/user.dto.ts"],
+            "#/dto/frontend/auth": ["libs/shared/dtos/src/lib/frontend-dtos/auth.dto.ts"],
+            "#/dto/frontend/scope": ["libs/shared/dtos/src/lib/frontend-dtos/scope.dto.ts"],
+            "#/dto/frontend/query": ["libs/shared/dtos/src/lib/frontend-dtos/query.dto.ts"],
+            "#/dto/frontend/invite": ["libs/shared/dtos/src/lib/frontend-dtos/invite.dto.ts"],
+            "#/dto/frontend/access": ["libs/shared/dtos/src/lib/frontend-dtos/access.dto.ts"],
+            "#/dto/frontend/project": ["libs/shared/dtos/src/lib/frontend-dtos/project.dto.ts"],
+            "#/dto/frontend/dataset": ["libs/shared/dtos/src/lib/frontend-dtos/dataset.dto.ts"],
+            "#/dto/frontend/general": ["libs/shared/dtos/src/lib/frontend-dtos/general.dto.ts"],
+            "#/dto/frontend/schema": ["libs/shared/dtos/src/lib/frontend-dtos/schema.dto.ts"],
+
+
+            // General
+            "#/types/db": ["libs/db/src/lib/types/index.ts"],
+
+            "#/utils/db": ["libs/db/src/lib/utils/index.ts"],
+            "#/utils/api": ["apps/api/src/utils/index.ts"],
+            "#/utils/frontend": ["apps/frontend/src/utils/index.ts"],
+
+            "#/configs/db": ["libs/db/src/lib/configs/db.config.ts"],
+            "#/configs/api": ["apps/api/src/configs/api.config.ts"],
+            "#/configs/frontend": ["apps/frontend/src/configs/index.ts"],
+
+            "#/constants/db": ["libs/db/src/lib/constants/db.constant.ts"],
+            "#/constants/api": ["apps/api/src/constants/api.constant.ts"],
+            "#/constants/dtos": ["libs/shared/dtos/src/lib/constants/dtos.constant.ts"],
+            "#/constants/frontend": ["apps/frontend/src/constants/frontend.constant.ts"],
+
+            "#/exceptions/api": ["apps/api/src/exceptions/api.exception.ts"],
+
+            "#/routes/api": ["apps/api/src/routes/index.ts"],
+            "#/routes/frontend": ["apps/frontend/src/routes/index.ts"],
+        },
+
+        /* Modules */
+        "noUncheckedSideEffectImports": true,             /* Check side effect imports. */
+
+        /* JavaScript Support */
+        "allowJs": false,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+
+        /* Interop Constraints */
+        "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+        "verbatimModuleSyntax": true,                     /* Do not transform or elide any imports or exports not marked as type-only, ensuring they are written in the output file's format based on the 'module' setting. */
+        "allowSyntheticDefaultImports": true,             /* Allow 'import x from y' when a module doesn't have a default export. */
+        "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+        "preserveSymlinks": false,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
+
+        /* Type Checking */
+        "strict": true,                                      /* Enable all strict type-checking options. */
+        "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
+        "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+        "strictBindCallApply": true,                      /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
+        "strictPropertyInitialization": true,             /* Check for class properties that are declared but not set in the constructor. */
+        "strictBuiltinIteratorReturn": true,              /* Built-in iterators are instantiated with a 'TReturn' type of 'undefined' instead of 'any'. */
+        "alwaysStrict": true,                             /* Ensure 'use strict' is always emitted. */
+        "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+        "noImplicitThis": true,                           /* Enable error reporting when 'this' is given the type 'any'. */
+        "noImplicitReturns": true,                        /* Enable error reporting for codepaths that do not explicitly return in a function. */
+        "noImplicitOverride": true,                       /* Ensure overriding members in derived classes are marked with an override modifier. */
+        "noUnusedLocals": false,                           /* Enable error reporting when local variables aren't read. */
+        "noUnusedParameters": false,                       /* Raise an error when a function parameter isn't read. */
+        "noFallthroughCasesInSwitch": true,               /* Enable error reporting for fallthrough cases in switch statements. */
+        "noUncheckedIndexedAccess": true,                 /* Add 'undefined' to a type when accessed using an index. */
+        "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type. */
+        "allowUnusedLabels": false,                        /* Disable error reporting for unused labels. */
+        "allowUnreachableCode": false,                     /* Disable error reporting for unreachable code. */
+        "useUnknownInCatchVariables": true,               /* Default catch clause variables as 'unknown' instead of 'any'. */
+        "exactOptionalPropertyTypes": true,               /* Interpret optional property types as written, rather than adding 'undefined'. */
+
+        /* Completeness */
+        "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+    },
+    "exclude": ["node_modules", "tmp"]
+}

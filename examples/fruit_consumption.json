@@ -1,0 +1,14 @@
+[
+    { "username": "Peti", "email":"peti@example.com", "amount": 123, "isFull": true, "fruit": "apple", "date": "2030.01.01" },
+    { "username": "Joe", "email":"joe@example.com", "amount": 123, "isFull": true, "fruit": "apple", "date": "2019.01.10" },
+    { "username": "user1", "email":"user1@example.com", "amount": 10, "isFull": true, "fruit": "pear", "date": "2031.12.01" },
+    { "username": "Joe", "email":"joe@example.com", "amount": 10, "isFull": false, "fruit": "watermelon", "date": "2024.01.25" },
+    { "username": "user1", "email":"user1@example.com", "amount": 123, "isFull": true, "fruit": "strawberry", "date": "2030.01.01" },
+    { "username": "zoli", "email":"zoli@example.com", "amount": 123, "isFull": true, "fruit": "strawberry", "date": "2030.01.01", "someExtraProperty": 999999 },
+    { "username": "user1", "email":"user1@example.com", "amount": 55, "isFull": true, "fruit": "apple", "date": "2030.01.01" },
+    { "username": "zoli", "email":"zoli@example.com", "amount": 55, "isFull": true, "fruit": "apple", "date": "2030.01.01" },
+    { "username": "user1", "email":"user1@example.com", "amount": 123, "isFull": true, "fruit": "apple", "date": "2030.01.01" },
+    { "username": "zoli", "email":"zoli@example.com", "amount": 55, "isFull": true, "fruit": "pear", "date": "2024.01.25" },
+    { "username": "Peti", "email":"peti@example.com", "amount": 100, "isFull": true, "fruit": "grapes", "date": "2030.11.11" },
+    { "username": "user1", "email":"user1@example.com", "amount": 123, "isFull": true, "fruit": "apple", "date": "2030.01.01", "someOtherExtraProperty": "teheee" }
+]

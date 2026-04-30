@@ -1,0 +1,198 @@
+<h2 class="text-2xl font-bold text-light-0 ml-3 mb-5">Invites</h2>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">New invite</h3>
+  <form [formGroup]="creationForm" (ngSubmit)="onSubmit();" class="space-y-4 text-light-0">
+    <div>
+      <label for="name" class="block text-md font-medium mb-1">Name*</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="name"
+        placeholder="My invite"
+      />
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (creationForm.get('name')?.hasError('required')) {
+            <small>Name is required.</small>
+          }
+          @if (creationForm.get('name')?.hasError('minlength')) {
+            <small>Minimum name length is 4.</small>
+          }
+          @if (creationForm.get('name')?.errors?.['maxlength']) {
+            <small>Name must be at most 30 characters. </small>
+          }
+          @if (creationForm.get('name')?.errors?.['pattern']) {
+            <small>Name can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      <label for="projectId" class="block text-md font-medium mb-1">Project's ID*</label>
+      <input
+        type="text"
+        id="projectId"
+        name="projectId"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="projectId"
+        placeholder="abcdef1234"
+      />
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (creationForm.get('projectId')?.hasError('required')) {
+            <small>Project ID is required.</small>
+          }
+          @if (creationForm.get('projectId')?.errors?.['pattern']) {
+            <small>Project ID must be a 24 character long hexadecimal string.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      <label for="invitedId" class="block text-md font-medium mb-1">Invited user's ID*</label>
+      <input
+        type="text"
+        id="invitedId"
+        name="invitedId"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="invitedId"
+        placeholder="bbbbbbddddd"
+      />
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (creationForm.get('invitedId')?.hasError('required')) {
+            <small>Invited user's ID is required.</small>
+          }
+          @if (creationForm.get('invitedId')?.errors?.['pattern']) {
+            <small>Invited user's ID must be a 24 character long hexadecimal string.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <div>
+      <label for="description" class="block text-md font-medium mb-1">Description</label>
+      <input
+        type="text"
+        id="description"
+        name="description"
+        class="w-full px-3 py-2 border border-surface-40 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 focus:border-primary-20"
+        formControlName="description"
+        placeholder="This invite is about...."
+      />
+      @if (creationForm.invalid && (creationForm.dirty || creationForm.touched)) {
+        <div class="text-danger-10 text-sm mt-1">
+          @if (creationForm.get('description')?.errors?.['maxlength']) {
+            <small>Description must be at most 100 characters.</small>
+          }
+          @if (creationForm.get('description')?.errors?.['pattern']) {
+            <small>Description can only contain the following characters: a-z, A-Z, 0-9, whitespace</small>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-primary-20 hover:bg-primary-0 text-light-0 font-bold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+      [disabled]="creationForm.invalid"
+    >
+      Create
+    </button>
+  </form>
+</div>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 mb-5">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">Outgoing</h3>
+  <div class="flex">
+    @if (inviteService.isLoading() !== null && inviteService.isLoading()) {
+      <p>Loading invites...</p>
+    } @else {
+      @if (outgoingInvites()?.length === 0) {
+        <div class="flex flex-col flex-1 text-primary-20 ml-5">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no more outgoing invites to manage</p>
+            <p class="text-light-0">:)</p>
+          </div>
+        </div>
+      } @else if (outgoingInvites(); as invites) {
+        <div class="overflow-x-auto">
+          <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+            <thead class="justify-start text-primary-0 border-b border-light-0">
+              <tr>
+                <th class="border-b">Action</th>
+                <th class="border-b">Invite name</th>
+                <th class="border-b">ID</th>
+                <th class="border-b">Project name</th>
+                <th class="border-b">Invited user</th>
+                <th class="border-b">Description</th>
+                <th class="border-b">Creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invite of invites; track invite._id) {
+                <tr app-invite-entry
+                [invite]="invite"
+                [isOutgoing]="true"
+                (cancelEvent)="onCancelEvent($event)"
+                class="text-sm"
+                >
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<div class="rounded-lg p-4 shadow-xs/10 shadow-surface-0 bg-surface-10 text-light-0 ">
+  <h3 class="text-xl font-bold text-primary-0 ml-3 mb-5">Incoming</h3>
+  <div class="flex">
+    @if (inviteService.isLoading() !== null && inviteService.isLoading()) {
+      <p>Loading invites...</p>
+    } @else {
+      @if (incomingInvites()?.length === 0) {
+        <div class="flex flex-col flex-1 text-primary-20 ml-5">
+          <div class="flex flex-row space-x-1">
+            <p class="text-l mb-1">You have no incoming invites to manage</p>
+            <p class="text-light-0">:(</p>
+          </div>
+        </div>
+      } @else if (incomingInvites(); as invites) {
+        <div class="overflow-x-auto">
+          <table class="table-auto overflow-scroll table-auto w-auto border-separate border-spacing-2 text-nowrap">
+            <thead class="justify-start text-primary-0 border-b border-light-0">
+              <tr>
+                <th class="border-b">Action</th>
+                <th class="border-b">Invite name</th>
+                <th class="border-b">ID</th>
+                <th class="border-b">Project name</th>
+                <th class="border-b">Invitant user</th>
+                <th class="border-b">Description</th>
+                <th class="border-b">Creation</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invite of invites; track invite._id) {
+                <tr app-invite-entry
+                [invite]="invite"
+                [isOutgoing]="false"
+                (acceptRejectEvent)="onAcceptRejectEvent($event)"
+                class="text-sm"
+                >
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>

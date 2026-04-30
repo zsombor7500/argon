@@ -1,0 +1,70 @@
+<td class="flex flex-row space-x-1 items-center flex-1 justify-center">
+  @if (isOutgoing) {
+    @if (!isCancelling) {
+      <button
+        type="button"
+        (click)="isCancelling = true"
+        class="bg-warning-10 hover:bg-warning-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Cancel
+      </button>
+    } @else {
+      <button
+        type="button"
+        (click)="onConfirmCancel()"
+        class="bg-danger-10 hover:bg-danger-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Confirm
+      </button>
+      <button
+        type="button"
+        (click)="isCancelling = false"
+        class="bg-success-10 hover:bg-success-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Cancel
+      </button>
+    }
+  } @else {
+    @if (!isDeciding) {
+      <button
+        type="button"
+        (click)="onPreDecision(true)"
+        class="bg-success-10 hover:bg-success-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Accept
+      </button>
+      <button
+        type="button"
+        (click)="onPreDecision(false)"
+        class="bg-danger-10 hover:bg-danger-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Reject
+      </button>
+    } @else {
+      <button
+        type="button"
+        (click)="onConfirmDecision()"
+        class="bg-success-10 hover:bg-success-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Confirm
+      </button>
+      <button
+        type="button"
+        (click)="isDeciding = false"
+        class="bg-danger-10 hover:bg-danger-0 text-surface-20 hover:text-surface-10 font-bold py-0 px-2 rounded-md transition duration-200 cursor-pointer"
+      >
+        Cancel
+      </button>
+    }
+  }
+</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.name }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite._id }}</td>
+<td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.project.name }}</td>
+@if (isOutgoing) {
+  <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.invited.displayName }}</td>
+} @else {
+  <td class="px-2 text-center rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.invitant.displayName }}</td>
+}
+<td class="px-2 text-left rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.description ?? '-' }}</td>
+<td class="px-2 text-right rounded-md hover:bg-surface-50/30 ransition duration-200">{{ invite.createdAt | date }}</td>

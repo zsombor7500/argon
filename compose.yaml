@@ -1,0 +1,83 @@
+name: argon-env-v3
+
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:8.2.7
+    restart: unless-stopped
+    networks:
+      internal:
+        ipv4_address: 172.50.0.5
+    ports:
+      - ${MONGO_PORT}:27017
+    environment:
+      MONGO_SERVICE_DB: ${MONGO_SERVICE_DB}
+      MONGO_INITDB_DATABASE: ${MONGO_SERVICE_DB}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - ${MONGO_DATA_DIR}:/data/db
+      - ${MONGO_INITDB_SCRIPTS_DIR}:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "-u", "$MONGO_INITDB_ROOT_USERNAME", "-p", "$MONGO_INITDB_ROOT_PASSWORD", "--eval", "db.adminCommand('ping')"]
+      start_period: 60s
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  api:
+    container_name: api
+    build:
+      context: ./apps/api/
+      dockerfile: ./Dockerfile
+    restart: no
+    depends_on:
+      mongodb:
+        condition: service_healthy
+        restart: true
+    networks:
+      internal:
+        ipv4_address: 172.50.0.10
+    ports:
+      - ${API_PORT}:${API_PORT}
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: ${API_PORT}
+      API_VERSION: ${API_VERSION}
+      API_SALT_ROUNDS: ${API_SALT_ROUNDS}
+      API_ACCESS_JWT_EXPIRY: ${API_ACCESS_JWT_EXPIRY}
+      API_ACCESS_JWT_SECRET: ${API_ACCESS_JWT_SECRET}
+      API_REFRESH_JWT_EXPIRY: ${API_REFRESH_JWT_EXPIRY}
+      API_REFRESH_JWT_SECRET: ${API_REFRESH_JWT_SECRET}
+      MONGO_HOST: 172.50.0.5
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE}
+      MONGO_AUTH_MECHANISM: ${MONGO_AUTH_MECHANISM}
+      MONGO_SERVICE_DB: ${MONGO_SERVICE_DB}
+      MONGO_SERVICE_DB_MIN_POOL_SIZE: ${MONGO_SERVICE_DB_MIN_POOL_SIZE}
+      MONGO_SERVICE_DB_MAX_POOL_SIZE: ${MONGO_SERVICE_DB_MAX_POOL_SIZE}
+      MONGO_USER_CONTENT_DB: ${MONGO_USER_CONTENT_DB}
+      MONGO_USER_CONTENT_DB_MIN_POOL_SIZE: ${MONGO_USER_CONTENT_DB_MIN_POOL_SIZE}
+      MONGO_USER_CONTENT_DB_MAX_POOL_SIZE: ${MONGO_USER_CONTENT_DB_MAX_POOL_SIZE}
+      MONGO_SELECTION_TIMEOUT_MS: ${MONGO_SELECTION_TIMEOUT_MS}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./apps/frontend
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    networks:
+      internal:
+        ipv4_address: 172.50.0.15
+    ports:
+      - ${NGINX_PORT}:80
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 172.50.0.0/24
